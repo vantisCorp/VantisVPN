@@ -1,0 +1,11 @@
+  |
+8 | use tracing::{debug, error, info, warn};
+  |                      ^^^^^        ^^^^
+
+warning: unused import: `IpAddr`
+ --> network/wireguard.rs:9:16
+  |
+9 | use std::net::{IpAddr, Ipv4Addr};
+  |                ^^^^^^
+
+error[E0609]: no field `0` on type `&crypto::hash::Hash`

@@ -1,0 +1,29 @@
+# Prometheus Configuration for VANTISVPN
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'vantisvpn-monitor'
+
+scrape_configs:
+  # VANTISVPN Core Service
+  - job_name: 'vantis-core'
+    static_configs:
+      - targets: ['vantis-core:51820']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node Exporter (if added)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # Consul Exporter
+  - job_name: 'consul'
+    static_configs:
+      - targets: ['consul:8500']

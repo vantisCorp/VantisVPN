@@ -1,0 +1,6 @@
+  --> crypto/hash.rs:23:9
+   |
+23 |         Self(result.into())
+   |         ^^^^^^^^^^^^^^^^^^^ help: use curly brackets: `Self { /* fields */ }`
+
+error[E0609]: no field `0` on type `&crypto::hash::Hash`

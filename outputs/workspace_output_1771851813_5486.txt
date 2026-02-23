@@ -1,0 +1,30 @@
+132 |     pub fn sign(message: &[u8], secret_key: &[u8]) -> crate::Result<Self> {
+    |                                 ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_secret_key`
+
+warning: unused variable: `message`
+   --> crypto/pqc.rs:140:26
+    |
+140 |     pub fn verify(&self, message: &[u8], public_key: &[u8]) -> crate::Result<bool> {
+    |                          ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_message`
+
+warning: unused variable: `public_key`
+   --> crypto/pqc.rs:140:42
+    |
+140 |     pub fn verify(&self, message: &[u8], public_key: &[u8]) -> crate::Result<bool> {
+    |                                          ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_public_key`
+
+warning: unused variable: `pqc_pair`
+   --> network/protocol.rs:146:14
+    |
+146 |         let (pqc_pair, pqc_public) = crate::crypto::pqc::KyberKEM::generate_keypair()
+    |              ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_pqc_pair`
+
+warning: unused variable: `response`
+   --> network/protocol.rs:170:9
+    |
+170 |         response: HandshakeResponse,
+    |         ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_response`
+
+For more information about this error, try `rustc --explain E0609`.
+warning: `vantis-core` (lib) generated 13 warnings
+error: could not compile `vantis-core` (lib) due to 1 previous error; 13 warnings emitted

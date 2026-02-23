@@ -1,0 +1,11 @@
+  |
+8 | use tracing::{debug, error, info, warn};
+  |                      ^^^^^        ^^^^
+
+warning: unused import: `IpAddr`
+ --> network/wireguard.rs:9:16
+  |
+9 | use std::net::{IpAddr, Ipv4Addr};
+  |                ^^^^^^
+
+error[E0308]: mismatched types

@@ -1,0 +1,18 @@
+9 | use std::net::{IpAddr, Ipv4Addr};
+  |                ^^^^^^
+
+error[E0599]: no function or associated item named `from_entropy` found for struct `ChaCha20Rng` in the current scope
+   --> crypto/keys.rs:50:36
+    |
+ 50 |         let mut rng = ChaCha20Rng::from_entropy();
+    |                                    ^^^^^^^^^^^^ function or associated item not found in `ChaCha20Rng`
+    |
+    = help: items from traits can only be used if the trait is in scope
+--
+    |
+390 |     fn from_rng<R: RngCore>(mut rng: R) -> Result<Self, Error> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: trait `SeedableRng` which provides `from_entropy` is implemented but not in scope; perhaps you want to import it
+    |
+  6 + use rand::SeedableRng;
+    |

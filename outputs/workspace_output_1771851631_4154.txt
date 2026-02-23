@@ -1,0 +1,16 @@
+    /// Generate a new hybrid key pair
+    pub fn generate() -> crate::Result<(Self, Vec<u8>, Vec<u8>)> {
+        let (classical_pair, _) = super::keys::EphemeralKeyPair::new();
+        let (pqc_pair, pqc_public) = KyberKEM::generate_keypair()?;
+        
+        let classical_public = classical_pair.public_key().as_bytes().to_vec();
+        
+        let hybrid = Self {
+            classical_key: Some(classical_pair),
+            pqc_key: Some(pqc_pair),
+        };
+        
+        Ok((hybrid, classical_public, pqc_public))
+    }
+    
+    /// Derive shared secret using both algorithms

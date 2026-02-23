@@ -1,0 +1,11 @@
+error[E0609]: no field `0` on type `&crypto::hash::Hash`
+  --> crypto/hash.rs:44:15
+   |
+44 |         &self.0
+   |               ^ unknown field
+   |
+   = note: available field is: `bytes`
+
+warning: unused import: `zeroize::Zeroize`
+  --> crypto/keys.rs:15:5
+   |

@@ -1,0 +1,25 @@
+   Compiling vantis-core v0.1.0 (/workspace/src/core)
+error[E0425]: cannot find function `secure_random` in crate `rand`
+   --> crypto/keys.rs:211:15
+    |
+211 |         rand::secure_random(&mut nonce_bytes)?;
+    |               ^^^^^^^^^^^^^ not found in `rand`
+    |
+help: consider importing this function
+    |
+  6 + use crate::crypto::random::secure_random;
+    |
+help: if you import `secure_random`, refer to it directly
+    |
+211 -         rand::secure_random(&mut nonce_bytes)?;
+211 +         secure_random(&mut nonce_bytes)?;
+--
+13 | use zeroize::Zeroize;
+   |     ^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `super::random::secure_random`
+  --> crypto/keys.rs:17:5
+   |
+17 | use super::random::secure_random;

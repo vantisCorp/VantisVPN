@@ -1,0 +1,6 @@
+ --> network/wireguard.rs:9:16
+  |
+9 | use std::net::{IpAddr, Ipv4Addr};
+  |                ^^^^^^
+
+error[E0599]: no function or associated item named `from_entropy` found for struct `ChaCha20Rng` in the current scope
