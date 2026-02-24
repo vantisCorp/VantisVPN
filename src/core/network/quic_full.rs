@@ -13,7 +13,7 @@
 // - Built-in TLS 1.3 encryption
 
 use crate::error::{VantisError, Result};
-use crate::crypto::{cipher::Cipher, hash::Hash, random::SecureRandom};
+use crate::crypto::{cipher::Cipher, hash::Hash, random::SecureRandom, keys::CipherSuite};
 use std::collections::HashMap;
 use std::net::{SocketAddr, IpAddr, Ipv6Addr};
 use std::sync::Arc;
@@ -676,7 +676,8 @@ pub struct ConnectionStats {
 
 impl QuicConnection {
     pub fn new(connection_id: Vec<u8>, peer_connection_id: Vec<u8>, config: QuicConfig) -> Result<Self> {
-        let cipher = Arc::new(Cipher::new()?);
+        let key = vec![0u8; 32];
+        let cipher = Arc::new(Cipher::new(&key, CipherSuite::ChaCha20Poly1305)?);
         let hash = Arc::new(Hash::new()?);
         let rng = Arc::new(SecureRandom::new()?);
         let bbr_state = Arc::new(Mutex::new(Bbrv3State::new(config.initial_rtt)));
@@ -793,7 +794,8 @@ pub struct QuicEndpoint {
 impl QuicEndpoint {
     pub async fn new(listen_addr: SocketAddr, config: QuicConfig) -> Result<Self> {
         let socket = UdpSocket::bind(listen_addr).await?;
-        let cipher = Arc::new(Cipher::new()?);
+        let key = vec![0u8; 32];
+        let cipher = Arc::new(Cipher::new(&key, CipherSuite::ChaCha20Poly1305)?);
         let hash = Arc::new(Hash::new()?);
         let rng = Arc::new(SecureRandom::new()?);
         

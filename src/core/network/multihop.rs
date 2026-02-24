@@ -12,7 +12,7 @@
 // - Failover and re-routing
 
 use crate::error::{VantisError, Result};
-use crate::crypto::{cipher::Cipher, hash::Hash, random::SecureRandom, keys::EphemeralKeyPair};
+use crate::crypto::{cipher::Cipher, hash::Hash, random::SecureRandom, keys::EphemeralKeyPair, keys::CipherSuite};
 use crate::network::{Endpoint, NetworkAddress};
 use std::collections::HashMap;
 use std::net::{SocketAddr, Ipv6Addr};
@@ -385,7 +385,8 @@ pub struct MultiHopManager {
 
 impl MultiHopManager {
     pub fn new(config: MultiHopConfig) -> Result<Self> {
-        let cipher = Arc::new(Cipher::new()?);
+        let key = vec![0u8; 32];
+        let cipher = Arc::new(Cipher::new(&key, CipherSuite::ChaCha20Poly1305)?);
         let hash = Arc::new(Hash::new()?);
         let rng = Arc::new(SecureRandom::new()?);
         
@@ -418,7 +419,7 @@ impl MultiHopManager {
     }
     
     /// Select a path through the network
-    pub async fn select_path(&self) -> Result<Vec<VpnNode>> {
+    pub async fn select_path(&self) -> Result<Vec<String>> {
         let nodes = self.nodes.read().await;
         let available_nodes: Vec<_> = nodes.values()
             .filter(|node| node.is_available() && node.supports_multihop)
@@ -438,7 +439,7 @@ impl MultiHopManager {
         for i in 0..self.config.num_hops {
             let candidates: Vec<_> = available_nodes.iter()
                 .filter(|node| {
-                    !path.contains(node) &&
+                    !path.contains(&node.node_id) &&
                     (!self.config.enable_geo_diversity || !used_countries.contains(&node.country)) &&
                     (self.config.preferred_countries.is_empty() || 
                      self.config.preferred_countries.contains(&node.country)) &&
@@ -449,7 +450,7 @@ impl MultiHopManager {
             if candidates.is_empty() {
                 // Fallback: ignore geo diversity
                 let fallback: Vec<_> = available_nodes.iter()
-                    .filter(|node| !path.contains(node))
+                    .filter(|node| !path.contains(&node.node_id))
                     .collect();
                 
                 if fallback.is_empty() {
@@ -458,18 +459,18 @@ impl MultiHopManager {
                 
                 let node = fallback[self.rng.generate_u64()? as usize % fallback.len()].clone();
                 used_countries.insert(node.country.clone());
-                path.push(node);
+                path.push(node.node_id.clone());
             } else {
                 let node = if self.config.enable_path_randomization {
                     candidates[self.rng.generate_u64()? as usize % candidates.len()].clone()
                 } else if self.config.enable_latency_optimization {
-                    candidates.iter().min_by_key(|n| n.latency).unwrap().clone()
+                    candidates.iter().min_by_key(|n| n.latency).unwrap().clone().clone()
                 } else {
-                    candidates.iter().max_by(|a, b| a.score().partial_cmp(&b.score()).unwrap()).unwrap().clone()
-                }.clone();
+                    candidates.iter().max_by(|a, b| a.score().partial_cmp(&b.score()).unwrap()).unwrap().clone().clone()
+                };
                 
                 used_countries.insert(node.country.clone());
-                path.push(node);
+                path.push(node.node_id.clone());
             }
         }
         
@@ -479,18 +480,28 @@ impl MultiHopManager {
     
     /// Create a new circuit
     pub async fn create_circuit(&self) -> Result<Arc<Circuit>> {
-        let path = self.select_path().await?;
+        let path_ids = self.select_path().await?;
         
         let circuit_id = self.generate_circuit_id().await?;
         let mut hops = Vec::new();
         
-        for (i, node) in path.iter().enumerate() {
+        // Get actual nodes from IDs
+        let nodes = self.nodes.read().await;
+        let mut path_nodes = Vec::new();
+        for node_id in &path_ids {
+            if let Some(node) = nodes.get(node_id) {
+                path_nodes.push(node.clone());
+            }
+        }
+        drop(nodes);
+        
+        for (i, node) in path_nodes.iter().enumerate() {
             let session_key = self.rng.generate_bytes(32)?;
             let mut hop = CircuitHop::new(node.clone(), session_key.try_into().unwrap(), i);
             
             // Set next hop
-            if i < path.len() - 1 {
-                hop.next_hop = Some(path[i + 1].endpoint);
+            if i < path_nodes.len() - 1 {
+                hop.next_hop = Some(path_nodes[i + 1].endpoint);
             }
             
             hops.push(hop);
@@ -539,7 +550,7 @@ impl MultiHopManager {
         
         for hop in circuit.hops.iter().rev() {
             let nonce = [0u8; 12]; // In production, use proper nonce
-            encrypted_data = self.cipher.encrypt(&encrypted_data, &nonce, &hop.session_key)?;
+            encrypted_data = self.cipher.encrypt(&encrypted_data, &nonce)?;
         }
         
         // Create onion packet
@@ -574,7 +585,7 @@ impl MultiHopManager {
         
         for hop in &circuit.hops {
             let nonce = [0u8; 12]; // In production, use proper nonce
-            decrypted_data = self.cipher.decrypt(&decrypted_data, &nonce, &hop.session_key)?;
+            decrypted_data = self.cipher.decrypt(&decrypted_data, &nonce)?;
         }
         
         circuit.update_stats_received(decrypted_data.len() as u64).await;

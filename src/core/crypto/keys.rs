@@ -184,10 +184,18 @@ impl Default for CipherSuite {
 }
 
 /// Cipher for encrypting/decrypting VPN traffic
-#[derive(Debug)]
 pub struct Cipher {
     suite: CipherSuite,
     key: ChaCha20Poly1305,
+}
+
+impl std::fmt::Debug for Cipher {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Cipher")
+            .field("suite", &self.suite)
+            .field("key", &"<redacted>")
+            .finish()
+    }
 }
 
 impl Cipher {

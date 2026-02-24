@@ -40,7 +40,7 @@ pub use crypto::{
     random::SecureRandom,
 };
 pub use network::{
-    protocol::{Message, MessageType, ProtocolHandler},
+    protocol::MessageType,
     quic_full::{QuicEndpoint, QuicConnection, QuicStream, QuicConfig},
     wireguard_full::{WireGuardDevice, InterfaceConfig, PeerConfig},
     stealth::{StealthHandler, StealthConfig},

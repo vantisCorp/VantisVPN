@@ -122,6 +122,12 @@ impl From<std::io::Error> for VantisError {
     }
 }
 
+impl From<std::time::SystemTimeError> for VantisError {
+    fn from(err: std::time::SystemTimeError) -> Self {
+        Self::Generic(err.to_string())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

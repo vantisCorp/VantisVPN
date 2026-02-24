@@ -153,7 +153,7 @@ impl std::fmt::Display for Endpoint {
     }
 }
 
-pub use protocol::{Message, MessageType, ProtocolHandler};
+pub use protocol::MessageType;
 pub use wireguard_full::{
     WireGuardDevice, InterfaceConfig, PeerConfig, PeerState, PeerStats,
     HandshakeInitiation, HandshakeResponse, CookieReply, TransportData,

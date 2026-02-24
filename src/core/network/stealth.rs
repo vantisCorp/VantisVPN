@@ -12,7 +12,7 @@
 // - Timing obfuscation
 
 use crate::error::{VantisError, Result};
-use crate::crypto::{cipher::Cipher, hash::Hash, random::SecureRandom};
+use crate::crypto::{cipher::Cipher, hash::Hash, random::SecureRandom, keys::CipherSuite};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use log::{debug, info, warn};
@@ -342,7 +342,8 @@ pub struct StealthHandler {
 
 impl StealthHandler {
     pub fn new(config: StealthConfig) -> Result<Self> {
-        let cipher = Arc::new(Cipher::new()?);
+        let key = vec![0u8; 32];
+        let cipher = Arc::new(Cipher::new(&key, CipherSuite::ChaCha20Poly1305)?);
         let hash = Arc::new(Hash::new()?);
         let rng = Arc::new(SecureRandom::new()?);
         
@@ -536,13 +537,13 @@ impl StealthHandler {
     }
     
     /// Apply timing obfuscation
-    pub async fn apply_timing_obfuscation(&self) -> Duration {
+    pub async fn apply_timing_obfuscation(&self) -> Result<Duration> {
         if !self.config.enable_timing_obfuscation {
-            return Duration::ZERO;
+            return Ok(Duration::ZERO);
         }
         
         let jitter_ms = self.rng.generate_u64()? % self.config.timing_jitter.as_millis() as u64;
-        Duration::from_millis(jitter_ms)
+        Ok(Duration::from_millis(jitter_ms))
     }
     
     /// Generate fake TLS ClientHello for domain fronting

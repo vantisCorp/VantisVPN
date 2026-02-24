@@ -9,7 +9,7 @@
 // - MultiHop+ support
 // - Dynamic MTU negotiation
 
-use crate::crypto::{keys::KeyPair, cipher::Cipher, hash::Hash, random::SecureRandom};
+use crate::crypto::{cipher::Cipher, hash::Hash, random::SecureRandom, keys::CipherSuite, keys::EphemeralKeyPair};
 use crate::error::{VantisError, Result};
 use crate::network::protocol::MessageType;
 use crate::tunnel::state::TunnelState;
@@ -86,7 +86,7 @@ pub struct InterfaceConfig {
     /// MTU
     pub mtu: u16,
     /// PQC key pair
-    pub pqc_keypair: Option<KeyPair>,
+    pub pqc_keypair: Option<EphemeralKeyPair>,
     /// Stealth mode enabled
     pub stealth_mode: bool,
 }
@@ -545,7 +545,8 @@ impl WireGuardDevice {
     /// Create a new WireGuard device
     pub async fn new(config: InterfaceConfig) -> Result<Self> {
         let socket = UdpSocket::bind(format!("[::]:{}", config.listen_port)).await?;
-        let cipher = Arc::new(Cipher::new()?);
+        let key = vec![0u8; 32];
+        let cipher = Arc::new(Cipher::new(&key, CipherSuite::ChaCha20Poly1305)?);
         let hash = Arc::new(Hash::new()?);
         let rng = Arc::new(SecureRandom::new()?);
         
@@ -879,7 +880,8 @@ impl WireGuardDevice {
         let mut peer_state = peer.lock().await;
         
         // Generate ephemeral key pair
-        let ephemeral_private = self.rng.generate_bytes(32)?;
+        let ephemeral_private_vec = self.rng.generate_bytes(32)?;
+        let ephemeral_private: [u8; 32] = ephemeral_private_vec.try_into().unwrap();
         let ephemeral_public = Self::derive_public_key(&ephemeral_private)?;
         
         // Create initiation message
@@ -889,7 +891,8 @@ impl WireGuardDevice {
         peer_state.stats.handshakes_initiated += 1;
         
         // Send initiation
-        if let Some(endpoint) = &peer_state.config.endpoint {
+        let endpoint = peer_state.config.endpoint.clone();
+        if let Some(endpoint) = endpoint {
             let mut data = initiation.serialize();
             
             // Add stealth mode header
@@ -899,7 +902,7 @@ impl WireGuardDevice {
                 data = stealth_data;
             }
             
-            self.socket.send_to(&data, endpoint).await?;
+            self.socket.send_to(&data, &endpoint).await?;
             peer_state.update_stats_sent(data.len() as u64);
             debug!("Sent handshake initiation to {}", endpoint);
         }
@@ -916,39 +919,36 @@ impl WireGuardDevice {
         };
         drop(peers);
         
-        let mut peer_state = peer.lock().await;
-        
-        // Check if handshake is established
-        if !peer_state.is_established() || peer_state.needs_rekey() {
+        // Check if handshake is established, retry if needed
+        loop {
+            let mut peer_state = peer.lock().await;
+            
+            if peer_state.is_established() && !peer_state.needs_rekey() {
+                // Encrypt data
+                let keys = peer_state.session_keys.as_ref().unwrap();
+                let counter = keys.sending_key_id as u64;
+                let encrypted = self.encrypt_transport_data(data, peer_state.index, counter, keys).await?;
+                
+                peer_state.update_stats_sent(data.len() as u64);
+                
+                // Send encrypted data
+                if let Some(endpoint) = &peer_state.config.endpoint {
+                    let mut packet = Vec::with_capacity(MESSAGE_DATA_SIZE + encrypted.len());
+                    packet.extend_from_slice(&peer_state.index.to_le_bytes());
+                    packet.extend_from_slice(&counter.to_le_bytes());
+                    packet.extend_from_slice(&encrypted);
+                    
+                    self.socket.send_to(&packet, endpoint).await?;
+                    debug!("Sent {} bytes to {}", data.len(), endpoint);
+                }
+                
+                return Ok(());
+            }
+            
             drop(peer_state);
             self.initiate_handshake(public_key).await?;
             tokio::time::sleep(Duration::from_millis(100)).await;
-            return self.send_data(public_key, data);
         }
-        
-        // Encrypt data
-        let keys = peer_state.session_keys.as_ref().unwrap();
-        let counter = keys.sending_key_id;
-        let encrypted = self.encrypt_transport_data(data, peer_state.index, counter, keys).await?;
-        
-        peer_state.update_stats_sent(data.len() as u64);
-        
-        // Send encrypted data
-        if let Some(endpoint) = &peer_state.config.endpoint {
-            let mut packet = encrypted;
-            
-            // Add stealth mode header
-            if self.config.stealth_mode || peer_state.config.stealth_mode {
-                let mut stealth_data = STEALTH_MODE_HEADER.to_vec();
-                stealth_data.extend_from_slice(&packet);
-                packet = stealth_data;
-            }
-            
-            self.socket.send_to(&packet, endpoint).await?;
-            debug!("Sent {} bytes to {}", data.len(), endpoint);
-        }
-        
-        Ok(())
     }
     
     // Helper methods for cryptographic operations
@@ -980,7 +980,8 @@ impl WireGuardDevice {
         peer_state: &PeerState,
         initiation: &HandshakeInitiation,
     ) -> Result<HandshakeResponse> {
-        let ephemeral_private = self.rng.generate_bytes(32)?;
+        let ephemeral_private_vec = self.rng.generate_bytes(32)?;
+        let ephemeral_private: [u8; 32] = ephemeral_private_vec.try_into().unwrap();
         let ephemeral_public = Self::derive_public_key(&ephemeral_private)?;
         
         let mac1 = self.calculate_mac1_response(peer_state, &ephemeral_public).await?;
@@ -997,8 +998,10 @@ impl WireGuardDevice {
     }
     
     async fn send_cookie_reply(&self, peer_state: &PeerState, initiation: &HandshakeInitiation) -> Result<()> {
-        let cookie = self.rng.generate_bytes(16)?;
-        let nonce = self.rng.generate_bytes(24)?;
+        let cookie_vec = self.rng.generate_bytes(16)?;
+        let cookie: [u8; 16] = cookie_vec.try_into().unwrap();
+        let nonce_vec = self.rng.generate_bytes(24)?;
+        let nonce: [u8; 24] = nonce_vec.try_into().unwrap();
         
         let cookie_reply = CookieReply {
             message_type: 3,
@@ -1041,7 +1044,7 @@ impl WireGuardDevice {
         keys: &SessionKeys,
     ) -> Result<Vec<u8>> {
         let nonce = counter.to_le_bytes();
-        let encrypted = self.cipher.encrypt(data, &nonce, &keys.sending_key)?;
+        let encrypted = self.cipher.encrypt(data, &nonce)?;
         
         let mut packet = Vec::with_capacity(MESSAGE_DATA_SIZE + encrypted.len());
         packet.extend_from_slice(&receiver_index.to_le_bytes());
@@ -1057,7 +1060,7 @@ impl WireGuardDevice {
         keys: &SessionKeys,
     ) -> Result<Vec<u8>> {
         let nonce = transport.counter.to_le_bytes();
-        self.cipher.decrypt(&transport.data, &nonce, &keys.receiving_key)
+        self.cipher.decrypt(&transport.data, &nonce)
     }
     
     async fn decrypt_cookie(&self, cookie_reply: &CookieReply) -> Result<[u8; 16]> {
