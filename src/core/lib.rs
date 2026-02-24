@@ -27,6 +27,7 @@
 pub mod crypto;
 pub mod network;
 pub mod tunnel;
+pub mod server;
 pub mod error;
 pub mod config;
 pub mod utils;
@@ -45,6 +46,16 @@ pub use network::{
     wireguard_full::{WireGuardDevice, InterfaceConfig, PeerConfig},
     stealth::{StealthHandler, StealthConfig},
     multihop::{MultiHopManager, MultiHopConfig, Circuit},
+};
+pub use server::{
+    ram_only::{RamOnlyConfig, RamOnlyServer, SessionData, MemoryStats},
+    tee::{TeeConfig, TeeManager, TeeType, SecureEnclave, AttestationReport, TeeStats},
+    secure_boot::{SecureBootConfig, SecureBootManager, BootComponent, BootResult, IntegrityReport},
+    starlink_fec::{FecConfig, FecManager, FecEncoder, FecDecoder, FecBlock, FecStats, FecAlgorithm},
+    wifi7_mlo::{MloConfig, MloManager, WifiLink, WifiBand, MloStats},
+    ftth_jumbo::{JumboFrameConfig, JumboFrameManager, NetworkPath as JumboNetworkPath, JumboFrameStats, FrameType},
+    smart_routing::{SmartRoutingConfig, SmartRoutingManager, NetworkPath as RoutingPath, RoutingDecision, RoutingStats, RoutingMetric},
+    colocated::{ColocatedConfig, ColocatedInfrastructureManager, VpnServer, ServerLocation, ServerStatus, InfrastructureStats, LoadBalancingStrategy},
 };
 pub use tunnel::{
     manager::TunnelManager,
