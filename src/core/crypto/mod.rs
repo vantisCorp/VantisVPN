@@ -17,8 +17,18 @@ use std::sync::atomic::{AtomicBool, Ordering};
 pub mod keys;
 pub mod cipher;
 pub mod pqc;
+pub mod pqc_full;
 pub mod hash;
 pub mod random;
+
+pub use keys::{EphemeralKeyPair, Cipher, CipherSuite};
+pub use cipher::CipherMode;
+pub use pqc_full::{
+    MlKemKeyPair, MlDsaKeyPair, HybridKeyExchange, PqcManager,
+    MlKemSecurityLevel, MlDsaSecurityLevel
+};
+pub use hash::Hash;
+pub use random::SecureRandom;
 
 /// Global crypto initialization state
 static CRYPTO_INITIALIZED: AtomicBool = AtomicBool::new(false);

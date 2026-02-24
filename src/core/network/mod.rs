@@ -12,7 +12,11 @@ use serde::{Serialize, Deserialize};
 
 pub mod protocol;
 pub mod quic;
+pub mod quic_full;
 pub mod wireguard;
+pub mod wireguard_full;
+pub mod stealth;
+pub mod multihop;
 
 /// Supported IP versions
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -148,6 +152,26 @@ impl std::fmt::Display for Endpoint {
         }
     }
 }
+
+pub use protocol::{Message, MessageType, ProtocolHandler};
+pub use wireguard_full::{
+    WireGuardDevice, InterfaceConfig, PeerConfig, PeerState, PeerStats,
+    HandshakeInitiation, HandshakeResponse, CookieReply, TransportData,
+    SessionKeys, ReplayWindow
+};
+pub use quic_full::{
+    QuicEndpoint, QuicConnection, QuicStream, QuicConfig, QuicPacketHeader,
+    QuicPacketType, QuicFrame, StreamType, ConnectionState, StreamState,
+    Bbrv3State, BbrState, ConnectionStats
+};
+pub use stealth::{
+    StealthHandler, StealthConfig, StealthPacket, PaddingStrategy,
+    TlsRecordHeader, Http2FrameHeader
+};
+pub use multihop::{
+    MultiHopManager, MultiHopConfig, Circuit, CircuitHop, CircuitState,
+    VpnNode, OnionPacket, CircuitStats
+};
 
 /// MTU (Maximum Transmission Unit)
 #[derive(Debug, Clone, Copy)]

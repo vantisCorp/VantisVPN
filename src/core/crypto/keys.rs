@@ -184,6 +184,7 @@ impl Default for CipherSuite {
 }
 
 /// Cipher for encrypting/decrypting VPN traffic
+#[derive(Debug)]
 pub struct Cipher {
     suite: CipherSuite,
     key: ChaCha20Poly1305,

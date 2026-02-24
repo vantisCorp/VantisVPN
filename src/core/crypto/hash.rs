@@ -15,28 +15,36 @@ pub struct Hash {
 }
 
 impl Hash {
+    /// Create a new Hash instance (zero-initialized)
+    pub fn new() -> crate::Result<Self> {
+        Ok(Self { bytes: [0u8; HASH_SIZE] })
+    }
+    
     /// Compute BLAKE2s hash of data
-    pub fn compute(data: &[u8]) -> Self {
+    pub fn compute(&self, data: &[u8]) -> crate::Result<Vec<u8>> {
         let mut hasher = Blake2s256::new();
         hasher.update(data);
         let result = hasher.finalize();
-        let mut arr = [0u8; HASH_SIZE];
-        arr.copy_from_slice(&result);
-        Self { bytes: arr }
+        Ok(result.to_vec())
     }
     
     /// Compute hash with key (MAC)
-    pub fn compute_keyed(key: &[u8], data: &[u8]) -> Self {
+    pub fn compute_keyed(&self, key: &[u8], data: &[u8]) -> crate::Result<Vec<u8>> {
         // Simple keyed hash implementation
         // In production, use proper MAC like HMAC
         let mut combined = key.to_vec();
         combined.extend_from_slice(data);
-        let hash = Self::compute(&combined);
+        let hash = self.compute(&combined)?;
         
         // Clear sensitive data
         combined.fill(0);
         
-        hash
+        Ok(hash)
+    }
+    
+    /// Compute MAC
+    pub fn compute_mac(&self, data: &[u8], key: &[u8]) -> crate::Result<Vec<u8>> {
+        self.compute_keyed(key, data)
     }
     
     /// Get hash as bytes

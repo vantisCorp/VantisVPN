@@ -46,6 +46,21 @@ pub enum VantisError {
     /// IP pool exhausted
     IpPoolExhausted,
     
+    /// Invalid packet
+    InvalidPacket(String),
+    /// Invalid stream
+    InvalidStream(String),
+    /// Stream closed
+    StreamClosed,
+    /// Invalid peer
+    InvalidPeer(String),
+    /// Circuit not established
+    CircuitNotEstablished,
+    /// Invalid circuit
+    InvalidCircuit,
+    /// Insufficient nodes
+    InsufficientNodes(String),
+    
     /// Generic error
     Generic(String),
 }
@@ -75,6 +90,14 @@ impl fmt::Display for VantisError {
             Self::InvalidState => write!(f, "Invalid state"),
             
             Self::IpPoolExhausted => write!(f, "IP pool exhausted"),
+            
+            Self::InvalidPacket(msg) => write!(f, "Invalid packet: {}", msg),
+            Self::InvalidStream(msg) => write!(f, "Invalid stream: {}", msg),
+            Self::StreamClosed => write!(f, "Stream closed"),
+            Self::InvalidPeer(msg) => write!(f, "Invalid peer: {}", msg),
+            Self::CircuitNotEstablished => write!(f, "Circuit not established"),
+            Self::InvalidCircuit => write!(f, "Invalid circuit"),
+            Self::InsufficientNodes(msg) => write!(f, "Insufficient nodes: {}", msg),
             
             Self::Generic(msg) => write!(f, "Error: {}", msg),
         }

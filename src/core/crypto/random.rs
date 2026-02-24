@@ -9,6 +9,57 @@ use std::sync::Mutex;
 /// Thread-safe CSPRNG instance
 static CSPRNG: Mutex<Option<ChaCha20Rng>> = Mutex::new(None);
 
+/// Cryptographically secure random number generator
+#[derive(Debug)]
+pub struct SecureRandom {
+    rng: Mutex<ChaCha20Rng>,
+}
+
+impl SecureRandom {
+    /// Create a new SecureRandom instance
+    pub fn new() -> crate::Result<Self> {
+        use rand::SeedableRng;
+        let mut seed = [0u8; 32];
+        getrandom::getrandom(&mut seed)
+            .map_err(|_| crate::VantisError::CryptoError("Failed to get random seed".to_string()))?;
+        Ok(Self {
+            rng: Mutex::new(ChaCha20Rng::from_seed(seed)),
+        })
+    }
+    
+    /// Generate random bytes
+    pub fn generate_bytes(&self, len: usize) -> crate::Result<Vec<u8>> {
+        let mut bytes = vec![0u8; len];
+        let mut rng = self.rng.lock()
+            .map_err(|_| crate::VantisError::CryptoError("RNG lock failed".to_string()))?;
+        rng.fill_bytes(&mut bytes);
+        Ok(bytes)
+    }
+    
+    /// Generate a random u64 value
+    pub fn generate_u64(&self) -> crate::Result<u64> {
+        let mut bytes = [0u8; 8];
+        let mut rng = self.rng.lock()
+            .map_err(|_| crate::VantisError::CryptoError("RNG lock failed".to_string()))?;
+        rng.fill_bytes(&mut bytes);
+        Ok(u64::from_be_bytes(bytes))
+    }
+    
+    /// Generate a random u32 value
+    pub fn generate_u32(&self) -> crate::Result<u32> {
+        let mut bytes = [0u8; 4];
+        let mut rng = self.rng.lock()
+            .map_err(|_| crate::VantisError::CryptoError("RNG lock failed".to_string()))?;
+        rng.fill_bytes(&mut bytes);
+        Ok(u32::from_be_bytes(bytes))
+    }
+    
+    /// Generate a random boolean
+    pub fn generate_bool(&self) -> crate::Result<bool> {
+        Ok(self.generate_u32()? % 2 == 0)
+    }
+}
+
 /// Initialize the random number generator
 /// 
 /// Uses system entropy to seed the generator.

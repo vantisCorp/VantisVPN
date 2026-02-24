@@ -33,12 +33,18 @@ pub mod utils;
 
 // Re-export commonly used types
 pub use crypto::{
-    keys::{EphemeralKeyPair},
-    cipher::{Cipher, CipherSuite},
+    keys::{EphemeralKeyPair, Cipher, CipherSuite},
+    cipher::CipherMode,
+    pqc_full::{MlKemKeyPair, MlDsaKeyPair, HybridKeyExchange, PqcManager},
+    hash::Hash,
+    random::SecureRandom,
 };
 pub use network::{
-    protocol::{Protocol, ProtocolConfig},
-    quic::QuicConnection,
+    protocol::{Message, MessageType, ProtocolHandler},
+    quic_full::{QuicEndpoint, QuicConnection, QuicStream, QuicConfig},
+    wireguard_full::{WireGuardDevice, InterfaceConfig, PeerConfig},
+    stealth::{StealthHandler, StealthConfig},
+    multihop::{MultiHopManager, MultiHopConfig, Circuit},
 };
 pub use tunnel::{
     manager::TunnelManager,
