@@ -63,6 +63,13 @@ pub enum VantisError {
     
     /// Generic error
     Generic(String),
+    
+    /// Authentication failed
+    AuthenticationFailed(String),
+    /// Resource not found
+    NotFound(String),
+    /// Invalid data
+    InvalidData(String),
 }
 
 impl fmt::Display for VantisError {
@@ -100,6 +107,9 @@ impl fmt::Display for VantisError {
             Self::InsufficientNodes(msg) => write!(f, "Insufficient nodes: {}", msg),
             
             Self::Generic(msg) => write!(f, "Error: {}", msg),
+            Self::AuthenticationFailed(msg) => write!(f, "Authentication failed: {}", msg),
+            Self::NotFound(msg) => write!(f, "Not found: {}", msg),
+            Self::InvalidData(msg) => write!(f, "Invalid data: {}", msg),
         }
     }
 }

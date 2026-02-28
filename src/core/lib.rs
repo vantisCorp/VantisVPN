@@ -28,6 +28,7 @@ pub mod crypto;
 pub mod network;
 pub mod tunnel;
 pub mod server;
+pub mod security;
 pub mod error;
 pub mod config;
 pub mod utils;
@@ -56,6 +57,16 @@ pub use server::{
     ftth_jumbo::{JumboFrameConfig, JumboFrameManager, NetworkPath as JumboNetworkPath, JumboFrameStats, FrameType},
     smart_routing::{SmartRoutingConfig, SmartRoutingManager, NetworkPath as RoutingPath, RoutingDecision, RoutingStats, RoutingMetric},
     colocated::{ColocatedConfig, ColocatedInfrastructureManager, VpnServer, ServerLocation, ServerStatus, InfrastructureStats, LoadBalancingStrategy},
+};
+pub use security::{
+    kill_switch::{KillSwitchManager, KillSwitchConfig, KillSwitchState, KillSwitchMode, KillSwitchStats},
+    split_tunnel::{SplitTunnelManager, SplitTunnelConfig, SplitTunnelRule, SplitTunnelMode, RuleType, SplitTunnelRoutingDecision, SplitTunnelStats},
+    rbi::{RbiManager, RbiConfig, BrowserSession, BrowserType, IsolationLevel, RenderedFrame, BrowserEvent, RbiStats},
+    netshield::{NetShieldManager, NetShieldConfig, BlocklistEntry, BlocklistCategory, DnsQuery, DnsResponse, DnsQueryType, NetShieldStats},
+    daita::{Daita, DaitaConfig, DaitaStrategy, TrafficStats},
+    quantum_vault::{QuantumVault, VaultConfig, VaultEntry, VaultState, VaultStats},
+    zero_trust::{ZeroTrust, ZeroTrustConfig, ZeroTrustPolicy, PolicyAction, AccessRequest, AccessDecision, AccessLog, DeviceTrust},
+    avantis_mesh::{AvantisMesh, MeshConfig, MeshNode, MeshMessage, MeshStats},
 };
 pub use tunnel::{
     manager::TunnelManager,
