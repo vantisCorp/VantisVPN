@@ -148,11 +148,32 @@ git clone https://github.com/vantisCorp/VantisVPN.git
 cd VantisVPN
 
 # Budowanie
+cd src/core
 cargo build --release
 
-# Uruchomienie
-cargo run --release
+# Uruchomienie testów
+cargo test
 ```
+
+### Uruchamianie Przykładów
+
+VANTISVPN zawiera kilka przykładowych aplikacji demonstrujących podstawową funkcjonalność:
+
+```bash
+# Kompleksowa prezentacja wszystkich funkcji
+cargo run --example demo
+
+# Przykład prostego połączenia VPN
+cargo run --example simple_vpn
+
+# Demonstracja trybu stealth
+cargo run --example stealth_mode
+
+# Przykład routingu MultiHop+ (onion routing)
+cargo run --example multihop
+```
+
+Zobacz [examples/README.md](examples/README.md) aby uzyskać więcej informacji o dostępnych przykładach.
 
 ## 📄 Licencja
 
