@@ -6,11 +6,12 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
 use serde::{Serialize, Deserialize};
+use chrono::{DateTime, Utc, Duration};
 use crate::error::{VantisError, Result};
 use crate::crypto::{Hash, SecureRandom};
 
 /// Identity Type
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum IdentityType {
     /// Personal identity
     Personal,
@@ -38,12 +39,12 @@ pub struct DigitalIdentity {
     pub identity_id: String,
     pub identity_type: IdentityType,
     pub display_name: String,
-    public_key: Vec<u8>,
-    public_key_commitment: Vec<u8>,
-    private_key: Vec<u8>,
-    created_at: std::time::Instant,
-    expires_at: Option<std::time::Instant>,
-    is_active: bool,
+    pub public_key: Vec<u8>,
+    pub public_key_commitment: Vec<u8>,
+    pub private_key: Vec<u8>,
+    pub created_at: DateTime<Utc>,
+    pub expires_at: Option<DateTime<Utc>>,
+    pub is_active: bool,
 }
 
 impl DigitalIdentity {
@@ -53,7 +54,7 @@ impl DigitalIdentity {
         display_name: String,
         public_key: Vec<u8>,
         private_key: Vec<u8>,
-        expires_at: Option<std::time::Instant>,
+        expires_at: Option<DateTime<Utc>>,
     ) -> Self {
         let hash = Hash::new().unwrap();
         let public_key_commitment = hash.compute(&public_key).unwrap();
@@ -65,7 +66,7 @@ impl DigitalIdentity {
             public_key,
             public_key_commitment,
             private_key,
-            created_at: std::time::Instant::now(),
+            created_at: Utc::now(),
             expires_at,
             is_active: true,
         }
@@ -73,7 +74,7 @@ impl DigitalIdentity {
 
     pub fn is_expired(&self) -> bool {
         if let Some(expires_at) = self.expires_at {
-            return std::time::Instant::now() > expires_at;
+            return Utc::now() > expires_at;
         }
         false
     }
@@ -91,7 +92,7 @@ impl DigitalIdentity {
             identity_id: self.identity_id.clone(),
             commitment,
             timestamp: std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EBIT)
+                .duration_since(std::time::UNIX_EPOCH)
                 .unwrap()
                 .as_secs(),
             signature,
@@ -152,7 +153,7 @@ impl AvantisIdManager {
     pub fn new(config: AvantisIdConfig) -> Result<Self> {
         let rng = SecureRandom::new()?;
 
-        let stats = AvantisIdIdStats {
+        let stats = AvantisIdStats {
             total_identities: 0,
             active_identities: 0,
             identities_by_type: HashMap::new(),
@@ -160,13 +161,13 @@ impl AvantisIdManager {
             blockchain_anchors: 0,
         };
 
-        Self {
+        Ok(Self {
             config,
             identities: Arc::new(RwLock::new(HashMap::new())),
             proofs: Arc::new(RwLock::new(HashMap::new())),
             stats: Arc::new(Mutex::new(stats)),
-            rng,
-        }
+            rng: Arc::new(rng),
+        })
     }
 
     /// Generate new identity
@@ -186,8 +187,8 @@ impl AvantisIdManager {
 
         // Calculate expiration
         let expires_at = duration_days
-            .map(|days| std::time::Instant::now() + std::time::Duration::from_secs(days as u64 * 86400))
-            .or(self.config.default_duration_days.map(|days| std::time::Instant::now() + std::time::Duration::from_secs(days as u64 * 86400)));
+            .map(|days| Utc::now() + Duration::seconds(days as i64 * 86400))
+            .or(Some(self.config.default_duration_days).map(|days| Utc::now() + Duration::seconds(days as i64 * 86400)));
 
         // Generate identity ID
         let identity_id = self.generate_identity_id();
@@ -310,7 +311,7 @@ impl AvantisIdManager {
     }
 
     /// Update configuration
-    pub async fn update_config(&self, config: AvantisIdConfig) -> Result<()> {
+    pub async fn update_config(&mut self, config: AvantisIdConfig) -> Result<()> {
         self.config = config;
         Ok(())
     }
@@ -416,7 +417,7 @@ mod tests {
     #[tokio::test]
     async fn test_identities_by_type() {
         let config = AvantisIdConfig::default();
-        let let manager = AvantisdIdManager::new(config).unwrap();
+        let manager = AvantisdIdManager::new(config).unwrap();
 
         manager
             .generate_identity("User1".to_string(), IdentityType::Personal, Some(30))

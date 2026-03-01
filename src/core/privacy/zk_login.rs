@@ -148,7 +148,7 @@ pub struct ZkLoginManager {
 }
 
 impl ZkLoginManager {
-    pub fn new(config: ZkConfig) -> Result<Self> {
+    pub fn new(config: ZkLoginConfig) -> Result<Self> {
         let rng = SecureRandom::new()?;
         
         // Generate server key pair (placeholder - in production, use actual ZK-SNARKs)
@@ -160,7 +160,7 @@ impl ZkLoginManager {
             credentials: Arc::new(RwLock::new(HashMap::new())),
             active_sessions: Arc::new(RwLock::new(HashMap::new())),
             server_key_pair: Arc::new(Mutex::new((secret_key, public_key))),
-            rng,
+            rng: Arc::new(rng),
         })
     }
 
@@ -203,8 +203,8 @@ impl ZkLoginManager {
         let challenge = ZkChallenge {
             challenge_id: challenge_id.clone(),
             server_public_key: {
-                let (_, public_key) = self.server_key_pair.lock().await;
-                public_key.clone()
+                let key_pair = self.server_key_pair.lock().await;
+                key_pair.1.clone()
             },
             timestamp: std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
@@ -253,7 +253,7 @@ impl ZkLoginManager {
 
         let result = ZkAuthResult {
             success: true,
-            session_token: Some(session_token),
+            session_token: Some(session_token.clone()),
             expires_at: Some(expires_at),
             error_message: None,
         };
@@ -305,7 +305,7 @@ impl ZkLoginManager {
     pub async fn logout(&self, session_token: &str) -> Result<()> {
         let mut sessions = self.active_sessions.write().await;
         sessions.remove(session_token)
-            .ok_or_else(|| VantisIdError::InvalidPeer("Session not found".to_string()))?;
+            .ok_or_else(|| VantisError::InvalidPeer("Session not found".to_string()))?;
         Ok(())
     }
 
@@ -337,7 +337,8 @@ impl ZkLoginManager {
             .as_nanos();
         
         let hash = Hash::new().unwrap();
-        let token_data = format!("{}:{}:{}", username, timestamp, self.rng.generate_bytes(16).unwrap());
+        let random_bytes = hex::encode(self.rng.generate_bytes(16).unwrap());
+        let token_data = format!("{}:{}:{}", username, timestamp, random_bytes);
         let token_hash = hash.compute(token_data.as_bytes()).unwrap();
         
         hex::encode(token_hash)

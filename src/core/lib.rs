@@ -29,6 +29,7 @@ pub mod network;
 pub mod tunnel;
 pub mod server;
 pub mod security;
+pub mod privacy;
 pub mod error;
 pub mod config;
 pub mod utils;
@@ -67,6 +68,13 @@ pub use security::{
     quantum_vault::{QuantumVault, VaultConfig, VaultEntry, VaultState, VaultStats},
     zero_trust::{ZeroTrust, ZeroTrustConfig, ZeroTrustPolicy, PolicyAction, AccessRequest, AccessDecision, AccessLog, DeviceTrust},
     avantis_mesh::{AvantisMesh, MeshConfig, MeshNode, MeshMessage, MeshStats},
+};
+pub use privacy::{
+    zk_login::{ZkLoginManager, ZkLoginConfig, ZkChallenge, ZkResponse, ZkAuthResult, UserCredentials, AuthState, ZkProofType},
+    avantis_id::{AvantisIdManager, AvantisIdConfig, DigitalIdentity, IdentityProof, IdentityType},
+    ip_rotator::{IpRotator, RotatorConfig, RotationStrategy, IpPool, IpEndpoint},
+    anonymous_payments::{AnonymousPaymentManager, PaymentConfig, PaymentMethod, MoneroPayment, LightningPayment, CashPayment, PaymentStatus},
+    gdpr_compliance::{GdprCompliance, GdprConfig, DataSubject, DataRequest, ConsentRecord, RightToBeForgotten, DataPortability, ConsentType},
 };
 pub use tunnel::{
     manager::TunnelManager,
