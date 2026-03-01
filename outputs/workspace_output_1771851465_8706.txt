@@ -1,4 +1,0 @@
-error[E0599]: no function or associated item named `from_entropy` found for struct `ChaCha20Rng` in the current scope
-error[E0308]: mismatched types
-error[E0624]: associated function `new` is private
-error[E0609]: no field `0` on type `&crypto::hash::Hash`

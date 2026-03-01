@@ -1,6 +1,0 @@
- --> network/wireguard.rs:9:16
-  |
-9 | use std::net::{IpAddr, Ipv4Addr};
-  |                ^^^^^^
-
-error[E0624]: associated function `new` is private

@@ -1,6 +1,0 @@
-error[E0624]: associated function `new` is private
-   --> crypto/pqc.rs:187:60
-    |
-187 |         let classical_public_key = super::keys::PublicKey::new(
-    |                                                            ^^^ private associated function
-    |

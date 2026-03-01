@@ -1,2 +1,0 @@
-error[E0624]: associated function `new` is private
-error[E0609]: no field `0` on type `&crypto::hash::Hash`

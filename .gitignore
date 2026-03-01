@@ -35,3 +35,22 @@ Thumbs.db
 *.pem
 *.p12
 secrets/
+
+# Workspace outputs
+outputs/
+*.txt
+
+# Test directories
+src/core/target/
+src/core/benches/
+src/core/tests/
+
+# Summarized conversations
+summarized_conversations/
+
+# Project analysis
+project_analysis.md
+test.txt
+
+# Strange filename
+"
