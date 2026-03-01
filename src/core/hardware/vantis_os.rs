@@ -9,16 +9,27 @@ use crate::error::VantisError;
 /// Vantis OS configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VantisOsConfig {
+    /// Operating system name
     pub os_name: String,
+    /// Version number
     pub version: String,
+    /// Build number
     pub build_number: String,
+    /// Boot configuration
     pub boot_config: BootConfig,
+    /// Persistence configuration
     pub persistence_config: PersistenceConfig,
+    /// Security configuration
     pub security_config: SecurityConfig,
+    /// Network configuration
     pub network_config: NetworkConfig,
+    /// List of applications
     pub applications: Vec<ApplicationConfig>,
+    /// System locale
     pub locale: String,
+    /// System timezone
     pub timezone: String,
+    /// Keyboard layout
     pub keyboard_layout: String,
 }
 
@@ -134,30 +145,45 @@ pub struct VpnOsConfig {
 /// Proxy configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProxyConfig {
+    /// Proxy type (HTTP, SOCKS5, etc.)
     pub proxy_type: String,
+    /// Proxy server address
     pub address: String,
+    /// Proxy server port
     pub port: u16,
+    /// Optional username for authentication
     pub username: Option<String>,
+    /// Optional password for authentication
     pub password: Option<String>,
 }
 
 /// Network manager
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum NetworkManager {
+    /// NetworkManager (GNOME)
     NetworkManager,
+    /// Connman (lightweight)
     Connman,
+    /// Wicd (simple)
     Wicd,
 }
 
 /// Application configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ApplicationConfig {
+    /// Application name
     pub name: String,
+    /// Application version
     pub version: String,
+    /// Whether the application is enabled
     pub enabled: bool,
+    /// Whether the application starts automatically
     pub autostart: bool,
+    /// Whether the application runs in a sandbox
     pub sandboxed: bool,
+    /// Whether the application has network access
     pub network_access: bool,
+    /// Whether the application can access persistent storage
     pub persistence_access: bool,
 }
 

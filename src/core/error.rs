@@ -37,7 +37,9 @@ pub enum VantisError {
     
     /// Tunnel error
     TunnelNotFound(String),
+    /// Tunnel already exists
     TunnelExists(String),
+    /// No active tunnel
     NoActiveTunnel,
     
     /// Invalid state
