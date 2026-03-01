@@ -31,6 +31,7 @@ pub mod server;
 pub mod security;
 pub mod privacy;
 pub mod ui;
+pub mod audit;
 pub mod error;
 pub mod config;
 pub mod utils;
@@ -82,6 +83,14 @@ pub use ui::{
     family_shield::{FamilyShield, ShieldConfig, ShieldRule, ShieldStats},
     biometric_auth::{BiometricAuth, BiometricConfig, BiometricType, AuthResult},
     theme_manager::{ThemeManager, ThemeConfig, ThemeMode, HapticType, HapticPattern, ThemeColors},
+};
+pub use audit::{
+    no_logs_audit::{NoLogsAudit, AuditConfig, AuditReport, AuditEvidence},
+    security_pentest::{SecurityPentest, PentestConfig, PentestReport, Vulnerability},
+    csfc_compliance::{CsfcCompliance, CsfcConfig, CsfcReport, CsfcComponent},
+    pci_dss_compliance::{PciDssCompliance, PciConfig, PciReport, PciRequirement},
+    soc2_compliance::{Soc2Compliance, Soc2Config, Soc2Report, Soc2Control},
+    hitrust_compliance::{HitrustCompliance, HitrustConfig, HitrustReport, HitrustControl},
 };
 pub use tunnel::{
     manager::TunnelManager,
