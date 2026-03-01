@@ -12,14 +12,13 @@
 // - Failover and re-routing
 
 use crate::error::{VantisError, Result};
-use crate::crypto::{cipher::Cipher, hash::Hash, random::SecureRandom, keys::EphemeralKeyPair, keys::CipherSuite};
-use crate::network::{Endpoint, NetworkAddress};
+use crate::crypto::{cipher::Cipher, hash::Hash, random::SecureRandom, keys::CipherSuite};
 use std::collections::HashMap;
 use std::net::{SocketAddr, Ipv6Addr};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::sync::{Mutex, RwLock};
-use log::{debug, info, warn, error};
+use log::{debug, info};
 
 // MultiHop+ Constants
 pub const MAX_HOPS: usize = 7;
@@ -436,7 +435,7 @@ impl MultiHopManager {
         let mut path = Vec::new();
         let mut used_countries = std::collections::HashSet::new();
         
-        for i in 0..self.config.num_hops {
+        for _i in 0..self.config.num_hops {
             let candidates: Vec<_> = available_nodes.iter()
                 .filter(|node| {
                     !path.contains(&node.node_id) &&
@@ -548,7 +547,7 @@ impl MultiHopManager {
         // Apply onion encryption (layer by layer)
         let mut encrypted_data = data.to_vec();
         
-        for hop in circuit.hops.iter().rev() {
+        for _hop in circuit.hops.iter().rev() {
             let nonce = [0u8; 12]; // In production, use proper nonce
             encrypted_data = self.cipher.encrypt(&encrypted_data, &nonce)?;
         }
@@ -563,7 +562,7 @@ impl MultiHopManager {
         let serialized = packet.serialize();
         
         // Send to first hop
-        if let Some(first_hop) = circuit.hops.first() {
+        if let Some(_first_hop) = circuit.hops.first() {
             // In production, would send to actual endpoint
             debug!("Sending {} bytes to first hop", serialized.len());
             circuit.update_stats_sent(serialized.len() as u64).await;
@@ -583,7 +582,7 @@ impl MultiHopManager {
         // Decrypt layer by layer
         let mut decrypted_data = packet.payload;
         
-        for hop in &circuit.hops {
+        for _hop in &circuit.hops {
             let nonce = [0u8; 12]; // In production, use proper nonce
             decrypted_data = self.cipher.decrypt(&decrypted_data, &nonce)?;
         }

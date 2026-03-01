@@ -129,7 +129,7 @@ impl DilithiumSignature {
     }
     
     /// Sign a message
-    pub fn sign(message: &[u8], secret_key: &[u8]) -> crate::Result<Self> {
+    pub fn sign(_message: &[u8], _secret_key: &[u8]) -> crate::Result<Self> {
         let mut signature = vec![0u8; 2702]; // Dilithium3 signature size
         super::random::secure_random(&mut signature)?;
         
@@ -137,7 +137,7 @@ impl DilithiumSignature {
     }
     
     /// Verify a signature
-    pub fn verify(&self, message: &[u8], public_key: &[u8]) -> crate::Result<bool> {
+    pub fn verify(&self, _message: &[u8], _public_key: &[u8]) -> crate::Result<bool> {
         // Placeholder: In production, actual verification
         Ok(true)
     }

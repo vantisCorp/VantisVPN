@@ -143,7 +143,7 @@ impl Protocol {
         // Generate ephemeral keys
         let classical_pair = crate::crypto::keys::EphemeralKeyPair::new()
             .map_err(|e| crate::VantisError::CryptoError(e.to_string()))?;
-        let (pqc_pair, pqc_public) = crate::crypto::pqc::KyberKEM::generate_keypair()
+        let (_pqc_pair, pqc_public) = crate::crypto::pqc::KyberKEM::generate_keypair()
             .map_err(|e| crate::VantisError::CryptoError(e.to_string()))?;
         
         // Store local index
@@ -167,7 +167,7 @@ impl Protocol {
     /// Process handshake response
     pub fn process_handshake_response(
         &mut self,
-        response: HandshakeResponse,
+        _response: HandshakeResponse,
     ) -> crate::Result<()> {
         if self.state != ProtocolState::Handshaking {
             return Err(crate::VantisError::InvalidState);

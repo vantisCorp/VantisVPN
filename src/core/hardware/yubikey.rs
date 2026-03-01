@@ -308,7 +308,7 @@ impl YubiKeyManager {
             YubiKeySlot::Slot2 => &key.slot2_config,
         };
 
-        let slot_config = slot_config.as_ref()
+        let _slot_config = slot_config.as_ref()
             .ok_or_else(|| VantisError::InvalidData("Slot not configured".to_string()))?;
 
         // Compute expected HMAC (placeholder)
@@ -412,7 +412,7 @@ impl YubiKeyManager {
     pub fn clear_expired_challenges(&mut self) {
         let now = SystemTime::now();
         
-        self.active_challenges.retain(|key_id, challenge| {
+        self.active_challenges.retain(|_key_id, challenge| {
             let elapsed = now.duration_since(challenge.timestamp).unwrap_or(Duration::MAX);
             elapsed <= self.config.challenge_timeout
         });

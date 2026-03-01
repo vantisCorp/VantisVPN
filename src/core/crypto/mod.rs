@@ -10,7 +10,6 @@
 //! 3. **Memory Safety**: All sensitive data is zeroized when dropped
 //! 4. **FIPS 140-3 Compliance**: Use of NIST-approved algorithms
 
-use zeroize::Zeroize;
 use std::sync::Once;
 use std::sync::atomic::{AtomicBool, Ordering};
 

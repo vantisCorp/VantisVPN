@@ -248,7 +248,7 @@ impl GdprCompliance {
 
     /// Register data subject
     pub async fn register_subject(&self, email: String, name: String, country: String) -> Result<String, VantisError> {
-        let mut rng = self.rng.lock().await;
+        let rng = self.rng.lock().await;
         let subject_id = format!("subject_{}", hex::encode(rng.generate_bytes(16)?));
         drop(rng);
 
@@ -272,7 +272,7 @@ impl GdprCompliance {
 
     /// Grant consent
     pub async fn grant_consent(&self, subject_id: &str, consent_type: ConsentType, ip_address: String, user_agent: String) -> Result<String, VantisError> {
-        let mut rng = self.rng.lock().await;
+        let rng = self.rng.lock().await;
         let consent_id = format!("consent_{}", hex::encode(rng.generate_bytes(16)?));
         drop(rng);
 
@@ -341,7 +341,7 @@ impl GdprCompliance {
 
     /// Create data request
     pub async fn create_data_request(&self, subject_id: &str, request_type: DataRequestType, description: String) -> Result<String, VantisError> {
-        let mut rng = self.rng.lock().await;
+        let rng = self.rng.lock().await;
         let request_id = format!("request_{}", hex::encode(rng.generate_bytes(16)?));
         drop(rng);
 
@@ -381,7 +381,7 @@ impl GdprCompliance {
 
     /// Create right to be forgotten request
     pub async fn create_rtbf_request(&self, subject_id: &str, data_categories: Vec<String>, reason: String) -> Result<String, VantisError> {
-        let mut rng = self.rng.lock().await;
+        let rng = self.rng.lock().await;
         let request_id = format!("rtbf_{}", hex::encode(rng.generate_bytes(16)?));
         let verification_token = format!("token_{}", hex::encode(rng.generate_bytes(32)?));
         drop(rng);
@@ -433,7 +433,7 @@ impl GdprCompliance {
 
     /// Export data for portability
     pub async fn export_data(&self, subject_id: &str, format: String) -> Result<String, VantisError> {
-        let mut rng = self.rng.lock().await;
+        let rng = self.rng.lock().await;
         let export_id = format!("export_{}", hex::encode(rng.generate_bytes(16)?));
         drop(rng);
 

@@ -3,8 +3,7 @@
 // Implements Zero Trust security model with micro-segmentation
 
 use crate::error::VantisError;
-use crate::crypto::hash::Hash;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::net::IpAddr;
 use std::sync::Arc;
 use tokio::sync::Mutex;

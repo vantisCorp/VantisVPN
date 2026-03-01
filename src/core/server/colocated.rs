@@ -470,7 +470,7 @@ impl ColocatedInfrastructureManager {
     async fn update_stats(&self) {
         let servers = self.servers.read().await;
         let online_servers: Vec<_> = servers.values().filter(|s| s.is_online()).collect();
-        let available_servers: Vec<_> = servers.values().filter(|s| s.is_available()).collect();
+        let _available_servers: Vec<_> = servers.values().filter(|s| s.is_available()).collect();
 
         let mut stats = self.stats.lock().await;
         stats.total_servers = servers.len();

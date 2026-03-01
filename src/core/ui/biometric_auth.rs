@@ -120,7 +120,7 @@ impl BiometricAuth {
 
     /// Register biometric template
     pub async fn register_template(&self, user_id: String, biometric_type: BiometricType, template_data: Vec<u8>) -> Result<String, VantisError> {
-        let mut rng = self.rng.lock().await;
+        let rng = self.rng.lock().await;
         let template_id = format!("bio_{}", hex::encode(rng.generate_bytes(16)?));
         drop(rng);
 
@@ -224,10 +224,10 @@ impl BiometricAuth {
     }
 
     /// Compare biometric data (placeholder implementation)
-    fn compare_biometric_data(&self, sample: &[u8], template: &[u8]) -> Result<f64, VantisError> {
+    fn compare_biometric_data(&self, _sample: &[u8], _template: &[u8]) -> Result<f64, VantisError> {
         // In production, this would use actual biometric matching algorithms
         // For now, return a random confidence score
-        let mut rng = self.rng.blocking_lock();
+        let rng = self.rng.blocking_lock();
         let random_bytes = rng.generate_bytes(8)?;
         let confidence = (u64::from_be_bytes([random_bytes[0], random_bytes[1], random_bytes[2], random_bytes[3], 
                                                       random_bytes[4], random_bytes[5], random_bytes[6], random_bytes[7]]) as f64) / u64::MAX as f64;

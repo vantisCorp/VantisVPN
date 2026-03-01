@@ -6,7 +6,6 @@ use crate::error::VantisError;
 use crate::crypto::cipher::{Cipher, CipherSuite};
 use crate::crypto::hash::Hash;
 use crate::crypto::random::SecureRandom;
-use crate::crypto::keys::EphemeralKeyPair;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -209,7 +208,7 @@ impl QuantumVault {
         self.check_unlocked().await?;
 
         let entries = self.entries.lock().await;
-        let entry = entries.get(id)
+        let _entry = entries.get(id)
             .ok_or_else(|| VantisError::NotFound(format!("Entry not found: {}", id)))?;
 
         // Update last accessed
@@ -360,7 +359,7 @@ impl QuantumVault {
         let password_bytes = password.as_bytes();
         let hash_instance = Hash::new()?;
         
-        for i in 0..self.config.key_iterations {
+        for _i in 0..self.config.key_iterations {
             let hash = hash_instance.compute_keyed(password_bytes, &key)?;
             key.copy_from_slice(&hash[..32.min(hash.len())]);
         }
@@ -370,7 +369,7 @@ impl QuantumVault {
 
     /// Encrypt password
     async fn encrypt_password(&self, password: &str) -> Result<(Vec<u8>, Vec<u8>), VantisError> {
-        let mut rng = self.rng.lock().await;
+        let rng = self.rng.lock().await;
         let nonce = rng.generate_bytes(12)?;
         drop(rng);
 
@@ -383,7 +382,7 @@ impl QuantumVault {
 
     /// Generate unique ID
     async fn generate_id(&self) -> Result<String, VantisError> {
-        let mut rng = self.rng.lock().await;
+        let rng = self.rng.lock().await;
         let bytes = rng.generate_bytes(16)?;
         drop(rng);
 

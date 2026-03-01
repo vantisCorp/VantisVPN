@@ -11,10 +11,8 @@
 
 use crate::crypto::{cipher::Cipher, hash::Hash, random::SecureRandom, keys::CipherSuite, keys::EphemeralKeyPair};
 use crate::error::{VantisError, Result};
-use crate::network::protocol::MessageType;
-use crate::tunnel::state::TunnelState;
 use std::collections::HashMap;
-use std::net::{IpAddr, Ipv6Addr, SocketAddr};
+use std::net::{Ipv6Addr, SocketAddr};
 use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tokio::sync::{Mutex, RwLock};
@@ -1041,7 +1039,7 @@ impl WireGuardDevice {
         data: &[u8],
         receiver_index: u32,
         counter: u64,
-        keys: &SessionKeys,
+        _keys: &SessionKeys,
     ) -> Result<Vec<u8>> {
         let nonce = counter.to_le_bytes();
         let encrypted = self.cipher.encrypt(data, &nonce)?;
@@ -1057,7 +1055,7 @@ impl WireGuardDevice {
     async fn decrypt_transport_data(
         &self,
         transport: &TransportData,
-        keys: &SessionKeys,
+        _keys: &SessionKeys,
     ) -> Result<Vec<u8>> {
         let nonce = transport.counter.to_le_bytes();
         self.cipher.decrypt(&transport.data, &nonce)
@@ -1094,22 +1092,22 @@ impl WireGuardDevice {
         Ok(mac[..16].try_into().unwrap())
     }
     
-    async fn verify_mac1(&self, initiation: &HandshakeInitiation, public_key: &[u8; 32]) -> bool {
+    async fn verify_mac1(&self, _initiation: &HandshakeInitiation, _public_key: &[u8; 32]) -> bool {
         // In production, verify MAC1
         true
     }
     
-    async fn verify_mac1_response(&self, response: &HandshakeResponse, public_key: &[u8; 32]) -> bool {
+    async fn verify_mac1_response(&self, _response: &HandshakeResponse, _public_key: &[u8; 32]) -> bool {
         // In production, verify MAC1
         true
     }
     
-    async fn verify_mac2(&self, initiation: &HandshakeInitiation, cookie: &[u8; 16]) -> bool {
+    async fn verify_mac2(&self, _initiation: &HandshakeInitiation, _cookie: &[u8; 16]) -> bool {
         // In production, verify MAC2 with cookie
         true
     }
     
-    async fn verify_mac2_response(&self, response: &HandshakeResponse, cookie: &[u8; 16]) -> bool {
+    async fn verify_mac2_response(&self, _response: &HandshakeResponse, _cookie: &[u8; 16]) -> bool {
         // In production, verify MAC2 with cookie
         true
     }

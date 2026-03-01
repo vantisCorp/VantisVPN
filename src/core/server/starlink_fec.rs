@@ -4,7 +4,7 @@
 
 use std::collections::VecDeque;
 use std::sync::Arc;
-use tokio::sync::{Mutex, RwLock};
+use tokio::sync::Mutex;
 use serde::{Serialize, Deserialize};
 use crate::error::{VantisError, Result};
 
@@ -332,21 +332,21 @@ impl FecDecoder {
     }
 
     /// Decode using Reed-Solomon
-    async fn decode_reed_solomon(&self, data: &[u8], parity: &[u8]) -> Result<Vec<u8>> {
+    async fn decode_reed_solomon(&self, data: &[u8], _parity: &[u8]) -> Result<Vec<u8>> {
         // In production, use actual Reed-Solomon decoding
         // For now, assume data is intact
         Ok(data.to_vec())
     }
 
     /// Decode using LDPC
-    async fn decode_ldpc(&self, data: &[u8], parity: &[u8]) -> Result<Vec<u8>> {
+    async fn decode_ldpc(&self, data: &[u8], _parity: &[u8]) -> Result<Vec<u8>> {
         // In production, use actual LDPC decoding with iterative belief propagation
         // For now, assume data is intact
         Ok(data.to_vec())
     }
 
     /// Decode using Turbo codes
-    async fn decode_turbo(&self, data: &[u8], parity: &[u8]) -> Result<Vec<u8>> {
+    async fn decode_turbo(&self, data: &[u8], _parity: &[u8]) -> Result<Vec<u8>> {
         // In production, use actual Turbo decoding with MAP algorithm
         // For now, assume data is intact
         Ok(data.to_vec())
@@ -375,7 +375,7 @@ impl FecDecoder {
     }
 
     /// Verify data with Reed-Solomon parity
-    async fn verify_reed_solomon(&self, data: &[u8], parity: &[u8]) -> bool {
+    async fn verify_reed_solomon(&self, _data: &[u8], _parity: &[u8]) -> bool {
         // In production, actual verification
         // For now, return true
         true
@@ -400,7 +400,7 @@ impl FecDecoder {
     }
 
     /// Attempt to recover lost packet
-    pub async fn recover_packet(&self, block_id: u64) -> Result<Vec<u8>> {
+    pub async fn recover_packet(&self, _block_id: u64) -> Result<Vec<u8>> {
         // In production, use parity symbols to reconstruct lost data
         // For now, return error
         Err(VantisError::InvalidPeer("Packet recovery not implemented".to_string()))
@@ -468,7 +468,7 @@ impl FecManager {
     }
 
     /// Adapt FEC parameters based on network conditions
-    pub async fn adapt_parameters(&self, packet_loss_rate: f64, latency_ms: f64) {
+    pub async fn adapt_parameters(&self, _packet_loss_rate: f64, _latency_ms: f64) {
         if !self.config.enable_adaptive {
             return;
         }

@@ -331,7 +331,7 @@ impl MloManager {
     }
 
     /// Send data on a specific link
-    async fn send_on_link(&self, link: &WifiLink, data: Vec<u8>) -> Result<()> {
+    async fn send_on_link(&self, _link: &WifiLink, data: Vec<u8>) -> Result<()> {
         // In production, this would actually send data over the link
         // For now, just update statistics
         {
@@ -401,7 +401,7 @@ impl MloManager {
 
     /// Start adaptive link selection
     pub async fn start_adaptive_selection(&self) -> tokio::task::JoinHandle<()> {
-        let links = self.links.clone();
+        let _links = self.links.clone();
         let interval = std::time::Duration::from_millis(self.config.quality_update_interval_ms);
 
         tokio::spawn(async move {

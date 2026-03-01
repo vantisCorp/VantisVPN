@@ -8,7 +8,7 @@ use crate::crypto::keys::EphemeralKeyPair;
 use crate::crypto::hash::Hash;
 use crate::crypto::random::SecureRandom;
 use std::collections::HashMap;
-use std::net::{IpAddr, SocketAddr};
+use std::net::IpAddr;
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
 use serde::{Serialize, Deserialize};
@@ -283,7 +283,7 @@ impl AvantisMesh {
             .map_err(|e| VantisError::InvalidData(format!("Failed to serialize message: {}", e)))?;
 
         let encrypted = if self.config.enable_encryption {
-            let mut rng = self.rng.lock().await;
+            let rng = self.rng.lock().await;
             let nonce = rng.generate_bytes(12)?;
             drop(rng);
 
@@ -322,7 +322,7 @@ impl AvantisMesh {
                 };
                 self.add_node(node).await?;
             }
-            MeshMessage::DirectMessage { from_node, to_node, content } => {
+            MeshMessage::DirectMessage { from_node: _, to_node, content } => {
                 // Handle direct message
                 if to_node == self.local_node.lock().await.node_id {
                     // Message is for us
@@ -331,7 +331,7 @@ impl AvantisMesh {
                     stats.bytes_transferred += content.len() as u64;
                 }
             }
-            MeshMessage::Broadcast { from_node, content } => {
+            MeshMessage::Broadcast { from_node: _, content } => {
                 // Handle broadcast message
                 let mut stats = self.stats.lock().await;
                 stats.messages_received += 1;

@@ -87,7 +87,7 @@ impl NetworkPath {
                 // Weighted average of all metrics
                 let latency_score = (1000.0 / (self.latency_ms + 1.0)).min(1.0);
                 let throughput_score = (self.throughput_mbps / 10000.0).min(1.0);
-                (latency_score * 0.3 + throughput_score * 0.3 + self.reliability_score * 0.2 + self.cost_score * 0.2)
+                latency_score * 0.3 + throughput_score * 0.3 + self.reliability_score * 0.2 + self.cost_score * 0.2
             }
         }
     }
@@ -296,7 +296,7 @@ impl SmartRoutingManager {
     async fn make_heuristic_decision(
         &self,
         paths: Vec<NetworkPath>,
-        destination: &str,
+        _destination: &str,
     ) -> Result<RoutingDecision> {
         // Find best path based on primary metric
         let best_path = paths
@@ -326,7 +326,7 @@ impl SmartRoutingManager {
     async fn make_ml_decision(
         &self,
         paths: Vec<NetworkPath>,
-        destination: &str,
+        _destination: &str,
     ) -> Result<RoutingDecision> {
         // Exploration vs exploitation
         if self.config.enable_exploration {

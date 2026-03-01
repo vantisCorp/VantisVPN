@@ -341,7 +341,7 @@ impl KillSwitchManager {
 
     /// Start monitoring VPN connection
     pub async fn start_monitoring(&self) -> tokio::task::JoinHandle<()> {
-        let is_active = self.is_active.clone();
+        let _is_active = self.is_active.clone();
         let auto_activate = self.config.auto_activate;
         let state = self.state.clone();
 

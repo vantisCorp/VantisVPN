@@ -191,7 +191,7 @@ impl JumboFrameManager {
     }
 
     /// Send a single frame
-    async fn send_single_frame(&self, destination: String, data: Vec<u8>) -> Result<()> {
+    async fn send_single_frame(&self, _destination: String, data: Vec<u8>) -> Result<()> {
         let frame_type = self.determine_frame_type(data.len());
 
         // In production, this would actually send the frame
@@ -214,7 +214,7 @@ impl JumboFrameManager {
     /// Send a fragmented frame
     async fn send_fragmented_frame(
         &self,
-        destination: String,
+        _destination: String,
         data: Vec<u8>,
         mtu: usize,
     ) -> Result<()> {
@@ -233,7 +233,7 @@ impl JumboFrameManager {
             let end = ((i + 1) as usize * fragment_size).min(data.len());
             let fragment_data = data[start..end].to_vec();
 
-            let fragment = FrameFragment::new(fragment_id, i, total_fragments, fragment_data);
+            let _fragment = FrameFragment::new(fragment_id, i, total_fragments, fragment_data);
 
             // In production, this would actually send the fragment
             {
@@ -282,7 +282,7 @@ impl JumboFrameManager {
     }
 
     /// Check if data is a fragment
-    fn is_fragment(&self, data: &[u8]) -> bool {
+    fn is_fragment(&self, _data: &[u8]) -> bool {
         // In production, check fragment header
         false
     }

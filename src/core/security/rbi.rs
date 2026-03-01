@@ -268,7 +268,7 @@ impl RbiManager {
     }
 
     /// Render frame for session
-    async fn render_frame(&self, session: &BrowserSession, event: &BrowserEvent) -> Result<RenderedFrame> {
+    async fn render_frame(&self, _session: &BrowserSession, _event: &BrowserEvent) -> Result<RenderedFrame> {
         // In production, this would:
         // 1. Send event to remote browser
         // 2. Wait for browser to render

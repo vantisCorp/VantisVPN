@@ -1,8 +1,7 @@
 // VANTISVPN Router OS Firmware
 // Secure router firmware with VPN integration
 
-use std::collections::HashMap;
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+use std::net::{IpAddr, Ipv4Addr};
 use std::time::{Duration, SystemTime};
 use serde::{Serialize, Deserialize};
 use crate::error::VantisError;

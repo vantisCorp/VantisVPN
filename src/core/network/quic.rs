@@ -4,8 +4,7 @@
 //! Built on top of the Quinn QUIC implementation.
 
 use std::time::Duration;
-use tokio::time::timeout;
-use tracing::{debug, error, info, warn};
+use tracing::{debug, info};
 
 /// QUIC connection configuration
 #[derive(Debug, Clone)]

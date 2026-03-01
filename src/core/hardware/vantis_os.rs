@@ -1,7 +1,6 @@
 // VANTISVPN Vantis OS
 // Tails-like secure USB operating system
 
-use std::collections::HashMap;
 use std::path::PathBuf;
 use std::time::{Duration, SystemTime};
 use serde::{Serialize, Deserialize};
@@ -308,7 +307,7 @@ impl VantisOsImage {
     }
 
     /// Generate ISO image
-    pub fn generate_iso(&self, output_path: PathBuf) -> Result<(), VantisError> {
+    pub fn generate_iso(&self, _output_path: PathBuf) -> Result<(), VantisError> {
         // Placeholder for ISO generation
         // In production, this would use tools like xorriso, mkisofs, etc.
         
@@ -316,7 +315,7 @@ impl VantisOsImage {
     }
 
     /// Generate USB image
-    pub fn generate_usb_image(&self, output_path: PathBuf) -> Result<(), VantisError> {
+    pub fn generate_usb_image(&self, _output_path: PathBuf) -> Result<(), VantisError> {
         // Placeholder for USB image generation
         // In production, this would use dd, or create a hybrid ISO
         

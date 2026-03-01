@@ -198,7 +198,7 @@ impl AnonymousPaymentManager {
             return Err(VantisError::InvalidData("Amount out of range".to_string()));
         }
 
-        let mut rng = self.rng.lock().await;
+        let rng = self.rng.lock().await;
         let payment_id = format!("xmr_{}", hex::encode(rng.generate_bytes(16)?));
         drop(rng);
 
@@ -252,7 +252,7 @@ impl AnonymousPaymentManager {
             return Err(VantisError::InvalidData("Amount out of range".to_string()));
         }
 
-        let mut rng = self.rng.lock().await;
+        let rng = self.rng.lock().await;
         let payment_id = format!("ln_{}", hex::encode(rng.generate_bytes(16)?));
         drop(rng);
 
@@ -307,7 +307,7 @@ impl AnonymousPaymentManager {
             return Err(VantisError::InvalidData("Amount out of range".to_string()));
         }
 
-        let mut rng = self.rng.lock().await;
+        let rng = self.rng.lock().await;
         let payment_id = format!("cash_{}", hex::encode(rng.generate_bytes(16)?));
         let reference_code = format!("REF-{}", hex::encode(rng.generate_bytes(8)?));
         let verification_code = format!("VER-{}", hex::encode(rng.generate_bytes(8)?));

@@ -15,12 +15,12 @@
 use crate::error::{VantisError, Result};
 use crate::crypto::{cipher::Cipher, hash::Hash, random::SecureRandom, keys::CipherSuite};
 use std::collections::HashMap;
-use std::net::{SocketAddr, IpAddr, Ipv6Addr};
+use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::sync::{Mutex, RwLock};
 use tokio::net::UdpSocket;
-use log::{debug, info, warn, error};
+use log::{debug, info, error};
 
 // QUIC Constants
 pub const QUIC_VERSION: u32 = 0x00000001;
@@ -898,7 +898,7 @@ impl QuicEndpoint {
         Ok(())
     }
     
-    async fn process_packet(&self, connection: &QuicConnection, header: &QuicPacketHeader, data: &[u8]) -> Result<()> {
+    async fn process_packet(&self, connection: &QuicConnection, _header: &QuicPacketHeader, data: &[u8]) -> Result<()> {
         // Update last activity
         let mut last_activity = connection.last_activity.lock().await;
         *last_activity = Instant::now();

@@ -113,7 +113,7 @@ impl Daita {
         }
 
         let padding_size = obfuscated_size - original_size;
-        let mut rng = self.rng.lock().await;
+        let rng = self.rng.lock().await;
         let padding = rng.generate_bytes(padding_size)?;
         drop(rng);
 
@@ -139,7 +139,7 @@ impl Daita {
                 if original_size >= self.config.max_packet_size {
                     Ok(original_size)
                 } else {
-                    let mut rng = self.rng.lock().await;
+                    let rng = self.rng.lock().await;
                     let padding = rng.generate_u32()? as usize;
                     drop(rng);
                     let max_padding = self.config.max_packet_size - original_size;
@@ -151,7 +151,7 @@ impl Daita {
                 if original_size >= self.config.max_packet_size {
                     Ok(original_size)
                 } else {
-                    let mut rng = self.rng.lock().await;
+                    let rng = self.rng.lock().await;
                     let u = rng.generate_u32()? as f64 / u32::MAX as f64;
                     drop(rng);
                     let padding_size = ((-u.ln()) / self.config.padding_lambda).ceil() as usize;
@@ -191,7 +191,7 @@ impl Daita {
 
                 // If packet rate is below threshold, add padding
                 if packet_rate < self.config.adaptive_threshold {
-                    let mut rng = self.rng.lock().await;
+                    let rng = self.rng.lock().await;
                     let padding = rng.generate_u32()? as usize;
                     drop(rng);
                     let max_padding = self.config.max_packet_size - original_size;
@@ -207,14 +207,14 @@ impl Daita {
     /// Generate dummy traffic for obfuscation
     pub async fn generate_dummy_traffic(&self) -> Result<Vec<u8>, VantisError> {
         let size = {
-            let mut rng = self.rng.lock().await;
+            let rng = self.rng.lock().await;
             let size = rng.generate_u32()? as usize;
             drop(rng);
             (size % (self.config.max_packet_size - self.config.min_packet_size)) 
                 + self.config.min_packet_size
         };
 
-        let mut rng = self.rng.lock().await;
+        let rng = self.rng.lock().await;
         let dummy = rng.generate_bytes(size)?;
         drop(rng);
 

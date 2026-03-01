@@ -9,7 +9,7 @@ use std::net::{IpAddr, SocketAddr};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use serde::{Serialize, Deserialize};
-use chrono::{DateTime, Utc, Duration};
+use chrono::{DateTime, Utc};
 
 /// Tunnel protocol type
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -155,7 +155,7 @@ impl DevTunnel {
         *active = true;
         drop(active);
 
-        let mut rng = self.rng.lock().await;
+        let rng = self.rng.lock().await;
         let tunnel_id = format!("tunnel_{}", hex::encode(rng.generate_bytes(16)?));
         drop(rng);
 

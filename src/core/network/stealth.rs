@@ -14,8 +14,8 @@
 use crate::error::{VantisError, Result};
 use crate::crypto::{cipher::Cipher, hash::Hash, random::SecureRandom, keys::CipherSuite};
 use std::sync::Arc;
-use std::time::{Duration, Instant};
-use log::{debug, info, warn};
+use std::time::Duration;
+use log::debug;
 
 // Stealth Protocol Constants
 pub const STEALTH_MAGIC: &[u8] = b"VANTIS_STEALTH";

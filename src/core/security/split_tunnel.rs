@@ -2,7 +2,7 @@
 // Allows selective routing of traffic through VPN
 // Supports application-based, domain-based, and IP-based split tunneling
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
 use serde::{Serialize, Deserialize};

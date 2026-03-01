@@ -7,7 +7,6 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use serde::{Serialize, Deserialize};
-use chrono::{DateTime, Utc};
 
 /// Theme mode
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
