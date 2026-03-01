@@ -32,6 +32,7 @@ pub mod security;
 pub mod privacy;
 pub mod ui;
 pub mod audit;
+pub mod hardware;
 pub mod error;
 pub mod config;
 pub mod utils;
@@ -91,6 +92,11 @@ pub use audit::{
     pci_dss_compliance::{PciDssCompliance, PciConfig, PciReport, PciRequirement},
     soc2_compliance::{Soc2Compliance, Soc2Config, Soc2Report, Soc2Control},
     hitrust_compliance::{HitrustCompliance, HitrustConfig, HitrustReport, HitrustControl},
+};
+pub use hardware::{
+    router_os::{RouterConfig, RouterFirmware, RouterState, RouterStats, FirewallRule, PortForwarding, QosPolicy, NetworkInterface, RouterFirmwareBuilder},
+    yubikey::{YubiKeyConfig, YubiKeyManager, YubiKeyAuth, YubiKeySlot, YubiKeyChallengeResponse, YubiKeyHmac, YubiKeyOtp},
+    vantis_os::{VantisOsConfig, VantisOsBuilder, VantisOsImage, BootConfig, PersistenceConfig, SecurityConfig, NetworkConfig},
 };
 pub use tunnel::{
     manager::TunnelManager,
