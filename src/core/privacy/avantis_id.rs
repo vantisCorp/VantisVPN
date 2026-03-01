@@ -336,7 +336,7 @@ impl AvantisIdManager {
     /// Generate identity ID
     fn generate_identity_id(&self) -> String {
         use std::time::{SystemTime, UNIX_EPOCH};
-        let timestamp = SystemTime::now()
+        let _timestamp = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
@@ -387,7 +387,7 @@ mod tests {
     async fn test_identity_expiration() {
         let mut config = AvantisIdConfig::default();
         config.default_duration_days = 0; // Immediate expiration
-        let manager = AvantisdIdManager::new(config).unwrap();
+        let manager = AvantisIdManager::new(config).unwrap();
 
         let identity = manager
             .generate_identity("Test User".to_string(), IdentityType::Temporary, None)
@@ -400,7 +400,7 @@ mod tests {
     #[tokio::test]
     async fn test_identity_proof() {
         let config = AvantisIdConfig::default();
-        let manager = AvantisdIdManager::new(config).unwrap();
+        let manager = AvantisIdManager::new(config).unwrap();
 
         let identity = manager
             .generate_identity("Alice".to_string(), IdentityType::Anonymous, Some(30))
@@ -417,7 +417,7 @@ mod tests {
     #[tokio::test]
     async fn test_identities_by_type() {
         let config = AvantisIdConfig::default();
-        let manager = AvantisdIdManager::new(config).unwrap();
+        let manager = AvantisIdManager::new(config).unwrap();
 
         manager
             .generate_identity("User1".to_string(), IdentityType::Personal, Some(30))
@@ -438,11 +438,11 @@ mod tests {
         assert_eq!(business_identities[0].display_name, "Business1");
     }
 
-    #[tokyio::test]
+    #[tokio::test]
     async fn test_cleanup_expired_identities() {
         let mut config = AvantisIdConfig::default();
         config.default_duration_days = 0; // Immediate expiration
-        let manager = AvantisdIdManager::new(config).unwrap();
+        let manager = AvantisIdManager::new(config).unwrap();
 
         manager
             .generate_identity("Temp1".to_string(), IdentityType::Temporary, None)

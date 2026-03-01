@@ -5,9 +5,9 @@
 use crate::error::VantisError;
 use crate::crypto::random::SecureRandom;
 use std::collections::HashMap;
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+use std::net::{IpAddr, Ipv4Addr};
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use tokio::sync::Mutex;
 use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
@@ -251,7 +251,7 @@ impl IpRotator {
         match self.config.strategy {
             RotationStrategy::PerConnection => {
                 // Random selection
-                let mut rng = self.rng.lock().await;
+                let rng = self.rng.lock().await;
                 let index = rng.generate_u32()? as usize % available.len();
                 Ok(available[index].clone())
             }
@@ -285,7 +285,7 @@ impl IpRotator {
                 }
                 
                 // Fallback to random
-                let mut rng = self.rng.lock().await;
+                let rng = self.rng.lock().await;
                 let index = rng.generate_u32()? as usize % available.len();
                 Ok(available[index].clone())
             }

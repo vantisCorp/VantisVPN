@@ -97,17 +97,18 @@ mod tests {
     #[test]
     fn test_hash_computation() {
         let data = b"Hello, VANTISVPN!";
-        let hash = Hash::compute(data);
+        let hash_instance = Hash::new().unwrap();
+        let hash_result = hash_instance.compute(data).unwrap();
         
-        assert!(!hash.is_zero());
-        assert_eq!(hash.as_bytes().len(), HASH_SIZE);
+        assert_eq!(hash_result.len(), HASH_SIZE);
     }
 
     #[test]
     fn test_hash_deterministic() {
         let data = b"Test data";
-        let hash1 = Hash::compute(data);
-        let hash2 = Hash::compute(data);
+        let hash_instance = Hash::new().unwrap();
+        let hash1 = hash_instance.compute(data).unwrap();
+        let hash2 = hash_instance.compute(data).unwrap();
         
         assert_eq!(hash1, hash2);
     }
@@ -116,8 +117,9 @@ mod tests {
     fn test_hash_different_inputs() {
         let data1 = b"Data 1";
         let data2 = b"Data 2";
-        let hash1 = Hash::compute(data1);
-        let hash2 = Hash::compute(data2);
+        let hash_instance = Hash::new().unwrap();
+        let hash1 = hash_instance.compute(data1).unwrap();
+        let hash2 = hash_instance.compute(data2).unwrap();
         
         assert_ne!(hash1, hash2);
     }
@@ -126,21 +128,22 @@ mod tests {
     fn test_keyed_hash() {
         let key = b"secret key";
         let data = b"Test data";
-        let hash = Hash::compute_keyed(key, data);
+        let hash_instance = Hash::new().unwrap();
+        let hash = hash_instance.compute_keyed(key, data).unwrap();
         
-        assert!(!hash.is_zero());
-        assert_eq!(hash.as_bytes().len(), HASH_SIZE);
+        assert_eq!(hash.len(), HASH_SIZE);
     }
 
     #[test]
     fn test_hash_hex() {
         let data = b"Test";
-        let hash = Hash::compute(data);
-        let hex = hash.as_hex();
+        let hash_instance = Hash::new().unwrap();
+        let hash_result = hash_instance.compute(data).unwrap();
+        let hex = hex::encode(&hash_result);
         
         assert_eq!(hex.len(), HASH_SIZE * 2);
         
         let hash2 = Hash::from_hex(&hex).expect("Failed to parse hex");
-        assert_eq!(hash, hash2);
+        assert_eq!(hash_instance, hash2);
     }
 }

@@ -189,7 +189,7 @@ impl ZkLoginManager {
     /// Initiate authentication
     pub async fn initiate_auth(&self, username: String) -> Result<ZkChallenge> {
         // Check if user exists
-        let user_creds = {
+        let _user_creds = {
             let creds = self.credentials.read().await;
             creds.get(&username)
                 .cloned()
@@ -268,7 +268,7 @@ impl ZkLoginManager {
     }
 
     /// Verify ZK proof
-    async fn verify_proof(&self, credentials: &UserCredentials, response: &ZkResponse) -> Result<bool> {
+    async fn verify_proof(&self, credentials: &UserCredentials, _response: &ZkResponse) -> Result<bool> {
         // In production, this would:
         // 1. Verify the ZK-SNARKs proof
         // 2. Verify the signature
@@ -384,8 +384,8 @@ mod tests {
         let manager = ZkLoginManager::new(config).unwrap();
 
         let creds = manager.register_user("testuser".to_string(), "password123".to_string()).await.unwrap();
-        assert!(creds.verify_password("password123").await.unwrap());
-        assert!(!creds.verify_password("wrongpassword").await.unwrap());
+        assert!(creds.verify_password("password123").unwrap());
+        assert!(!creds.verify_password("wrongpassword").unwrap());
     }
 
     #[tokio::test]
