@@ -30,6 +30,7 @@ pub mod tunnel;
 pub mod server;
 pub mod security;
 pub mod privacy;
+pub mod ui;
 pub mod error;
 pub mod config;
 pub mod utils;
@@ -75,6 +76,12 @@ pub use privacy::{
     ip_rotator::{IpRotator, RotatorConfig, RotationStrategy, IpPool, IpEndpoint},
     anonymous_payments::{AnonymousPaymentManager, PaymentConfig, PaymentMethod, MoneroPayment, LightningPayment, CashPayment, PaymentStatus},
     gdpr_compliance::{GdprCompliance, GdprConfig, DataSubject, DataRequest, ConsentRecord, RightToBeForgotten, DataPortability, ConsentType},
+};
+pub use ui::{
+    devtunnel::{DevTunnel, TunnelConfig, TunnelSession, TunnelStats},
+    family_shield::{FamilyShield, ShieldConfig, ShieldRule, ShieldStats},
+    biometric_auth::{BiometricAuth, BiometricConfig, BiometricType, AuthResult},
+    theme_manager::{ThemeManager, ThemeConfig, ThemeMode, HapticType, HapticPattern, ThemeColors},
 };
 pub use tunnel::{
     manager::TunnelManager,
