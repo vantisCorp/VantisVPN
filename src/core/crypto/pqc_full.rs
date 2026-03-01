@@ -13,67 +13,67 @@ use crate::error::{VantisError, Result};
 use crate::crypto::random::SecureRandom;
 use crate::crypto::hash::Hash;
 use std::sync::Arc;
-use log::{debug, info, warn};
+use log::{debug, info};
 
 // ML-KEM (Kyber) Parameters
-pub const ML_KEM_512_SECRET_KEY_SIZE: usize = 1632;
-pub const ML_KEM_512_PUBLIC_KEY_SIZE: usize = 800;
-pub const ML_KEM_512_CIPHERTEXT_SIZE: usize = 768;
-pub const ML_KEM_512_SHARED_SECRET_SIZE: usize = 32;
+pub const MlKem512_SECRET_KEY_SIZE: usize = 1632;
+pub const MlKem512_PUBLIC_KEY_SIZE: usize = 800;
+pub const MlKem512_CIPHERTEXT_SIZE: usize = 768;
+pub const MlKem512_SHARED_SECRET_SIZE: usize = 32;
 
-pub const ML_KEM_768_SECRET_KEY_SIZE: usize = 2400;
-pub const ML_KEM_768_PUBLIC_KEY_SIZE: usize = 1184;
-pub const ML_KEM_768_CIPHERTEXT_SIZE: usize = 1088;
-pub const ML_KEM_768_SHARED_SECRET_SIZE: usize = 32;
+pub const MlKem768_SECRET_KEY_SIZE: usize = 2400;
+pub const MlKem768_PUBLIC_KEY_SIZE: usize = 1184;
+pub const MlKem768_CIPHERTEXT_SIZE: usize = 1088;
+pub const MlKem768_SHARED_SECRET_SIZE: usize = 32;
 
-pub const ML_KEM_1024_SECRET_KEY_SIZE: usize = 3168;
-pub const ML_KEM_1024_PUBLIC_KEY_SIZE: usize = 1568;
-pub const ML_KEM_1024_CIPHERTEXT_SIZE: usize = 1568;
-pub const ML_KEM_1024_SHARED_SECRET_SIZE: usize = 32;
+pub const MlKem1024_SECRET_KEY_SIZE: usize = 3168;
+pub const MlKem1024_PUBLIC_KEY_SIZE: usize = 1568;
+pub const MlKem1024_CIPHERTEXT_SIZE: usize = 1568;
+pub const MlKem1024_SHARED_SECRET_SIZE: usize = 32;
 
 // ML-DSA (Dilithium) Parameters
-pub const ML_DSA_44_SECRET_KEY_SIZE: usize = 2560;
-pub const ML_DSA_44_PUBLIC_KEY_SIZE: usize = 1312;
-pub const ML_DSA_44_SIGNATURE_SIZE: usize = 2420;
+pub const MlDsa44_SECRET_KEY_SIZE: usize = 2560;
+pub const MlDsa44_PUBLIC_KEY_SIZE: usize = 1312;
+pub const MlDsa44_SIGNATURE_SIZE: usize = 2420;
 
-pub const ML_DSA_65_SECRET_KEY_SIZE: usize = 4032;
-pub const ML_DSA_65_PUBLIC_KEY_SIZE: usize = 1952;
-pub const ML_DSA_65_SIGNATURE_SIZE: usize = 3309;
+pub const MlDsa65_SECRET_KEY_SIZE: usize = 4032;
+pub const MlDsa65_PUBLIC_KEY_SIZE: usize = 1952;
+pub const MlDsa65_SIGNATURE_SIZE: usize = 3309;
 
-pub const ML_DSA_87_SECRET_KEY_SIZE: usize = 4896;
-pub const ML_DSA_87_PUBLIC_KEY_SIZE: usize = 2592;
-pub const ML_DSA_87_SIGNATURE_SIZE: usize = 4627;
+pub const MlDsa87_SECRET_KEY_SIZE: usize = 4896;
+pub const MlDsa87_PUBLIC_KEY_SIZE: usize = 2592;
+pub const MlDsa87_SIGNATURE_SIZE: usize = 4627;
 
 /// ML-KEM Security Level
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MlKemSecurityLevel {
-    ML_KEM_512,
-    ML_KEM_768,
-    ML_KEM_1024,
+    MlKem512,
+    MlKem768,
+    MlKem1024,
 }
 
 impl MlKemSecurityLevel {
     pub fn secret_key_size(&self) -> usize {
         match self {
-            Self::ML_KEM_512 => ML_KEM_512_SECRET_KEY_SIZE,
-            Self::ML_KEM_768 => ML_KEM_768_SECRET_KEY_SIZE,
-            Self::ML_KEM_1024 => ML_KEM_1024_SECRET_KEY_SIZE,
+            Self::MlKem512 => MlKem512_SECRET_KEY_SIZE,
+            Self::MlKem768 => MlKem768_SECRET_KEY_SIZE,
+            Self::MlKem1024 => MlKem1024_SECRET_KEY_SIZE,
         }
     }
     
     pub fn public_key_size(&self) -> usize {
         match self {
-            Self::ML_KEM_512 => ML_KEM_512_PUBLIC_KEY_SIZE,
-            Self::ML_KEM_768 => ML_KEM_768_PUBLIC_KEY_SIZE,
-            Self::ML_KEM_1024 => ML_KEM_1024_PUBLIC_KEY_SIZE,
+            Self::MlKem512 => MlKem512_PUBLIC_KEY_SIZE,
+            Self::MlKem768 => MlKem768_PUBLIC_KEY_SIZE,
+            Self::MlKem1024 => MlKem1024_PUBLIC_KEY_SIZE,
         }
     }
     
     pub fn ciphertext_size(&self) -> usize {
         match self {
-            Self::ML_KEM_512 => ML_KEM_512_CIPHERTEXT_SIZE,
-            Self::ML_KEM_768 => ML_KEM_768_CIPHERTEXT_SIZE,
-            Self::ML_KEM_1024 => ML_KEM_1024_CIPHERTEXT_SIZE,
+            Self::MlKem512 => MlKem512_CIPHERTEXT_SIZE,
+            Self::MlKem768 => MlKem768_CIPHERTEXT_SIZE,
+            Self::MlKem1024 => MlKem1024_CIPHERTEXT_SIZE,
         }
     }
 }
@@ -81,33 +81,33 @@ impl MlKemSecurityLevel {
 /// ML-DSA Security Level
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MlDsaSecurityLevel {
-    ML_DSA_44,
-    ML_DSA_65,
-    ML_DSA_87,
+    MlDsa44,
+    MlDsa65,
+    MlDsa87,
 }
 
 impl MlDsaSecurityLevel {
     pub fn secret_key_size(&self) -> usize {
         match self {
-            Self::ML_DSA_44 => ML_DSA_44_SECRET_KEY_SIZE,
-            Self::ML_DSA_65 => ML_DSA_65_SECRET_KEY_SIZE,
-            Self::ML_DSA_87 => ML_DSA_87_SECRET_KEY_SIZE,
+            Self::MlDsa44 => MlDsa44_SECRET_KEY_SIZE,
+            Self::MlDsa65 => MlDsa65_SECRET_KEY_SIZE,
+            Self::MlDsa87 => MlDsa87_SECRET_KEY_SIZE,
         }
     }
     
     pub fn public_key_size(&self) -> usize {
         match self {
-            Self::ML_DSA_44 => ML_DSA_44_PUBLIC_KEY_SIZE,
-            Self::ML_DSA_65 => ML_DSA_65_PUBLIC_KEY_SIZE,
-            Self::ML_DSA_87 => ML_DSA_87_PUBLIC_KEY_SIZE,
+            Self::MlDsa44 => MlDsa44_PUBLIC_KEY_SIZE,
+            Self::MlDsa65 => MlDsa65_PUBLIC_KEY_SIZE,
+            Self::MlDsa87 => MlDsa87_PUBLIC_KEY_SIZE,
         }
     }
     
     pub fn signature_size(&self) -> usize {
         match self {
-            Self::ML_DSA_44 => ML_DSA_44_SIGNATURE_SIZE,
-            Self::ML_DSA_65 => ML_DSA_65_SIGNATURE_SIZE,
-            Self::ML_DSA_87 => ML_DSA_87_SIGNATURE_SIZE,
+            Self::MlDsa44 => MlDsa44_SIGNATURE_SIZE,
+            Self::MlDsa65 => MlDsa65_SIGNATURE_SIZE,
+            Self::MlDsa87 => MlDsa87_SIGNATURE_SIZE,
         }
     }
 }
@@ -147,7 +147,7 @@ impl MlKemKeyPair {
         }
         
         let rng = SecureRandom::new()?;
-        let shared_secret = rng.generate_bytes(ML_KEM_512_SHARED_SECRET_SIZE)?;
+        let shared_secret = rng.generate_bytes(MlKem512_SHARED_SECRET_SIZE)?;
         let ciphertext = rng.generate_bytes(self.security_level.ciphertext_size())?;
         
         // In production, use actual ML-KEM encapsulation
@@ -165,7 +165,7 @@ impl MlKemKeyPair {
         }
         
         let rng = SecureRandom::new()?;
-        let shared_secret = rng.generate_bytes(ML_KEM_512_SHARED_SECRET_SIZE)?;
+        let shared_secret = rng.generate_bytes(MlKem512_SHARED_SECRET_SIZE)?;
         
         // In production, use actual ML-KEM decapsulation
         // This is a placeholder for demonstration
@@ -285,7 +285,7 @@ impl HybridKeyExchange {
         
         // Post-quantum exchange (ML-KEM)
         let pqc_keypair = self.pqc_keypair.as_ref().unwrap();
-        let (pqc_ciphertext, pqc_shared) = pqc_keypair.encapsulate(peer_public_key)?;
+        let (_pqc_ciphertext, pqc_shared) = pqc_keypair.encapsulate(peer_public_key)?;
         
         // Combine shared secrets using HKDF
         let mut combined = Vec::new();
@@ -406,7 +406,7 @@ impl PqcManager {
         let hash = Hash::new()?;
         
         // Split ciphertext
-        let classical_ciphertext = &ciphertext[..32];
+        let _classical_ciphertext = &ciphertext[..32];
         let pqc_ciphertext = &ciphertext[32..];
         
         // Classical decapsulation (X25519) - placeholder
@@ -478,44 +478,44 @@ mod tests {
     
     #[test]
     fn test_ml_kem_keypair_generation() {
-        let keypair = MlKemKeyPair::generate(MlKemSecurityLevel::ML_KEM_512)
+        let keypair = MlKemKeyPair::generate(MlKemSecurityLevel::MlKem512)
             .expect("Failed to generate keypair");
         
-        assert_eq!(keypair.secret_key.len(), ML_KEM_512_SECRET_KEY_SIZE);
-        assert_eq!(keypair.public_key.len(), ML_KEM_512_PUBLIC_KEY_SIZE);
+        assert_eq!(keypair.secret_key.len(), MlKem512_SECRET_KEY_SIZE);
+        assert_eq!(keypair.public_key.len(), MlKem512_PUBLIC_KEY_SIZE);
     }
     
     #[test]
     fn test_ml_kem_encapsulation() {
-        let keypair = MlKemKeyPair::generate(MlKemSecurityLevel::ML_KEM_512)
+        let keypair = MlKemKeyPair::generate(MlKemSecurityLevel::MlKem512)
             .expect("Failed to generate keypair");
         
         let (ciphertext, shared_secret) = keypair.encapsulate(&keypair.public_key)
             .expect("Failed to encapsulate");
         
-        assert_eq!(ciphertext.len(), ML_KEM_512_CIPHERTEXT_SIZE);
-        assert_eq!(shared_secret.len(), ML_KEM_512_SHARED_SECRET_SIZE);
+        assert_eq!(ciphertext.len(), MlKem512_CIPHERTEXT_SIZE);
+        assert_eq!(shared_secret.len(), MlKem512_SHARED_SECRET_SIZE);
     }
     
     #[test]
     fn test_ml_dsa_keypair_generation() {
-        let keypair = MlDsaKeyPair::generate(MlDsaSecurityLevel::ML_DSA_44)
+        let keypair = MlDsaKeyPair::generate(MlDsaSecurityLevel::MlDsa44)
             .expect("Failed to generate keypair");
         
-        assert_eq!(keypair.secret_key.len(), ML_DSA_44_SECRET_KEY_SIZE);
-        assert_eq!(keypair.public_key.len(), ML_DSA_44_PUBLIC_KEY_SIZE);
+        assert_eq!(keypair.secret_key.len(), MlDsa44_SECRET_KEY_SIZE);
+        assert_eq!(keypair.public_key.len(), MlDsa44_PUBLIC_KEY_SIZE);
     }
     
     #[test]
     fn test_ml_dsa_signing() {
-        let keypair = MlDsaKeyPair::generate(MlDsaSecurityLevel::ML_DSA_44)
+        let keypair = MlDsaKeyPair::generate(MlDsaSecurityLevel::MlDsa44)
             .expect("Failed to generate keypair");
         
         let message = b"Test message";
         let signature = keypair.sign(message)
             .expect("Failed to sign");
         
-        assert_eq!(signature.len(), ML_DSA_44_SIGNATURE_SIZE);
+        assert_eq!(signature.len(), MlDsa44_SIGNATURE_SIZE);
         
         let verified = keypair.verify(message, &signature)
             .expect("Failed to verify");
@@ -528,7 +528,7 @@ mod tests {
         let mut exchange = HybridKeyExchange::new()
             .expect("Failed to create exchange");
         
-        exchange.generate_keypair(MlKemSecurityLevel::ML_KEM_768)
+        exchange.generate_keypair(MlKemSecurityLevel::MlKem768)
             .expect("Failed to generate keypair");
         
         let public_key = exchange.get_public_key()
@@ -545,10 +545,10 @@ mod tests {
         let manager = PqcManager::new()
             .expect("Failed to create manager");
         
-        let ml_kem_keypair = manager.generate_ml_kem_keypair(MlKemSecurityLevel::ML_KEM_512)
+        let ml_kem_keypair = manager.generate_ml_kem_keypair(MlKemSecurityLevel::MlKem512)
             .expect("Failed to generate ML-KEM keypair");
         
-        let ml_dsa_keypair = manager.generate_ml_dsa_keypair(MlDsaSecurityLevel::ML_DSA_44)
+        let ml_dsa_keypair = manager.generate_ml_dsa_keypair(MlDsaSecurityLevel::MlDsa44)
             .expect("Failed to generate ML-DSA keypair");
         
         assert!(ml_kem_keypair.secret_key.len() > 0);

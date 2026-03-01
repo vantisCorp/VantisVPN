@@ -12,7 +12,6 @@ use chacha20poly1305::{
     Key as ChaChaKey,
     Nonce as ChaChaNonce,
 };
-use zeroize::Zeroize;
 use serde::{Serialize, Deserialize};
 use std::fmt;
 use super::random::secure_random;
@@ -216,7 +215,7 @@ impl Cipher {
     /// Encrypt data with associated data
     /// 
     /// Returns ciphertext with authentication tag appended.
-    pub fn encrypt(&self, plaintext: &[u8], associated_data: &[u8]) -> crate::Result<Vec<u8>> {
+    pub fn encrypt(&self, plaintext: &[u8], _associated_data: &[u8]) -> crate::Result<Vec<u8>> {
         let mut nonce_bytes = [0u8; NONCE_SIZE];
         secure_random(&mut nonce_bytes)?;
         let nonce = ChaChaNonce::from_slice(&nonce_bytes);
@@ -233,7 +232,7 @@ impl Cipher {
     }
     
     /// Decrypt data
-    pub fn decrypt(&self, ciphertext: &[u8], associated_data: &[u8]) -> crate::Result<Vec<u8>> {
+    pub fn decrypt(&self, ciphertext: &[u8], _associated_data: &[u8]) -> crate::Result<Vec<u8>> {
         if ciphertext.len() < NONCE_SIZE {
             return Err(crate::VantisError::InvalidCiphertext);
         }
