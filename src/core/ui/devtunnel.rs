@@ -45,24 +45,28 @@ pub enum TunnelStatus {
 
 /// Tunnel configuration
 #[derive(Debug, Clone)]
+/// DevTunnel configuration
+/// 
+/// Configuration settings for developer tunnels, including connection
+/// parameters, protocol selection, and reconnection behavior.
 pub struct TunnelConfig {
-    /// Local port to bind
+    /// Local port to bind for the tunnel
     pub local_port: u16,
-    /// Remote host
+    /// Remote host to connect to
     pub remote_host: String,
-    /// Remote port
+    /// Remote port on the host
     pub remote_port: u16,
-    /// Tunnel protocol
+    /// Protocol to use for the tunnel
     pub protocol: TunnelProtocol,
-    /// Enable compression
+    /// Enable data compression
     pub enable_compression: bool,
-    /// Enable encryption
+    /// Enable end-to-end encryption
     pub enable_encryption: bool,
     /// Connection timeout in seconds
     pub timeout_secs: u64,
-    /// Auto-reconnect on failure
+    /// Automatically reconnect on connection failure
     pub auto_reconnect: bool,
-    /// Maximum reconnect attempts
+    /// Maximum number of reconnection attempts
     pub max_reconnect_attempts: u32,
 }
 
@@ -82,45 +86,55 @@ impl Default for TunnelConfig {
     }
 }
 
-/// Tunnel session
+/// DevTunnel session
+/// 
+/// Represents an active tunnel session with connection details,
+/// status, and usage statistics.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TunnelSession {
-    /// Session ID
+    /// Unique identifier for this session
     pub session_id: String,
-    /// Tunnel ID
+    /// ID of the tunnel this session belongs to
     pub tunnel_id: String,
-    /// Local address
+    /// Local socket address
     pub local_address: SocketAddr,
-    /// Remote address
+    /// Remote socket address
     pub remote_address: SocketAddr,
-    /// Session status
+    /// Current status of the session
     pub status: TunnelStatus,
-    /// Bytes transferred
+    /// Total bytes transferred in this session
     pub bytes_transferred: u64,
-    /// Connection start time
+    /// Timestamp when the session started
     pub started_at: DateTime<Utc>,
-    /// Last activity time
+    /// Timestamp of last activity
     pub last_activity: DateTime<Utc>,
 }
 
-/// Tunnel statistics
+/// DevTunnel statistics
+/// 
+/// Contains statistics about developer tunnel operations, including
+/// tunnel counts, traffic metrics, and connection statistics.
 #[derive(Debug, Clone)]
 pub struct TunnelStats {
-    /// Total tunnels created
+    /// Total number of tunnels created
     pub total_tunnels: u64,
-    /// Active tunnels
+    /// Number of currently active tunnels
     pub active_tunnels: u64,
-    /// Total bytes transferred
+    /// Total bytes transferred across all tunnels
     pub total_bytes_transferred: u64,
-    /// Total connections
+    /// Total number of connections established
     pub total_connections: u64,
-    /// Failed connections
+    /// Number of failed connection attempts
     pub failed_connections: u64,
-    /// Average latency in milliseconds
+    /// Average connection latency in milliseconds
     pub avg_latency_ms: f64,
 }
 
 /// DevTunnel - Developer Tunnel Management
+/// DevTunnel manager
+///
+/// Manages developer tunnels for secure remote access to development
+/// environments, supporting multiple protocols and connection management.
 pub struct DevTunnel {
     config: TunnelConfig,
     sessions: Arc<Mutex<HashMap<String, TunnelSession>>>,

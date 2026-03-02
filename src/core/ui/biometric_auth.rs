@@ -28,54 +28,64 @@ pub enum BiometricType {
 
 /// Authentication result
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Biometric authentication result
+/// 
+/// Contains the result of a biometric authentication attempt, including
+/// success status, confidence score, and error information.
 pub struct AuthResult {
-    /// Success status
+    /// Whether authentication was successful
     pub success: bool,
-    /// Confidence score (0-1)
+    /// Confidence score of the match (0.0-1.0)
     pub confidence: f64,
-    /// Authentication method used
+    /// Type of biometric method used
     pub method: BiometricType,
-    /// Timestamp
+    /// Timestamp when authentication was performed
     pub timestamp: DateTime<Utc>,
-    /// Error message if failed
+    /// Error message if authentication failed
     pub error_message: Option<String>,
 }
 
 /// Biometric template
+/// 
+/// Represents a stored biometric template for authentication,
+/// containing encrypted biometric data and metadata.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BiometricTemplate {
-    /// Template ID
+    /// Unique identifier for this template
     pub template_id: String,
-    /// User ID
+    /// ID of the user this template belongs to
     pub user_id: String,
-    /// Biometric type
+    /// Type of biometric data stored
     pub biometric_type: BiometricType,
-    /// Template data (encrypted)
+    /// Encrypted biometric template data
     pub template_data: Vec<u8>,
-    /// Created at
+    /// Timestamp when the template was created
     pub created_at: DateTime<Utc>,
-    /// Last used
+    /// Timestamp when this template was last used
     pub last_used: Option<DateTime<Utc>>,
-    /// Is active
+    /// Whether this template is currently active
     pub is_active: bool,
 }
 
-/// Biometric configuration
+/// Biometric authentication configuration
+/// 
+/// Configuration settings for biometric authentication, including
+/// confidence thresholds, lockout policies, and multi-factor options.
 #[derive(Debug, Clone)]
 pub struct BiometricConfig {
     /// Enable biometric authentication
     pub enabled: bool,
-    /// Required confidence threshold (0-1)
+    /// Minimum confidence threshold required (0.0-1.0)
     pub confidence_threshold: f64,
-    /// Maximum failed attempts
+    /// Maximum number of failed attempts before lockout
     pub max_failed_attempts: u32,
-    /// Lockout duration in seconds
+    /// Lockout duration in seconds after too many failures
     pub lockout_duration: u64,
-    /// Enable multi-factor biometrics
+    /// Enable multi-factor biometric authentication
     pub enable_multi_factor: bool,
-    /// Required biometric types for multi-factor
+    /// Required biometric types for multi-factor authentication
     pub required_types: Vec<BiometricType>,
-    /// Enable fallback to password
+    /// Enable fallback to password authentication
     pub enable_password_fallback: bool,
 }
 
@@ -94,6 +104,10 @@ impl Default for BiometricConfig {
 }
 
 /// Biometric Auth - Biometric Authorization
+/// Biometric authentication manager
+///
+/// Manages biometric authentication operations, including template storage,
+/// authentication attempts, and lockout policies.
 pub struct BiometricAuth {
     config: BiometricConfig,
     templates: Arc<Mutex<HashMap<String, BiometricTemplate>>>,
