@@ -11,109 +11,211 @@ use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc, Duration};
 
 /// Zero Trust policy action
+/// 
+/// Defines the action to take when a Zero Trust policy matches an access request.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PolicyAction {
+    /// Allow the access request
+    /// 
+    /// Grants access to the requested resource without additional requirements.
     Allow,
+    /// Deny the access request
+    /// 
+    /// Blocks access to the requested resource.
     Deny,
+    /// Require authentication
+    /// 
+    /// Requires the user to authenticate before granting access.
     RequireAuth,
+    /// Require multi-factor authentication
+    /// 
+    /// Requires the user to provide additional authentication factors.
     RequireMfa,
+    /// Log only
+    /// 
+    /// Logs the access request without making an access decision,
+    /// allowing subsequent policies to be evaluated.
     LogOnly,
 }
 
 /// Zero Trust policy rule
+/// 
+/// Defines a Zero Trust access control policy with matching criteria
+/// and actions to take when the policy matches an access request.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ZeroTrustPolicy {
     /// Unique policy ID
+    /// 
+    /// Unique identifier for this policy.
     pub id: String,
     /// Policy name
+    /// 
+    /// Human-readable name for this policy.
     pub name: String,
     /// Description
+    /// 
+    /// Detailed description of what this policy does.
     pub description: String,
     /// Source IP/CIDR (empty = any)
+    /// 
+    /// Source IP address or CIDR range to match. Empty means any source.
     pub source: Option<String>,
     /// Destination IP/CIDR (empty = any)
+    /// 
+    /// Destination IP address or CIDR range to match. Empty means any destination.
     pub destination: Option<String>,
     /// Destination port (0 = any)
+    /// 
+    /// Destination port number to match. 0 means any port.
     pub port: u16,
     /// Protocol (tcp/udp/any)
+    /// 
+    /// Network protocol to match (tcp, udp, or any).
     pub protocol: String,
     /// Action to take
+    /// 
+    /// The action to take when this policy matches an access request.
     pub action: PolicyAction,
     /// Priority (higher = more important)
+    /// 
+    /// Policy priority. Higher values are evaluated first.
     pub priority: u32,
     /// Enabled status
+    /// 
+    /// Whether this policy is currently active.
     pub enabled: bool,
     /// Tags for organization
+    /// 
+    /// Tags for organizing and filtering policies.
     pub tags: Vec<String>,
     /// Creation timestamp
+    /// 
+    /// When this policy was created.
     pub created_at: DateTime<Utc>,
     /// Last modified timestamp
+    /// 
+    /// When this policy was last modified.
     pub modified_at: DateTime<Utc>,
 }
 
 /// Access request
+/// 
+/// Represents an access request to be evaluated against Zero Trust policies.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AccessRequest {
     /// Source IP address
+    /// 
+    /// IP address of the source making the access request.
     pub source: IpAddr,
     /// Destination IP address
+    /// 
+    /// IP address of the destination being accessed.
     pub destination: IpAddr,
     /// Destination port
+    /// 
+    /// Port number of the destination service.
     pub port: u16,
     /// Protocol (tcp/udp)
+    /// 
+    /// Network protocol being used (tcp or udp).
     pub protocol: String,
     /// User ID (if authenticated)
+    /// 
+    /// User ID if the request is authenticated, None otherwise.
     pub user_id: Option<String>,
     /// Device ID
+    /// 
+    /// Unique identifier of the device making the request.
     pub device_id: String,
     /// Request timestamp
+    /// 
+    /// When the access request was made.
     pub timestamp: DateTime<Utc>,
 }
 
 /// Access decision
+/// 
+/// Represents the result of evaluating an access request against
+/// Zero Trust policies.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AccessDecision {
     /// Whether access is granted
+    /// 
+    /// True if access is allowed, false if denied.
     pub allowed: bool,
     /// Policy that made the decision
+    /// 
+    /// ID of the policy that made this decision, if any.
     pub policy_id: Option<String>,
     /// Reason for decision
+    /// 
+    /// Human-readable explanation of why this decision was made.
     pub reason: String,
     /// Additional requirements (e.g., MFA)
+    /// 
+    /// List of additional requirements that must be met for access.
     pub requirements: Vec<String>,
     /// Decision timestamp
+    /// 
+    /// When this access decision was made.
     pub timestamp: DateTime<Utc>,
 }
 
 /// Access log entry
+/// 
+/// Represents a logged access request and its corresponding decision.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AccessLog {
     /// Unique log ID
+    /// 
+    /// Unique identifier for this log entry.
     pub id: String,
     /// Access request
+    /// 
+    /// The access request that was logged.
     pub request: AccessRequest,
     /// Access decision
+    /// 
+    /// The decision made for this access request.
     pub decision: AccessDecision,
     /// Log timestamp
+    /// 
+    /// When this log entry was created.
     pub timestamp: DateTime<Utc>,
 }
 
 /// Zero Trust configuration
+/// 
+/// Configuration settings for the Zero Trust access control system.
 #[derive(Debug, Clone)]
 pub struct ZeroTrustConfig {
     /// Default action when no policy matches
+    /// 
+    /// The action to take when no matching policy is found.
     pub default_action: PolicyAction,
     /// Enable logging for all requests
+    /// 
+    /// Whether to log all access requests regardless of policy matches.
     pub log_all_requests: bool,
     /// Enable anomaly detection
+    /// 
+    /// Whether to enable anomaly detection for suspicious access patterns.
     pub enable_anomaly_detection: bool,
     /// Anomaly threshold (0-1)
+    /// 
+    /// Threshold for anomaly detection (0.0 to 1.0).
     pub anomaly_threshold: f64,
     /// Session timeout in seconds
+    /// 
+    /// Maximum duration of an active session before re-authentication is required.
     pub session_timeout: u64,
     /// Maximum failed attempts before lockout
+    /// 
+    /// Maximum number of failed access attempts before account lockout.
     pub max_failed_attempts: u32,
     /// Lockout duration in seconds
+    /// 
+    /// Duration of account lockout after too many failed attempts.
     pub lockout_duration: u64,
 }
 
@@ -132,15 +234,25 @@ impl Default for ZeroTrustConfig {
 }
 
 /// Device trust score
+/// 
+/// Represents the trust score and assessment factors for a device.
 #[derive(Debug, Clone)]
 pub struct DeviceTrust {
     /// Device ID
+    /// 
+    /// Unique identifier for this device.
     pub device_id: String,
     /// Trust score (0-100)
+    /// 
+    /// Trust score for this device (0 = untrusted, 100 = fully trusted).
     pub score: u8,
     /// Last assessment timestamp
+    /// 
+    /// When the device trust was last assessed.
     pub last_assessed: DateTime<Utc>,
     /// Factors affecting score
+    /// 
+    /// List of factors that influenced the trust score.
     pub factors: Vec<String>,
 }
 
