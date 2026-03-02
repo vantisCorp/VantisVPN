@@ -27,20 +27,24 @@ pub enum DaitaStrategy {
 
 /// DAITA configuration
 #[derive(Debug, Clone)]
+/// DAITA configuration
+/// 
+/// Configuration settings for DAITA (Defense Against Internet Traffic Analysis),
+/// including traffic obfuscation strategies and adaptive parameters.
 pub struct DaitaConfig {
     /// Strategy to use for traffic obfuscation
     pub strategy: DaitaStrategy,
-    /// Minimum packet size (bytes)
+    /// Minimum packet size in bytes after padding
     pub min_packet_size: usize,
-    /// Maximum packet size (bytes)
+    /// Maximum packet size in bytes after padding
     pub max_packet_size: usize,
-    /// Padding distribution parameter (for exponential)
+    /// Lambda parameter for exponential padding distribution
     pub padding_lambda: f64,
-    /// Burst interval (milliseconds)
+    /// Interval between traffic bursts in milliseconds
     pub burst_interval: u64,
-    /// Burst size (packets)
+    /// Number of packets in each traffic burst
     pub burst_size: usize,
-    /// Adaptive threshold (packets per second)
+    /// Threshold for adaptive obfuscation (packets per second)
     pub adaptive_threshold: f64,
 }
 
@@ -58,14 +62,23 @@ impl Default for DaitaConfig {
     }
 }
 
-/// Traffic statistics for adaptive strategy
+/// Traffic statistics for adaptive DAITA strategy
+/// 
+/// Contains traffic statistics used by the adaptive obfuscation strategy
+/// to determine when and how to apply traffic obfuscation.
 #[derive(Debug, Clone)]
 pub struct TrafficStats {
+    /// Total number of packets sent
     pub packets_sent: u64,
+    /// Total number of packets received
     pub packets_received: u64,
+    /// Total number of bytes sent
     pub bytes_sent: u64,
+    /// Total number of bytes received
     pub bytes_received: u64,
+    /// Timestamp when statistics collection started
     pub start_time: Instant,
+    /// Timestamp of the last packet sent or received
     pub last_packet_time: Instant,
 }
 
@@ -84,6 +97,10 @@ impl Default for TrafficStats {
 }
 
 /// DAITA - Defensive AI Traffic Analysis
+///
+/// Implements traffic obfuscation techniques to defend against traffic
+/// analysis attacks, including packet padding, bursting, and adaptive strategies.
+pub struct Daita {
 pub struct Daita {
     config: DaitaConfig,
     rng: Arc<Mutex<SecureRandom>>,

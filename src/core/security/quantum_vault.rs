@@ -14,47 +14,54 @@ use chrono::{DateTime, Utc};
 
 /// Vault entry for storing credentials
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Password vault entry
+/// 
+/// Represents a single password entry in the Quantum Vault, containing
+/// encrypted credentials and metadata for secure password management.
 pub struct VaultEntry {
-    /// Unique identifier for the entry
+    /// Unique identifier for this vault entry
     pub id: String,
-    /// Service/website name
+    /// Name of the service or website
     pub service: String,
-    /// Username/email
+    /// Username or email address for the service
     pub username: String,
-    /// Encrypted password
+    /// Encrypted password data
     pub encrypted_password: Vec<u8>,
-    /// Password nonce for encryption
+    /// Nonce used for password encryption
     pub password_nonce: Vec<u8>,
-    /// URL (optional)
+    /// Optional URL for the service
     pub url: Option<String>,
-    /// Notes (optional)
+    /// Optional notes about this entry
     pub notes: Option<String>,
-    /// Tags for organization
+    /// Tags for organizing and searching entries
     pub tags: Vec<String>,
-    /// Creation timestamp
+    /// Timestamp when this entry was created
     pub created_at: DateTime<Utc>,
-    /// Last modified timestamp
+    /// Timestamp when this entry was last modified
     pub modified_at: DateTime<Utc>,
-    /// Last accessed timestamp
+    /// Timestamp when this entry was last accessed
     pub last_accessed: Option<DateTime<Utc>>,
     /// Password strength score (0-100)
     pub strength_score: u8,
 }
 
-/// Vault configuration
+/// Quantum Vault configuration
+/// 
+/// Configuration settings for the password vault, including security
+/// parameters, auto-lock settings, and clipboard management.
 #[derive(Debug, Clone)]
 pub struct VaultConfig {
-    /// Master key derivation iterations
+    /// Number of iterations for master key derivation (PBKDF2)
     pub key_iterations: u32,
     /// Auto-lock timeout in seconds (0 = disabled)
     pub auto_lock_timeout: u64,
-    /// Maximum failed attempts before lockout
+    /// Maximum number of failed unlock attempts before lockout
     pub max_failed_attempts: u32,
-    /// Lockout duration in seconds
+    /// Duration of lockout in seconds after too many failed attempts
     pub lockout_duration: u64,
-    /// Enable clipboard auto-clear
+    /// Enable automatic clearing of clipboard after password copy
     pub clipboard_auto_clear: bool,
-    /// Clipboard clear timeout in seconds
+    /// Timeout in seconds before clearing clipboard
     pub clipboard_timeout: u64,
 }
 
@@ -80,6 +87,9 @@ pub enum VaultState {
 }
 
 /// Vault statistics
+///
+/// Contains statistics about the password vault, including entry counts,
+/// password health metrics, and backup information.
 #[derive(Debug, Clone)]
 pub struct VaultStats {
     pub total_entries: usize,
@@ -90,6 +100,10 @@ pub struct VaultStats {
 }
 
 /// Quantum Vault - Secure Password Manager
+/// Quantum Vault password manager
+///
+/// Manages encrypted password storage with secure key derivation,
+/// auto-lock functionality, and clipboard management.
 pub struct QuantumVault {
     config: VaultConfig,
     state: Arc<Mutex<VaultState>>,
