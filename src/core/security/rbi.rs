@@ -9,53 +9,102 @@ use serde::{Serialize, Deserialize};
 use crate::error::{VantisError, Result};
 
 /// Browser Type
+/// 
+/// Specifies the type of browser engine to use for remote browser isolation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserType {
-    /// Chromium-based
+    /// Chromium-based browser
+    /// 
+    /// Uses the Chromium engine, providing compatibility with Chrome-based
+    /// web applications and extensions.
     Chromium,
-    /// Firefox-based
+    /// Firefox-based browser
+    /// 
+    /// Uses the Firefox engine, providing enhanced privacy features and
+    /// support for Firefox-specific web technologies.
     Firefox,
     /// Headless browser
+    /// 
+    /// Runs without a graphical interface, optimized for automated
+    /// testing and background processing.
     Headless,
 }
 
 /// Isolation Level
+/// 
+/// Defines the degree of isolation between the remote browser and the local system.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum IsolationLevel {
     /// Full isolation - no local execution
+    /// 
+    /// All web content is rendered remotely with no local execution.
+    /// Provides maximum security but may have higher latency.
     Full,
     /// Partial isolation - some local execution
+    /// 
+    /// Allows certain trusted content to execute locally while
+    /// isolating untrusted content remotely.
     Partial,
     /// Hybrid - smart isolation based on risk
+    /// 
+    /// Dynamically adjusts isolation level based on risk assessment
+    /// of the content being accessed.
     Hybrid,
 }
 
 /// RBI Configuration
+/// 
+/// Configuration settings for Remote Browser Isolation, controlling
+/// browser behavior, security features, and session management.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RbiConfig {
     /// Enable RBI
+    /// 
+    /// Whether Remote Browser Isolation is enabled for the system.
     pub enabled: bool,
     /// Browser type to use
+    /// 
+    /// The browser engine to use for remote rendering.
     pub browser_type: BrowserType,
     /// Isolation level
+    /// 
+    /// The degree of isolation between remote browser and local system.
     pub isolation_level: IsolationLevel,
     /// Enable JavaScript execution
+    /// 
+    /// Whether JavaScript is allowed to execute in the remote browser.
     pub enable_javascript: bool,
     /// Enable cookies
+    /// 
+    /// Whether cookies are stored and sent in the remote browser session.
     pub enable_cookies: bool,
     /// Enable local storage
+    /// 
+    /// Whether local storage APIs are available in the remote browser.
     pub enable_local_storage: bool,
     /// Enable WebGL
+    /// 
+    /// Whether WebGL graphics acceleration is enabled in the remote browser.
     pub enable_webgl: bool,
     /// Enable WebRTC
+    /// 
+    /// Whether WebRTC real-time communication is enabled in the remote browser.
     pub enable_webrtc: bool,
     /// Maximum session duration in minutes
+    /// 
+    /// Maximum allowed duration for a browser session before automatic termination.
     pub max_session_duration_mins: u64,
     /// Enable screenshot capability
+    /// 
+    /// Whether users can take screenshots of the remote browser session.
     pub enable_screenshots: bool,
     /// Enable file downloads
+    /// 
+    /// Whether file downloads from the remote browser are allowed.
     pub enable_downloads: bool,
     /// Enable file uploads
+    /// 
+    /// Whether file uploads to the remote browser are allowed.
     pub enable_uploads: bool,
 }
 
@@ -79,14 +128,24 @@ impl Default for RbiConfig {
 }
 
 /// Browser Session
+/// 
+/// Represents an active remote browser isolation session, tracking
+/// session state, user information, and activity metrics.
 #[derive(Debug, Clone)]
 pub struct BrowserSession {
+    /// Unique identifier for this browser session
     pub session_id: String,
+    /// User ID who owns this session
     pub user_id: String,
+    /// Type of browser being used for this session
     pub browser_type: BrowserType,
+    /// Timestamp when the session was created
     pub created_at: std::time::Instant,
+    /// Timestamp of the last user activity in this session
     pub last_activity: std::time::Instant,
+    /// Current URL being browsed in this session
     pub url: String,
+    /// Whether the session is currently active
     pub is_active: bool,
 }
 
@@ -114,42 +173,106 @@ impl BrowserSession {
 }
 
 /// Rendered Frame
+/// 
+/// Represents a rendered frame from the remote browser, containing
+/// compressed image data and metadata for display on the client.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RenderedFrame {
+    /// Unique identifier for this frame
     pub frame_id: u64,
+    /// Unix timestamp when the frame was rendered
     pub timestamp: u64,
+    /// Width of the frame in pixels
     pub width: u32,
+    /// Height of the frame in pixels
     pub height: u32,
-    pub data: Vec<u8>, // Compressed image data
+    /// Compressed image data for the frame
+    pub data: Vec<u8>,
+    /// Whether this is a full frame or an incremental update
     pub is_full_frame: bool,
 }
 
 /// Browser Event
+/// 
+/// Represents user input events that are sent to the remote browser
+/// for processing, including mouse, keyboard, and navigation events.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum BrowserEvent {
     /// Mouse click
-    MouseClick { x: u32, y: u32, button: u8 },
+    /// 
+    /// Represents a mouse button click at specific coordinates.
+    MouseClick { 
+        /// X coordinate of the click
+        x: u32, 
+        /// Y coordinate of the click
+        y: u32, 
+        /// Mouse button that was clicked (0=left, 1=middle, 2=right)
+        button: u8 
+    },
     /// Mouse move
-    MouseMove { x: u32, y: u32 },
+    /// 
+    /// Represents mouse movement to new coordinates.
+    MouseMove { 
+        /// New X coordinate
+        x: u32, 
+        /// New Y coordinate
+        y: u32 
+    },
     /// Key press
-    KeyPress { key: String, modifiers: u32 },
+    /// 
+    /// Represents a keyboard key press event.
+    KeyPress { 
+        /// The key that was pressed
+        key: String, 
+        /// Modifier keys held down (bitmask: 1=Ctrl, 2=Shift, 4=Alt)
+        modifiers: u32 
+    },
     /// Scroll
-    Scroll { x: i32, y: i32 },
+    /// 
+    /// Represents a scroll event.
+    Scroll { 
+        /// Horizontal scroll amount
+        x: i32, 
+        /// Vertical scroll amount
+        y: i32 
+    },
     /// Navigation
-    Navigate { url: String },
+    /// 
+    /// Represents a navigation to a new URL.
+    Navigate { 
+        /// Target URL to navigate to
+        url: String 
+    },
     /// Form input
-    FormInput { field_id: String, value: String },
+    /// 
+    /// Represents text input into a form field.
+    FormInput { 
+        /// ID of the form field
+        field_id: String, 
+        /// Value to input into the field
+        value: String 
+    },
 }
 
 /// RBI Statistics
+/// 
+/// Contains statistics about Remote Browser Isolation operations,
+/// including session counts, rendering metrics, and performance data.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RbiStats {
+    /// Number of currently active browser sessions
     pub active_sessions: usize,
+    /// Total number of sessions created since startup
     pub total_sessions_created: u64,
+    /// Total number of sessions terminated since startup
     pub total_sessions_terminated: u64,
+    /// Total number of frames rendered since startup
     pub frames_rendered: u64,
+    /// Total number of browser events processed since startup
     pub events_processed: u64,
+    /// Total bytes transferred for rendered frames since startup
     pub bytes_transferred: u64,
+    /// Average session duration in seconds
     pub average_session_duration_secs: f64,
 }
 
