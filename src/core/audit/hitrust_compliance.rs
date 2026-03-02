@@ -63,72 +63,82 @@ pub enum HitrustControlStatus {
 
 /// HITRUST control
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// HITRUST CSF control
+/// 
+/// Represents a single HITRUST CSF control with its implementation status,
+/// evidence, and assessment details.
 pub struct HitrustControl {
-    /// Control ID
+    /// Unique identifier for this control
     pub control_id: String,
-    /// Control number
+    /// Control number from the HITRUST CSF
     pub control_number: String,
-    /// Category
+    /// Category this control belongs to
     pub category: HitrustControlCategory,
-    /// Title
+    /// Title of the control
     pub title: String,
-    /// Description
+    /// Detailed description of the control requirements
     pub description: String,
-    /// Status
+    /// Current implementation status
     pub status: HitrustControlStatus,
-    /// Implementation level
+    /// Level of implementation (0-100)
     pub implementation_level: u8,
-    /// Evidence
+    /// Evidence collected to support implementation
     pub evidence: Vec<String>,
-    /// Notes
+    /// Additional notes or observations
     pub notes: String,
-    /// Last updated
+    /// Timestamp of last update
     pub last_updated: DateTime<Utc>,
 }
 
-/// HITRUST report
+/// HITRUST CSF compliance report
+/// 
+/// Contains a comprehensive assessment of HITRUST CSF compliance status,
+/// including all controls, findings, and recommendations.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HitrustReport {
-    /// Report ID
+    /// Unique identifier for this report
     pub report_id: String,
     /// Report type (e.g., "CSF Certification", "CSF Assessment")
     pub report_type: String,
-    /// Controls
+    /// List of all HITRUST CSF controls assessed
     pub controls: Vec<HitrustControl>,
-    /// Overall status
+    /// Overall compliance status across all controls
     pub overall_status: HitrustControlStatus,
-    /// Compliance score (0-100)
+    /// Overall compliance score (0-100)
     pub compliance_score: u8,
-    /// Assessor name
+    /// Name of the assessor who conducted the review
     pub assessor_name: String,
-    /// Assessment date
+    /// Date when the assessment was conducted
     pub assessment_date: DateTime<Utc>,
-    /// Valid until
+    /// Date until which this report is valid
     pub valid_until: DateTime<Utc>,
-    /// Findings
+    /// List of findings and issues discovered
     pub findings: Vec<String>,
-    /// Recommendations
+    /// Recommendations for improving compliance
     pub recommendations: Vec<String>,
-    /// Created at
+    /// Timestamp when the report was created
     pub created_at: DateTime<Utc>,
-    /// Updated at
+    /// Timestamp when the report was last updated
     pub updated_at: DateTime<Utc>,
 }
 
-/// HITRUST configuration
+/// HITRUST CSF compliance configuration
+/// 
+/// Configuration settings for HITRUST CSF compliance monitoring and reporting,
+/// including automatic checking intervals and notification settings.
 #[derive(Debug, Clone)]
 pub struct HitrustConfig {
-    /// Enable automatic compliance checking
+    /// Enable automatic compliance checking on a schedule
     pub enable_auto_check: bool,
-    /// Check interval in days
+    /// Number of days between automatic compliance checks
     pub check_interval_days: u32,
-    /// Report type
+    /// Type of HITRUST report to generate (CSF Certification, CSF Assessment, etc.)
     pub report_type: String,
-    /// Assessor name
+    /// Name of the HITRUST CSF assessor
     pub assessor_name: String,
-    /// Notify before expiration (days)
+    /// Number of days before expiration to send notifications
     pub notify_before_expiration: u32,
-    /// Minimum compliance score required
+    /// Minimum compliance score (0-100) required for passing
     pub min_compliance_score: u8,
 }
 
@@ -145,10 +155,16 @@ impl Default for HitrustConfig {
     }
 }
 
-/// HITRUST CSF Compliance - Health Information Trust Alliance Common Security Framework
+/// HITRUST CSF Compliance Manager
+/// 
+/// Manages HITRUST CSF compliance monitoring, reporting, and control tracking
+/// for the VPN system to ensure compliance with healthcare security standards.
 pub struct HitrustCompliance {
+    /// Configuration settings for HITRUST CSF compliance
     config: HitrustConfig,
+    /// Map of report IDs to compliance reports
     reports: Arc<Mutex<HashMap<String, HitrustReport>>>,
+    /// Map of control IDs to control details
     controls: Arc<Mutex<HashMap<String, HitrustControl>>>,
 }
 

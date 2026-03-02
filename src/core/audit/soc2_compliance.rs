@@ -39,72 +39,82 @@ pub enum Soc2ControlStatus {
 
 /// SOC 2 control
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// SOC 2 control
+/// 
+/// Represents a single SOC 2 control with its implementation status,
+/// evidence, and testing schedule.
 pub struct Soc2Control {
-    /// Control ID
+    /// Unique identifier for this control
     pub control_id: String,
-    /// Control number
+    /// Control number from the SOC 2 framework
     pub control_number: String,
-    /// Trust service criteria
+    /// Trust service criteria this control addresses
     pub criteria: Soc2TrustServiceCriteria,
-    /// Title
+    /// Title of the control
     pub title: String,
-    /// Description
+    /// Detailed description of the control requirements
     pub description: String,
-    /// Status
+    /// Current implementation status
     pub status: Soc2ControlStatus,
-    /// Evidence
+    /// Evidence collected to support implementation
     pub evidence: Vec<String>,
-    /// Notes
+    /// Additional notes or observations
     pub notes: String,
-    /// Last tested
+    /// Timestamp of last test, if any
     pub last_tested: Option<DateTime<Utc>>,
-    /// Next test
+    /// Scheduled date for next test, if any
     pub next_test: Option<DateTime<Utc>>,
 }
 
-/// SOC 2 report
+/// SOC 2 compliance report
+/// 
+/// Contains a comprehensive assessment of SOC 2 compliance status,
+/// including all controls, findings, and recommendations for a specified period.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Soc2Report {
-    /// Report ID
+    /// Unique identifier for this report
     pub report_id: String,
-    /// Report period start
+    /// Start date of the audit period
     pub period_start: DateTime<Utc>,
-    /// Report period end
+    /// End date of the audit period
     pub period_end: DateTime<Utc>,
-    /// Controls
+    /// List of all SOC 2 controls assessed
     pub controls: Vec<Soc2Control>,
-    /// Overall status
+    /// Overall compliance status across all controls
     pub overall_status: Soc2ControlStatus,
-    /// Compliance score (0-100)
+    /// Overall compliance score (0-100)
     pub compliance_score: u8,
-    /// Auditor name
+    /// Name of the auditor who conducted the review
     pub auditor_name: String,
-    /// Audit firm
+    /// Name of the audit firm
     pub audit_firm: String,
-    /// Findings
+    /// List of findings and issues discovered
     pub findings: Vec<String>,
-    /// Recommendations
+    /// Recommendations for improving compliance
     pub recommendations: Vec<String>,
-    /// Created at
+    /// Timestamp when the report was created
     pub created_at: DateTime<Utc>,
-    /// Updated at
+    /// Timestamp when the report was last updated
     pub updated_at: DateTime<Utc>,
 }
 
-/// SOC 2 configuration
+/// SOC 2 compliance configuration
+/// 
+/// Configuration settings for SOC 2 compliance monitoring and reporting,
+/// including automatic checking intervals and notification settings.
 #[derive(Debug, Clone)]
 pub struct Soc2Config {
-    /// Enable automatic compliance checking
+    /// Enable automatic compliance checking on a schedule
     pub enable_auto_check: bool,
-    /// Check interval in days
+    /// Number of days between automatic compliance checks
     pub check_interval_days: u32,
-    /// Audit firm
+    /// Name of the audit firm conducting the assessment
     pub audit_firm: String,
-    /// Auditor name
+    /// Name of the qualified SOC 2 auditor
     pub auditor_name: String,
-    /// Notify before expiration (days)
+    /// Number of days before expiration to send notifications
     pub notify_before_expiration: u32,
-    /// Minimum compliance score required
+    /// Minimum compliance score (0-100) required for passing
     pub min_compliance_score: u8,
 }
 
@@ -121,10 +131,16 @@ impl Default for Soc2Config {
     }
 }
 
-/// SOC 2 Compliance - Service Organization Control 2
+/// SOC 2 Compliance Manager
+/// 
+/// Manages SOC 2 compliance monitoring, reporting, and control tracking
+/// for the VPN system to ensure compliance with SOC 2 trust service criteria.
 pub struct Soc2Compliance {
+    /// Configuration settings for SOC 2 compliance
     config: Soc2Config,
+    /// Map of report IDs to compliance reports
     reports: Arc<Mutex<HashMap<String, Soc2Report>>>,
+    /// Map of control IDs to control details
     controls: Arc<Mutex<HashMap<String, Soc2Control>>>,
 }
 

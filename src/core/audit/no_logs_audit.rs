@@ -41,64 +41,74 @@ pub enum EvidenceType {
 
 /// Audit evidence
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Audit evidence for no-logs verification
+/// 
+/// Represents a piece of evidence collected during a no-logs audit,
+/// including cryptographic hashes to verify data integrity without storing actual data.
 pub struct AuditEvidence {
-    /// Evidence ID
+    /// Unique identifier for this evidence
     pub evidence_id: String,
-    /// Evidence type
+    /// Type of evidence collected
     pub evidence_type: EvidenceType,
-    /// Description
+    /// Description of what this evidence proves
     pub description: String,
-    /// Evidence data (hash of actual data)
+    /// Cryptographic hash of the evidence data (actual data not stored)
     pub evidence_hash: String,
-    /// Timestamp
+    /// Timestamp when the evidence was collected
     pub timestamp: DateTime<Utc>,
-    /// Verified by
+    /// Name or identifier of the verifier
     pub verified_by: String,
-    /// Verification notes
+    /// Additional notes about the verification process
     pub verification_notes: String,
 }
 
-/// Audit report
+/// No-logs audit report
+/// 
+/// Contains a comprehensive assessment of the no-logs policy compliance,
+/// including all evidence collected, findings, and recommendations.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuditReport {
-    /// Report ID
+    /// Unique identifier for this report
     pub report_id: String,
-    /// Audit firm
+    /// Name of the audit firm conducting the review
     pub audit_firm: String,
-    /// Audit period start
+    /// Start date of the audit period
     pub period_start: DateTime<Utc>,
-    /// Audit period end
+    /// End date of the audit period
     pub period_end: DateTime<Utc>,
-    /// Audit status
+    /// Current status of the audit
     pub status: AuditStatus,
-    /// Evidence collected
+    /// List of all evidence collected during the audit
     pub evidence: Vec<AuditEvidence>,
-    /// Findings
+    /// List of findings and issues discovered
     pub findings: Vec<String>,
-    /// Recommendations
+    /// Recommendations for improving no-logs compliance
     pub recommendations: Vec<String>,
-    /// Overall score (0-100)
+    /// Overall compliance score (0-100)
     pub overall_score: u8,
-    /// Created at
+    /// Timestamp when the report was created
     pub created_at: DateTime<Utc>,
-    /// Updated at
+    /// Timestamp when the report was last updated
     pub updated_at: DateTime<Utc>,
 }
 
-/// Audit configuration
+/// No-logs audit configuration
+/// 
+/// Configuration settings for no-logs policy auditing, including evidence
+/// collection schedules and third-party verification settings.
 #[derive(Debug, Clone)]
 pub struct AuditConfig {
-    /// Enable automatic evidence collection
+    /// Enable automatic evidence collection on a schedule
     pub auto_collect_evidence: bool,
-    /// Evidence collection interval in hours
+    /// Number of hours between evidence collection intervals
     pub collection_interval_hours: u32,
-    /// Enable third-party verification
+    /// Enable third-party verification of no-logs compliance
     pub enable_third_party_verification: bool,
-    /// Minimum evidence required
+    /// Minimum number of evidence items required for a complete audit
     pub min_evidence_required: usize,
-    /// Audit firm name
+    /// Name of the audit firm conducting the review
     pub audit_firm: String,
-    /// Audit contact email
+    /// Contact email for the audit firm
     pub audit_contact_email: String,
 }
 
@@ -115,11 +125,19 @@ impl Default for AuditConfig {
     }
 }
 
-/// No-Logs Audit - Big Four Audit Readiness
+/// No-Logs Audit Manager
+/// 
+/// Manages no-logs policy auditing, evidence collection, and third-party
+/// verification to demonstrate compliance with privacy commitments and
+/// prepare for Big Four audits.
 pub struct NoLogsAudit {
+    /// Configuration settings for no-logs auditing
     config: AuditConfig,
+    /// Map of report IDs to audit reports
     reports: Arc<Mutex<HashMap<String, AuditReport>>>,
+    /// Collection of all audit evidence
     evidence: Arc<Mutex<Vec<AuditEvidence>>>,
+    /// ID of the currently active audit, if any
     current_audit: Arc<Mutex<Option<String>>>,
 }
 

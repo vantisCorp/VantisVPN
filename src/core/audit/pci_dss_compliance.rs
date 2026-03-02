@@ -23,71 +23,80 @@ pub enum PciRequirementStatus {
 }
 
 /// PCI DSS requirement
+/// 
+/// Represents a single PCI DSS requirement with its compliance status,
+/// evidence, and review schedule.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PciRequirement {
-    /// Requirement ID
+    /// Unique identifier for this requirement
     pub requirement_id: String,
     /// Requirement number (e.g., "1.1", "2.3")
     pub requirement_number: String,
-    /// Title
+    /// Title of the requirement
     pub title: String,
-    /// Description
+    /// Detailed description of the requirement
     pub description: String,
-    /// Status
+    /// Current compliance status
     pub status: PciRequirementStatus,
-    /// Evidence
+    /// Evidence collected to support compliance
     pub evidence: Vec<String>,
-    /// Notes
+    /// Additional notes or observations
     pub notes: String,
-    /// Last reviewed
+    /// Timestamp of last review, if any
     pub last_reviewed: Option<DateTime<Utc>>,
-    /// Next review
+    /// Scheduled date for next review, if any
     pub next_review: Option<DateTime<Utc>>,
 }
 
-/// PCI DSS report
+/// PCI DSS compliance report
+/// 
+/// Contains a comprehensive assessment of PCI DSS compliance status,
+/// including all requirements, findings, and recommendations.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PciReport {
-    /// Report ID
+    /// Unique identifier for this report
     pub report_id: String,
     /// Report type (SAQ A, SAQ D, ROC, etc.)
     pub report_type: String,
-    /// Requirements
+    /// List of all PCI DSS requirements assessed
     pub requirements: Vec<PciRequirement>,
-    /// Overall compliance status
+    /// Overall compliance status across all requirements
     pub overall_status: PciRequirementStatus,
-    /// Compliance score (0-100)
+    /// Overall compliance score (0-100)
     pub compliance_score: u8,
-    /// Findings
+    /// List of findings and issues discovered
     pub findings: Vec<String>,
-    /// Recommendations
+    /// Recommendations for improving compliance
     pub recommendations: Vec<String>,
-    /// Assessor name
+    /// Name of the assessor who conducted the review
     pub assessor_name: String,
-    /// Assessment date
+    /// Date when the assessment was conducted
     pub assessment_date: DateTime<Utc>,
-    /// Valid until
+    /// Date until which this report is valid
     pub valid_until: DateTime<Utc>,
-    /// Created at
+    /// Timestamp when the report was created
     pub created_at: DateTime<Utc>,
-    /// Updated at
+    /// Timestamp when the report was last updated
     pub updated_at: DateTime<Utc>,
 }
 
-/// PCI DSS configuration
+/// PCI DSS compliance configuration
+/// 
+/// Configuration settings for PCI DSS compliance monitoring and reporting,
+/// including automatic checking intervals and notification settings.
 #[derive(Debug, Clone)]
 pub struct PciConfig {
-    /// Enable automatic compliance checking
+    /// Enable automatic compliance checking on a schedule
     pub enable_auto_check: bool,
-    /// Check interval in days
+    /// Number of days between automatic compliance checks
     pub check_interval_days: u32,
-    /// Report type
+    /// Type of PCI DSS report to generate (SAQ A, SAQ D, ROC, etc.)
     pub report_type: String,
-    /// Assessor name
+    /// Name of the qualified security assessor
     pub assessor_name: String,
-    /// Notify before expiration (days)
+    /// Number of days before expiration to send notifications
     pub notify_before_expiration: u32,
-    /// Minimum compliance score required
+    /// Minimum compliance score (0-100) required for passing
     pub min_compliance_score: u8,
 }
 
@@ -104,10 +113,16 @@ impl Default for PciConfig {
     }
 }
 
-/// PCI DSS Compliance - Payment Card Industry Data Security Standard
+/// PCI DSS Compliance Manager
+/// 
+/// Manages PCI DSS compliance monitoring, reporting, and requirement tracking
+/// for the VPN system to ensure compliance with Payment Card Industry standards.
 pub struct PciDssCompliance {
+    /// Configuration settings for PCI DSS compliance
     config: PciConfig,
+    /// Map of report IDs to compliance reports
     reports: Arc<Mutex<HashMap<String, PciReport>>>,
+    /// Map of requirement IDs to requirement details
     requirements: Arc<Mutex<HashMap<String, PciRequirement>>>,
 }
 

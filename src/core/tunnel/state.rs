@@ -36,8 +36,14 @@ impl fmt::Display for TunnelState {
 }
 
 /// State transition
+/// Represents a transition between tunnel states
+/// 
+/// StateTransition validates that tunnel state changes follow the correct
+/// state machine rules and prevents invalid transitions.
 pub struct StateTransition {
+    /// The starting state before the transition
     from: TunnelState,
+    /// The target state after the transition
     to: TunnelState,
 }
 

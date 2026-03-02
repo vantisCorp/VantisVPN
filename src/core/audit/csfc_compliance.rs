@@ -41,68 +41,78 @@ pub enum CsfcComponentStatus {
 
 /// CSfC component
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// CSfC component
+/// 
+/// Represents a single Commercial Solutions for Classified (CSfC) component
+/// with its certification status and documentation.
 pub struct CsfcComponent {
-    /// Component ID
+    /// Unique identifier for this component
     pub component_id: String,
-    /// Component name
+    /// Name of the component
     pub name: String,
-    /// Component type
+    /// Type of CSfC component
     pub component_type: CsfcComponentType,
-    /// Version
+    /// Version of the component
     pub version: String,
-    /// Status
+    /// Current certification status
     pub status: CsfcComponentStatus,
-    /// Certification ID
+    /// ID of the certification, if certified
     pub certification_id: Option<String>,
-    /// Valid from
+    /// Date from which certification is valid, if applicable
     pub valid_from: Option<DateTime<Utc>>,
-    /// Valid until
+    /// Date until which certification is valid, if applicable
     pub valid_until: Option<DateTime<Utc>>,
-    /// Vendor
+    /// Vendor or manufacturer of the component
     pub vendor: String,
-    /// Documentation
+    /// Documentation references for the component
     pub documentation: Vec<String>,
-    /// Created at
+    /// Timestamp when the component record was created
     pub created_at: DateTime<Utc>,
-    /// Updated at
+    /// Timestamp when the component record was last updated
     pub updated_at: DateTime<Utc>,
 }
 
-/// CSfC report
+/// CSfC compliance report
+/// 
+/// Contains a comprehensive assessment of Commercial Solutions for Classified (CSfC)
+/// compliance status, including all components, findings, and recommendations.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CsfcReport {
-    /// Report ID
+    /// Unique identifier for this report
     pub report_id: String,
-    /// Report type
+    /// Type of CSfC report
     pub report_type: String,
-    /// Components evaluated
+    /// List of all CSfC components evaluated
     pub components: Vec<CsfcComponent>,
-    /// Overall compliance status
+    /// Overall compliance status across all components
     pub overall_status: CsfcComponentStatus,
-    /// Findings
+    /// List of findings and issues discovered
     pub findings: Vec<String>,
-    /// Recommendations
+    /// Recommendations for improving compliance
     pub recommendations: Vec<String>,
-    /// Compliance score (0-100)
+    /// Overall compliance score (0-100)
     pub compliance_score: u8,
-    /// Created at
+    /// Timestamp when the report was created
     pub created_at: DateTime<Utc>,
-    /// Updated at
+    /// Timestamp when the report was last updated
     pub updated_at: DateTime<Utc>,
 }
 
-/// CSfC configuration
+/// CSfC compliance configuration
+/// 
+/// Configuration settings for Commercial Solutions for Classified (CSfC)
+/// compliance monitoring and reporting.
 #[derive(Debug, Clone)]
 pub struct CsfcConfig {
-    /// Enable automatic compliance checking
+    /// Enable automatic compliance checking on a schedule
     pub enable_auto_check: bool,
-    /// Check interval in days
+    /// Number of days between automatic compliance checks
     pub check_interval_days: u32,
-    /// Notify before expiration (days)
+    /// Number of days before expiration to send notifications
     pub notify_before_expiration: u32,
-    /// NSA contact email
+    /// NSA contact email for CSfC certification inquiries
     pub nsa_contact_email: String,
-    /// Minimum compliance score required
+    /// Minimum compliance score (0-100) required for passing
     pub min_compliance_score: u8,
 }
 
@@ -118,10 +128,17 @@ impl Default for CsfcConfig {
     }
 }
 
-/// CSfC Compliance - NSA Commercial Solutions for Classified
+/// CSfC Compliance Manager
+/// 
+/// Manages Commercial Solutions for Classified (CSfC) compliance monitoring,
+/// reporting, and component tracking for the VPN system to ensure compliance
+/// with NSA CSfC requirements.
 pub struct CsfcCompliance {
+    /// Configuration settings for CSfC compliance
     config: CsfcConfig,
+    /// Map of report IDs to compliance reports
     reports: Arc<Mutex<HashMap<String, CsfcReport>>>,
+    /// Map of component IDs to component details
     components: Arc<Mutex<HashMap<String, CsfcComponent>>>,
 }
 

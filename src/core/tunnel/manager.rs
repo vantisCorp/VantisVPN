@@ -8,7 +8,12 @@ use tokio::sync::RwLock;
 use super::Tunnel;
 
 /// Tunnel manager
+/// Manages multiple VPN tunnels with thread-safe operations
+/// 
+/// The TunnelManager provides centralized control over all active VPN tunnels,
+/// allowing for creation, removal, and monitoring of tunnel instances.
 pub struct TunnelManager {
+    /// Map of tunnel IDs to tunnel instances, protected by a read-write lock
     tunnels: Arc<RwLock<HashMap<String, Arc<Tunnel>>>>,
 }
 
