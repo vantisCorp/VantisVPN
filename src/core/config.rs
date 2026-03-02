@@ -6,30 +6,52 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 /// Application configuration
+/// 
+/// Main configuration structure for the VANTISVPN application.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     /// Application settings
+    /// 
+    /// Application-specific configuration.
     pub app: AppConfig,
     /// Network settings
+    /// 
+    /// Network configuration settings.
     pub network: NetworkConfig,
     /// Security settings
+    /// 
+    /// Security configuration settings.
     pub security: SecurityConfig,
     /// Logging settings
+    /// 
+    /// Logging configuration settings.
     pub logging: LoggingConfig,
 }
 
 /// Application settings
+/// 
+/// Application-specific configuration settings.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     /// Application name
+    /// 
+    /// Name of the application.
     pub name: String,
     /// Application version
+    /// 
+    /// Version of the application.
     pub version: String,
     /// Data directory
+    /// 
+    /// Directory for application data.
     pub data_dir: PathBuf,
     /// Config directory
+    /// 
+    /// Directory for configuration files.
     pub config_dir: PathBuf,
     /// Cache directory
+    /// 
+    /// Directory for cached data.
     pub cache_dir: PathBuf,
 }
 
@@ -46,21 +68,37 @@ impl Default for AppConfig {
 }
 
 /// Network configuration
+/// 
+/// Network configuration settings.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NetworkConfig {
     /// Default server endpoint
+    /// 
+    /// Default VPN server endpoint.
     pub default_server: String,
     /// Default port
+    /// 
+    /// Default VPN server port.
     pub default_port: u16,
     /// MTU
+    /// 
+    /// Maximum Transmission Unit size.
     pub mtu: u16,
     /// Enable IPv6
+    /// 
+    /// Whether to enable IPv6 support.
     pub enable_ipv6: bool,
     /// Enable QUIC
+    /// 
+    /// Whether to enable QUIC transport.
     pub enable_quic: bool,
     /// Keepalive interval (seconds)
+    /// 
+    /// Keepalive packet interval in seconds.
     pub keepalive_interval: u64,
     /// Connection timeout (seconds)
+    /// 
+    /// Connection timeout in seconds.
     pub connection_timeout: u64,
 }
 
@@ -79,19 +117,33 @@ impl Default for NetworkConfig {
 }
 
 /// Security configuration
+/// 
+/// Security configuration settings.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SecurityConfig {
     /// Enable post-quantum cryptography
+    /// 
+    /// Whether to enable post-quantum cryptography.
     pub enable_pqc: bool,
     /// Enable kill switch
+    /// 
+    /// Whether to enable VPN kill switch.
     pub enable_kill_switch: bool,
     /// Enable split tunneling
+    /// 
+    /// Whether to enable split tunneling.
     pub enable_split_tunneling: bool,
     /// Enable DNS over HTTPS
+    /// 
+    /// Whether to enable DNS over HTTPS.
     pub enable_doh: bool,
     /// DNS servers
+    /// 
+    /// List of DNS servers to use.
     pub dns_servers: Vec<String>,
     /// Enable strict mode (blocks all traffic if VPN disconnects)
+    /// 
+    /// Whether to enable strict mode.
     pub strict_mode: bool,
 }
 
@@ -112,15 +164,25 @@ impl Default for SecurityConfig {
 }
 
 /// Logging configuration
+/// 
+/// Logging configuration settings.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LoggingConfig {
     /// Log level
+    /// 
+    /// Log level (trace, debug, info, warn, error).
     pub level: String,
     /// Log file path
+    /// 
+    /// Optional path to log file.
     pub log_file: Option<PathBuf>,
     /// Enable console logging
+    /// 
+    /// Whether to enable console logging.
     pub console: bool,
     /// Enable file logging
+    /// 
+    /// Whether to enable file logging.
     pub file: bool,
 }
 
