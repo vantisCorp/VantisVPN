@@ -8,11 +8,17 @@ use serde::{Serialize, Deserialize};
 pub use super::keys::{Cipher, CipherSuite, CHACHA20_KEY_SIZE, NONCE_SIZE};
 
 /// Supported cipher modes
+/// 
+/// Encryption modes supported by the cipher system.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CipherMode {
     /// AEAD (Authenticated Encryption with Associated Data)
+    /// 
+    /// Authenticated encryption mode that provides both confidentiality and integrity.
     Aead,
     /// Stream cipher
+    /// 
+    /// Stream cipher mode for encrypting continuous data streams.
     Stream,
 }
 
