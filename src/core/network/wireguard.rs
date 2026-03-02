@@ -10,32 +10,56 @@ use std::net::Ipv4Addr;
 use serde::{Serialize, Deserialize};
 
 /// WireGuard peer configuration
+/// 
+/// Configuration for a WireGuard peer connection.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PeerConfig {
     /// Public key
+    /// 
+    /// Public key of the peer.
     pub public_key: Vec<u8>,
     /// Pre-shared key (optional)
+    /// 
+    /// Optional pre-shared key for additional security.
     pub preshared_key: Option<Vec<u8>>,
     /// Endpoint
+    /// 
+    /// Network endpoint of the peer.
     pub endpoint: Option<String>,
     /// Allowed IPs (CIDR notation)
+    /// 
+    /// List of allowed IP ranges in CIDR notation.
     pub allowed_ips: Vec<String>,
     /// Keepalive interval (seconds)
+    /// 
+    /// Persistent keepalive interval in seconds.
     pub persistent_keepalive: Option<u32>,
 }
 
 /// WireGuard interface configuration
+/// 
+/// Configuration for a WireGuard network interface.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InterfaceConfig {
     /// Private key
+    /// 
+    /// Private key for the interface.
     pub private_key: Vec<u8>,
     /// Public key
+    /// 
+    /// Public key for the interface.
     pub public_key: Vec<u8>,
     /// Listen port
+    /// 
+    /// Port to listen on for incoming connections.
     pub listen_port: u16,
     /// MTU
+    /// 
+    /// Maximum Transmission Unit size.
     pub mtu: u16,
     /// Peers
+    /// 
+    /// List of peer configurations.
     pub peers: Vec<PeerConfig>,
 }
 
@@ -52,6 +76,8 @@ impl Default for InterfaceConfig {
 }
 
 /// WireGuard device
+/// 
+/// Represents a WireGuard network device.
 pub struct WireGuardDevice {
     config: InterfaceConfig,
     is_up: bool,
@@ -133,6 +159,9 @@ impl WireGuardDevice {
 }
 
 /// Virtual IP pool for dynamic allocation
+/// Virtual IP pool
+/// 
+/// Manages a pool of virtual IP addresses for VPN connections.
 pub struct VirtualIpPool {
     base_ip: Ipv4Addr,
     current: u32,
