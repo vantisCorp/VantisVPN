@@ -54,11 +54,11 @@ pub struct HapticPattern {
 /// Theme configuration
 #[derive(Debug, Clone)]
 pub struct ThemeConfig {
-    /// Current theme mode
+    /// Current theme mode (Light, Dark, Auto)
     pub theme_mode: ThemeMode,
     /// Enable haptic feedback
     pub enable_haptics: bool,
-    /// Haptic intensity (0-1)
+    /// Haptic intensity (0.0-1.0)
     pub haptic_intensity: f64,
     /// Enable animations
     pub enable_animations: bool,

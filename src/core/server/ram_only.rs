@@ -39,12 +39,19 @@ impl Default for RamOnlyConfig {
 /// In-memory session data
 #[derive(Debug, Clone)]
 pub struct SessionData {
+    /// Unique session identifier
     pub session_id: String,
+    /// User identifier
     pub user_id: String,
+    /// Session creation timestamp
     pub created_at: Instant,
+    /// Last activity timestamp
     pub last_activity: Instant,
+    /// Total bytes sent in this session
     pub bytes_sent: u64,
+    /// Total bytes received in this session
     pub bytes_received: u64,
+    /// Additional session metadata
     pub metadata: HashMap<String, String>,
 }
 
@@ -82,11 +89,17 @@ impl SessionData {
 /// Memory usage statistics
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MemoryStats {
+    /// Total memory available in MB
     pub total_memory_mb: u64,
+    /// Memory currently used in MB
     pub used_memory_mb: u64,
+    /// Available memory in MB
     pub available_memory_mb: u64,
+    /// Number of active sessions
     pub session_count: usize,
+    /// Total bytes sent across all sessions
     pub total_bytes_sent: u64,
+    /// Total bytes received across all sessions
     pub total_bytes_received: u64,
 }
 

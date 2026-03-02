@@ -39,14 +39,23 @@ impl RoutingMetric {
 /// Network Path
 #[derive(Debug, Clone)]
 pub struct NetworkPath {
+    /// Unique path identifier
     pub path_id: String,
+    /// Source address
     pub source: String,
+    /// Destination address
     pub destination: String,
+    /// List of intermediate hops
     pub hops: Vec<String>,
+    /// Path latency in milliseconds
     pub latency_ms: f64,
+    /// Path throughput in Mbps
     pub throughput_mbps: f64,
+    /// Path reliability score (0.0-1.0)
     pub reliability_score: f64,
+    /// Path cost score (0.0-1.0, higher is better)
     pub cost_score: f64,
+    /// Last update timestamp
     pub last_updated: std::time::Instant,
 }
 
@@ -96,10 +105,15 @@ impl NetworkPath {
 /// Routing Decision
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RoutingDecision {
+    /// Selected path identifier
     pub path_id: String,
+    /// Optimization metric used
     pub metric: RoutingMetric,
+    /// Calculated score for this path
     pub score: f64,
+    /// Confidence level in this decision (0.0-1.0)
     pub confidence: f64,
+    /// Decision timestamp (Unix timestamp)
     pub timestamp: u64,
 }
 
@@ -142,11 +156,17 @@ impl Default for SmartRoutingConfig {
 /// Routing Statistics
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RoutingStats {
+    /// Total number of routing decisions made
     pub total_decisions: u64,
+    /// Number of successful routing decisions
     pub successful_decisions: u64,
+    /// Number of failed routing decisions
     pub failed_decisions: u64,
+    /// Average latency across all paths in milliseconds
     pub average_latency_ms: f64,
+    /// Average throughput across all paths in Mbps
     pub average_throughput_mbps: f64,
+    /// Average reliability score across all paths
     pub average_reliability: f64,
     pub path_switches: u64,
     pub ml_model_updates: u64,
