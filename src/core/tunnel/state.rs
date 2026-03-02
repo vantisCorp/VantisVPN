@@ -5,20 +5,34 @@
 use std::fmt;
 
 /// Tunnel connection state
+/// 
+/// Represents the current state of a VPN tunnel connection.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum TunnelState {
     /// Disconnected
+    /// 
+    /// Tunnel is not connected.
     #[default]
     Disconnected,
     /// Connecting
+    /// 
+    /// Tunnel is establishing a connection.
     Connecting,
     /// Connected
+    /// 
+    /// Tunnel is connected and operational.
     Connected,
     /// Disconnecting
+    /// 
+    /// Tunnel is in the process of disconnecting.
     Disconnecting,
     /// Reconnecting
+    /// 
+    /// Tunnel is reconnecting after a disconnection.
     Reconnecting,
     /// Error
+    /// 
+    /// Tunnel encountered an error.
     Error,
 }
 
@@ -36,14 +50,18 @@ impl fmt::Display for TunnelState {
 }
 
 /// State transition
-/// Represents a transition between tunnel states
 /// 
+/// Represents a transition between tunnel states.
 /// StateTransition validates that tunnel state changes follow the correct
 /// state machine rules and prevents invalid transitions.
 pub struct StateTransition {
     /// The starting state before the transition
+    /// 
+    /// The state before the transition.
     from: TunnelState,
     /// The target state after the transition
+    /// 
+    /// The state after the transition.
     to: TunnelState,
 }
 
