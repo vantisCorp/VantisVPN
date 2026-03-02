@@ -9,64 +9,114 @@ use tokio::sync::Mutex;
 use serde::{Serialize, Deserialize};
 
 /// Theme mode
+/// 
+/// Available theme modes for the user interface.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ThemeMode {
     /// Light theme
+    /// 
+    /// Light color scheme for the interface.
     Light,
     /// Dark theme
+    /// 
+    /// Dark color scheme for the interface.
     Dark,
     /// Auto (follows system)
+    /// 
+    /// Automatically switch between light and dark based on system preferences.
     Auto,
 }
 
 /// Haptic feedback type
+/// 
+/// Types of haptic feedback available for user interactions.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HapticType {
     /// Light tap
+    /// 
+    /// Light vibration for subtle feedback.
     Light,
     /// Medium tap
+    /// 
+    /// Medium vibration for standard feedback.
     Medium,
     /// Heavy tap
+    /// 
+    /// Strong vibration for important feedback.
     Heavy,
     /// Success vibration
+    /// 
+    /// Vibration pattern indicating success.
     Success,
     /// Error vibration
+    /// 
+    /// Vibration pattern indicating error.
     Error,
     /// Warning vibration
+    /// 
+    /// Vibration pattern indicating warning.
     Warning,
     /// Custom pattern
+    /// 
+    /// Custom haptic pattern defined by the user.
     Custom,
 }
 
 /// Haptic pattern
+/// 
+/// Defines a custom haptic feedback pattern.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HapticPattern {
     /// Pattern ID
+    /// 
+    /// Unique identifier for this pattern.
     pub pattern_id: String,
     /// Pattern name
+    /// 
+    /// Human-readable name for this pattern.
     pub name: String,
     /// Durations in milliseconds
+    /// 
+    /// Duration of each vibration in the pattern.
     pub durations: Vec<u32>,
     /// Intensities (0-1)
+    /// 
+    /// Intensity of each vibration (0.0 to 1.0).
     pub intensities: Vec<f64>,
 }
 
 /// Theme configuration
+/// 
+/// Configuration settings for the theme manager.
 #[derive(Debug, Clone)]
 pub struct ThemeConfig {
     /// Current theme mode (Light, Dark, Auto)
+    /// 
+    /// The currently selected theme mode.
     pub theme_mode: ThemeMode,
     /// Enable haptic feedback
+    /// 
+    /// Whether haptic feedback is enabled.
     pub enable_haptics: bool,
     /// Haptic intensity (0.0-1.0)
+    /// 
+    /// Global intensity for haptic feedback (0.0 to 1.0).
     pub haptic_intensity: f64,
     /// Enable animations
+    /// 
+    /// Whether UI animations are enabled.
     pub enable_animations: bool,
     /// Animation duration in milliseconds
+    /// 
+    /// Default duration for UI animations.
     pub animation_duration: u32,
     /// Enable transitions
+    /// 
+    /// Whether UI transitions are enabled.
     pub enable_transitions: bool,
     /// Transition duration in milliseconds
+    /// 
+    /// Default duration for UI transitions.
     pub transition_duration: u32,
 }
 
@@ -85,27 +135,47 @@ impl Default for ThemeConfig {
 }
 
 /// Theme colors
+/// 
+/// Color scheme for a theme mode.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ThemeColors {
     /// Primary color
+    /// 
+    /// Primary brand color used for buttons and highlights.
     pub primary: String,
     /// Secondary color
+    /// 
+    /// Secondary color for accents and secondary elements.
     pub secondary: String,
     /// Background color
+    /// 
+    /// Background color for the interface.
     pub background: String,
     /// Surface color
+    /// 
+    /// Surface color for cards and elevated elements.
     pub surface: String,
     /// Text color
+    /// 
+    /// Primary text color.
     pub text: String,
     /// Error color
+    /// 
+    /// Color for error messages and indicators.
     pub error: String,
     /// Success color
+    /// 
+    /// Color for success messages and indicators.
     pub success: String,
     /// Warning color
+    /// 
+    /// Color for warning messages and indicators.
     pub warning: String,
 }
 
 /// Theme Manager - Dark/Light Mode with Haptics
+/// 
+/// Manages UI themes (light/dark/auto) and haptic feedback patterns.
 pub struct ThemeManager {
     config: ThemeConfig,
     light_theme: ThemeColors,
