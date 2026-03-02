@@ -12,112 +12,204 @@ use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc, Timelike};
 
 /// Shield category
+/// 
+/// Categories of content that can be filtered by the Family Shield DNS protection system.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ShieldCategory {
     /// Adult content
+    /// 
+    /// Adult-oriented content and websites.
     Adult,
     /// Gambling
+    /// 
+    /// Online gambling and betting websites.
     Gambling,
     /// Violence
+    /// 
+    /// Violence and gore content.
     Violence,
     /// Drugs
+    /// 
+    /// Drug-related content and websites.
     Drugs,
     /// Social media
+    /// 
+    /// Social media platforms and networks.
     SocialMedia,
     /// Streaming services
+    /// 
+    /// Video streaming and media platforms.
     Streaming,
     /// Gaming
+    /// 
+    /// Online gaming and gambling sites.
     Gaming,
     /// Malware
+    /// 
+    /// Known malware distribution sites.
     Malware,
     /// Phishing
+    /// 
+    /// Phishing and scam websites.
     Phishing,
     /// Custom category
+    /// 
+    /// User-defined custom category.
     Custom,
 }
 
 /// Shield action
+/// 
+/// Actions that can be taken when a DNS query matches a filtering rule.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ShieldAction {
     /// Block domain
+    /// 
+    /// Block access to the domain entirely.
     Block,
     /// Allow domain
+    /// 
+    /// Allow access to the domain.
     Allow,
     /// Redirect to safe page
+    /// 
+    /// Redirect to a safe landing page.
     Redirect,
     /// Warn user
+    /// 
+    /// Show a warning to the user before proceeding.
     Warn,
 }
 
 /// Shield rule
+/// 
+/// Represents a DNS filtering rule that defines how to handle specific domains.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ShieldRule {
     /// Rule ID
+    /// 
+    /// Unique identifier for this rule.
     pub rule_id: String,
     /// Domain pattern
+    /// 
+    /// Pattern to match against domain names (supports wildcards).
     pub domain_pattern: String,
     /// Category
+    /// 
+    /// Category this rule belongs to.
     pub category: ShieldCategory,
     /// Action
+    /// 
+    /// Action to take when this rule matches.
     pub action: ShieldAction,
     /// Priority (higher = more important)
+    /// 
+    /// Priority of this rule. Higher priority rules are evaluated first.
     pub priority: u32,
     /// Enabled
+    /// 
+    /// Whether this rule is currently active.
     pub enabled: bool,
     /// Created at
+    /// 
+    /// When this rule was created.
     pub created_at: DateTime<Utc>,
 }
 
 /// DNS query
+/// 
+/// Represents a DNS query that has been processed by the Family Shield system.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DnsQuery {
     /// Query ID
+    /// 
+    /// Unique identifier for this query.
     pub query_id: String,
     /// Domain name
+    /// 
+    /// Domain name being queried.
     pub domain: String,
     /// Query type (A, AAAA, etc.)
+    /// 
+    /// Type of DNS query (A, AAAA, MX, etc.).
     pub query_type: String,
     /// Source IP
+    /// 
+    /// IP address of the client making the query.
     pub source_ip: IpAddr,
     /// Timestamp
+    /// 
+    /// When this query was received.
     pub timestamp: DateTime<Utc>,
 }
 
 /// DNS response
+/// 
+/// Represents the response to a DNS query after filtering rules have been applied.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DnsResponse {
     /// Query ID
+    /// 
+    /// ID of the query this response is for.
     pub query_id: String,
     /// Domain name
+    /// 
+    /// Domain name that was queried.
     pub domain: String,
     /// Response IP
+    /// 
+    /// IP address to return (if not blocked).
     pub response_ip: Option<IpAddr>,
     /// Action taken
+    /// 
+    /// Action that was taken on this query.
     pub action: ShieldAction,
     /// Rule that matched
+    /// 
+    /// ID of the rule that matched (if any).
     pub matched_rule: Option<String>,
     /// Timestamp
+    /// 
+    /// When this response was generated.
     pub timestamp: DateTime<Utc>,
 }
 
 /// Shield configuration
+/// 
+/// Configuration settings for the Family Shield DNS protection system.
 #[derive(Debug, Clone)]
 pub struct ShieldConfig {
     /// Enable family shield
+    /// 
+    /// Whether Family Shield DNS filtering is enabled.
     pub enabled: bool,
     /// Default action for unmatched domains
+    /// 
+    /// Action to take when no rule matches a domain.
     pub default_action: ShieldAction,
     /// Enable logging
+    /// 
+    /// Whether to log DNS queries and responses.
     pub enable_logging: bool,
     /// Enable statistics
+    /// 
+    /// Whether to collect statistics on DNS queries.
     pub enable_stats: bool,
     /// Safe search enabled
+    /// 
+    /// Whether to enforce safe search on search engines.
     pub safe_search_enabled: bool,
     /// Time-based restrictions enabled
+    /// 
+    /// Whether to enforce time-based access restrictions.
     pub time_restrictions_enabled: bool,
     /// Bedtime start hour (0-23)
+    /// 
+    /// Hour when bedtime restrictions start (0-23).
     pub bedtime_start: u8,
     /// Bedtime end hour (0-23)
+    /// 
+    /// Hour when bedtime restrictions end (0-23).
     pub bedtime_end: u8,
 }
 
@@ -137,25 +229,44 @@ impl Default for ShieldConfig {
 }
 
 /// Shield statistics
+/// 
+/// Statistics about DNS queries processed by the Family Shield system.
 #[derive(Debug, Clone)]
 pub struct ShieldStats {
     /// Total queries processed
+    /// 
+    /// Total number of DNS queries processed.
     pub total_queries: u64,
     /// Queries blocked
+    /// 
+    /// Number of queries that were blocked.
     pub blocked_queries: u64,
     /// Queries allowed
+    /// 
+    /// Number of queries that were allowed.
     pub allowed_queries: u64,
     /// Queries redirected
+    /// 
+    /// Number of queries that were redirected.
     pub redirected_queries: u64,
     /// Queries warned
+    /// 
+    /// Number of queries that triggered a warning.
     pub warned_queries: u64,
     /// Unique domains accessed
+    /// 
+    /// Number of unique domains accessed.
     pub unique_domains: usize,
     /// Top blocked domains
+    /// 
+    /// List of most frequently blocked domains and their block counts.
     pub top_blocked: Vec<(String, u64)>,
 }
 
 /// Family Shield - DNS Protection for Families
+/// 
+/// Main structure for Family Shield DNS protection system. Provides family-friendly
+/// DNS filtering to protect against inappropriate content, malware, and phishing.
 pub struct FamilyShield {
     config: ShieldConfig,
     rules: Arc<Mutex<HashMap<String, ShieldRule>>>,
