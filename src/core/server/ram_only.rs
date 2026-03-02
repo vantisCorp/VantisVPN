@@ -10,17 +10,30 @@ use serde::{Serialize, Deserialize};
 use crate::error::{VantisError, Result};
 
 /// Configuration for RAM-only server
+/// 
+/// Configuration settings for the RAM-only server architecture that ensures
+/// no data persists to disk, complying with strict no-logs policies.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RamOnlyConfig {
     /// Maximum memory usage in MB
+    /// 
+    /// Maximum amount of memory the server can use in megabytes.
     pub max_memory_mb: u64,
     /// Session timeout in seconds
+    /// 
+    /// Timeout for inactive sessions in seconds.
     pub session_timeout_secs: u64,
     /// Enable memory pressure monitoring
+    /// 
+    /// Whether to monitor memory usage and pressure.
     pub enable_memory_monitoring: bool,
     /// Enable automatic cleanup of expired sessions
+    /// 
+    /// Whether to automatically clean up expired sessions.
     pub enable_auto_cleanup: bool,
     /// Cleanup interval in seconds
+    /// 
+    /// Interval between cleanup cycles in seconds.
     pub cleanup_interval_secs: u64,
 }
 
@@ -37,21 +50,37 @@ impl Default for RamOnlyConfig {
 }
 
 /// In-memory session data
+/// 
+/// Represents a user session stored entirely in memory with no disk persistence.
 #[derive(Debug, Clone)]
 pub struct SessionData {
     /// Unique session identifier
+    /// 
+    /// Unique identifier for this session.
     pub session_id: String,
     /// User identifier
+    /// 
+    /// Identifier of the user associated with this session.
     pub user_id: String,
     /// Session creation timestamp
+    /// 
+    /// When this session was created.
     pub created_at: Instant,
     /// Last activity timestamp
+    /// 
+    /// When the last activity occurred in this session.
     pub last_activity: Instant,
     /// Total bytes sent in this session
+    /// 
+    /// Total bytes sent during this session.
     pub bytes_sent: u64,
     /// Total bytes received in this session
+    /// 
+    /// Total bytes received during this session.
     pub bytes_received: u64,
     /// Additional session metadata
+    /// 
+    /// Additional metadata associated with the session.
     pub metadata: HashMap<String, String>,
 }
 
@@ -87,23 +116,39 @@ impl SessionData {
 }
 
 /// Memory usage statistics
+/// 
+/// Statistics about memory usage in the RAM-only server.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MemoryStats {
     /// Total memory available in MB
+    /// 
+    /// Total memory available to the server in megabytes.
     pub total_memory_mb: u64,
     /// Memory currently used in MB
+    /// 
+    /// Memory currently in use in megabytes.
     pub used_memory_mb: u64,
     /// Available memory in MB
+    /// 
+    /// Available memory in megabytes.
     pub available_memory_mb: u64,
     /// Number of active sessions
+    /// 
+    /// Number of currently active sessions.
     pub session_count: usize,
     /// Total bytes sent across all sessions
+    /// 
+    /// Total bytes sent across all sessions.
     pub total_bytes_sent: u64,
     /// Total bytes received across all sessions
+    /// 
+    /// Total bytes received across all sessions.
     pub total_bytes_received: u64,
 }
 
 /// RAM-Only Server Manager
+/// 
+/// Manages RAM-only server operations ensuring no data persists to disk.
 pub struct RamOnlyServer {
     config: RamOnlyConfig,
     sessions: Arc<RwLock<HashMap<String, SessionData>>>,
