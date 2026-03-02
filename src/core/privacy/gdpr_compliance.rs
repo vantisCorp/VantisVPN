@@ -12,194 +12,356 @@ use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc, Duration};
 
 /// Consent type
+/// 
+/// Types of consent that can be granted by data subjects under GDPR.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConsentType {
     /// Consent for data collection
+    /// 
+    /// Consent to collect personal data.
     DataCollection,
     /// Consent for data processing
+    /// 
+    /// Consent to process personal data.
     DataProcessing,
     /// Consent for data sharing
+    /// 
+    /// Consent to share personal data with third parties.
     DataSharing,
     /// Consent for marketing communications
+    /// 
+    /// Consent to receive marketing communications.
     Marketing,
     /// Consent for analytics
+    /// 
+    /// Consent to use data for analytics purposes.
     Analytics,
     /// Consent for cookies
+    /// 
+    /// Consent to use cookies and similar technologies.
     Cookies,
 }
 
 /// Consent status
+/// 
+/// Status of a consent record.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConsentStatus {
     /// Consent granted
+    /// 
+    /// Consent has been granted by the data subject.
     Granted,
     /// Consent denied
+    /// 
+    /// Consent has been denied by the data subject.
     Denied,
     /// Consent withdrawn
+    /// 
+    /// Consent has been withdrawn by the data subject.
     Withdrawn,
     /// Consent expired
+    /// 
+    /// Consent has expired.
     Expired,
 }
 
 /// Data request type
+/// 
+/// Types of data subject rights requests under GDPR.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum DataRequestType {
     /// Right to access
+    /// 
+    /// Request to access personal data held by the controller.
     Access,
     /// Right to rectification
+    /// 
+    /// Request to rectify inaccurate personal data.
     Rectification,
     /// Right to erasure (right to be forgotten)
+    /// 
+    /// Request to erase personal data.
     Erasure,
     /// Right to restriction of processing
+    /// 
+    /// Request to restrict processing of personal data.
     Restriction,
     /// Right to data portability
+    /// 
+    /// Request to receive personal data in a structured format.
     Portability,
     /// Right to object
+    /// 
+    /// Request to object to processing of personal data.
     Object,
 }
 
 /// Data request status
+/// 
+/// Status of a data subject rights request.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum DataRequestStatus {
     /// Request pending
+    /// 
+    /// Request is awaiting processing.
     Pending,
     /// Request in progress
+    /// 
+    /// Request is currently being processed.
     InProgress,
     /// Request completed
+    /// 
+    /// Request has been completed successfully.
     Completed,
     /// Request rejected
+    /// 
+    /// Request has been rejected.
     Rejected,
     /// Request cancelled
+    /// 
+    /// Request has been cancelled by the data subject.
     Cancelled,
 }
 
 /// Data subject (user)
+/// 
+/// Represents a data subject (user) under GDPR.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataSubject {
     /// Subject ID
+    /// 
+    /// Unique identifier for the data subject.
     pub subject_id: String,
     /// Email address
+    /// 
+    /// Email address of the data subject.
     pub email: String,
     /// Name
+    /// 
+    /// Name of the data subject.
     pub name: String,
     /// Country of residence
+    /// 
+    /// Country of residence of the data subject.
     pub country: String,
     /// Date of consent
+    /// 
+    /// Date when initial consent was granted.
     pub consent_date: DateTime<Utc>,
     /// Is subject active
+    /// 
+    /// Whether the data subject is active.
     pub is_active: bool,
     /// Created at
+    /// 
+    /// When the data subject record was created.
     pub created_at: DateTime<Utc>,
     /// Updated at
+    /// 
+    /// When the data subject record was last updated.
     pub updated_at: DateTime<Utc>,
 }
 
 /// Consent record
+/// 
+/// Represents a consent record granted by a data subject.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConsentRecord {
     /// Consent ID
+    /// 
+    /// Unique identifier for this consent record.
     pub consent_id: String,
     /// Subject ID
+    /// 
+    /// ID of the data subject who granted consent.
     pub subject_id: String,
     /// Consent type
+    /// 
+    /// Type of consent granted.
     pub consent_type: ConsentType,
     /// Consent status
+    /// 
+    /// Current status of the consent.
     pub status: ConsentStatus,
     /// Granted at
+    /// 
+    /// When the consent was granted.
     pub granted_at: DateTime<Utc>,
     /// Withdrawn at
+    /// 
+    /// When the consent was withdrawn (if applicable).
     pub withdrawn_at: Option<DateTime<Utc>>,
     /// Expires at
+    /// 
+    /// When the consent expires (if applicable).
     pub expires_at: Option<DateTime<Utc>>,
     /// Consent version
+    /// 
+    /// Version of the consent policy.
     pub version: u32,
     /// IP address at time of consent
+    /// 
+    /// IP address of the data subject when consent was granted.
     pub ip_address: String,
     /// User agent
+    /// 
+    /// User agent string of the data subject when consent was granted.
     pub user_agent: String,
 }
 
 /// Data request
+/// 
+/// Represents a data subject rights request.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataRequest {
     /// Request ID
+    /// 
+    /// Unique identifier for this request.
     pub request_id: String,
     /// Subject ID
+    /// 
+    /// ID of the data subject making the request.
     pub subject_id: String,
     /// Request type
+    /// 
+    /// Type of data subject rights request.
     pub request_type: DataRequestType,
     /// Request status
+    /// 
+    /// Current status of the request.
     pub status: DataRequestStatus,
     /// Request description
+    /// 
+    /// Description of the request.
     pub description: String,
     /// Created at
+    /// 
+    /// When the request was created.
     pub created_at: DateTime<Utc>,
     /// Updated at
+    /// 
+    /// When the request was last updated.
     pub updated_at: DateTime<Utc>,
     /// Completed at
+    /// 
+    /// When the request was completed (if applicable).
     pub completed_at: Option<DateTime<Utc>>,
     /// Response data
+    /// 
+    /// Response data for the request (if applicable).
     pub response_data: Option<String>,
     /// Rejection reason
+    /// 
+    /// Reason for rejection (if applicable).
     pub rejection_reason: Option<String>,
 }
 
 /// Right to be forgotten request
+/// 
+/// Represents a right to be forgotten (erasure) request.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RightToBeForgotten {
     /// Request ID
+    /// 
+    /// Unique identifier for this request.
     pub request_id: String,
     /// Subject ID
+    /// 
+    /// ID of the data subject making the request.
     pub subject_id: String,
     /// Request status
+    /// 
+    /// Current status of the request.
     pub status: DataRequestStatus,
     /// Data categories to delete
+    /// 
+    /// Categories of data to be deleted.
     pub data_categories: Vec<String>,
     /// Reason for request
+    /// 
+    /// Reason for the erasure request.
     pub reason: String,
     /// Created at
+    /// 
+    /// When the request was created.
     pub created_at: DateTime<Utc>,
     /// Processed at
+    /// 
+    /// When the request was processed (if applicable).
     pub processed_at: Option<DateTime<Utc>>,
     /// Verification token
+    /// 
+    /// Token used to verify the request.
     pub verification_token: String,
 }
 
 /// Data portability export
+/// 
+/// Represents a data export for data portability requests.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataPortability {
     /// Export ID
+    /// 
+    /// Unique identifier for this export.
     pub export_id: String,
     /// Subject ID
+    /// 
+    /// ID of the data subject whose data is being exported.
     pub subject_id: String,
     /// Export format (JSON, XML, CSV)
+    /// 
+    /// Format of the exported data.
     pub format: String,
     /// Export data
+    /// 
+    /// The exported data.
     pub data: String,
     /// Created at
+    /// 
+    /// When the export was created.
     pub created_at: DateTime<Utc>,
     /// Expires at
+    /// 
+    /// When the export expires.
     pub expires_at: DateTime<Utc>,
     /// Download URL
+    /// 
+    /// URL to download the export (if applicable).
     pub download_url: Option<String>,
 }
 
 /// GDPR Compliance configuration
+/// 
+/// Configuration settings for GDPR compliance.
 #[derive(Debug, Clone)]
 pub struct GdprConfig {
     /// Consent validity period in days
+    /// 
+    /// Number of days consent remains valid before expiration.
     pub consent_validity_days: u32,
     /// Data retention period in days
+    /// 
+    /// Number of days to retain personal data.
     pub data_retention_days: u32,
     /// Request processing time limit in days
+    /// 
+    /// Maximum number of days to process data subject requests.
     pub request_processing_days: u32,
     /// Enable automatic consent expiration
+    /// 
+    /// Whether consent automatically expires after validity period.
     pub auto_expire_consent: bool,
     /// Enable data anonymization on deletion
+    /// 
+    /// Whether to anonymize data instead of deleting it.
     pub anonymize_on_deletion: bool,
     /// Require explicit consent for marketing
+    /// 
+    /// Whether explicit consent is required for marketing communications.
     pub explicit_marketing_consent: bool,
     /// Enable cookie consent banner
+    /// 
+    /// Whether to display cookie consent banner.
     pub cookie_consent_banner: bool,
 }
 
