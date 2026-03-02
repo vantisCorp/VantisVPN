@@ -25,25 +25,46 @@ pub enum IdentityType {
 
 /// Identity Proof
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Zero-knowledge identity proof
+/// 
+/// Represents a cryptographic proof of identity ownership without
+/// revealing the actual identity details.
 pub struct IdentityProof {
+    /// Unique identifier for this proof
     pub proof_id: String,
+    /// ID of the identity being proven
     pub identity_id: String,
+    /// Cryptographic commitment to the identity
     pub commitment: Vec<u8>,
+    /// Unix timestamp when the proof was created
     pub timestamp: u64,
+    /// Signature authenticating the proof
     pub signature: Vec<u8>,
 }
 
-/// Digital Identity
+/// Digital identity for anonymous authentication
+/// 
+/// Represents a user's digital identity with cryptographic keys for
+/// zero-knowledge authentication and privacy-preserving interactions.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DigitalIdentity {
+    /// Unique identifier for this digital identity
     pub identity_id: String,
+    /// Type of identity (personal, business, temporary, etc.)
     pub identity_type: IdentityType,
+    /// Display name for the identity (can be pseudonymous)
     pub display_name: String,
+    /// Public key for cryptographic operations
     pub public_key: Vec<u8>,
+    /// Cryptographic commitment to the public key
     pub public_key_commitment: Vec<u8>,
+    /// Private key (never transmitted, stored locally only)
     pub private_key: Vec<u8>,
+    /// Timestamp when the identity was created
     pub created_at: DateTime<Utc>,
+    /// Optional expiration date for temporary identities
     pub expires_at: Option<DateTime<Utc>>,
+    /// Whether the identity is currently active
     pub is_active: bool,
 }
 
@@ -100,20 +121,23 @@ impl DigitalIdentity {
     }
 }
 
-/// Avantis ID Configuration
+/// Avantis ID configuration
+/// 
+/// Configuration settings for the Avantis ID identity management system,
+/// including identity creation options and security features.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AvantisIdConfig {
-    /// Enable Avantis ID
+    /// Enable Avantis ID identity management
     pub enabled: bool,
-    /// Default identity type
+    /// Default type of identity to create
     pub default_identity_type: IdentityType,
-    /// Default identity duration in days
+    /// Default duration for temporary identities in days
     pub default_duration_days: u32,
-    /// Enable blockchain anchoring
+    /// Enable anchoring identities to blockchain for immutability
     pub enable_blockchain_anchoring: bool,
-    /// Enable biometric binding
+    /// Enable binding identities to biometric data
     pub enable_biometric_binding: bool,
-    /// Enable logging
+    /// Enable logging of identity management events
     pub enable_logging: bool,
 }
 
@@ -130,17 +154,29 @@ impl Default for AvantisIdConfig {
     }
 }
 
-/// Avantis ID Statistics
+/// Avantis ID statistics
+/// 
+/// Contains statistics about the Avantis ID identity management system,
+/// including identity counts and proof generation metrics.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AvantisIdStats {
+    /// Total number of identities created
     pub total_identities: usize,
+    /// Number of currently active identities
     pub active_identities: usize,
+    /// Breakdown of identities by type
     pub identities_by_type: HashMap<IdentityType, usize>,
+    /// Total number of identity proofs generated
     pub proofs_generated: u64,
+    /// Number of identities anchored to blockchain
     pub blockchain_anchors: u64,
 }
 
 /// Avantis ID Manager
+/// Avantis ID manager
+///
+/// Manages digital identities, identity proofs, and identity-related
+/// operations for privacy-preserving authentication.
 pub struct AvantisIdManager {
     config: AvantisIdConfig,
     identities: Arc<RwLock<HashMap<String, DigitalIdentity>>>,

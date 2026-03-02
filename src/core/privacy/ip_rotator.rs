@@ -29,62 +29,72 @@ pub enum RotationStrategy {
 
 /// IP endpoint with metadata
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// IP endpoint for VPN connections
+/// 
+/// Represents a VPN server endpoint with its IP address, location,
+/// performance metrics, and availability status.
 pub struct IpEndpoint {
-    /// IP address
+    /// IP address of the endpoint
     pub ip_address: IpAddr,
-    /// Port
+    /// Port number for the VPN connection
     pub port: u16,
-    /// Country code
+    /// ISO country code where the endpoint is located
     pub country_code: String,
-    /// City
+    /// City where the endpoint is located
     pub city: String,
-    /// ISP
+    /// Internet Service Provider hosting the endpoint
     pub isp: String,
-    /// Latency in milliseconds
+    /// Network latency to this endpoint in milliseconds
     pub latency_ms: u32,
-    /// Load percentage (0-100)
+    /// Current server load percentage (0-100)
     pub load: u8,
-    /// Is endpoint available
+    /// Whether the endpoint is currently available
     pub available: bool,
-    /// Last used timestamp
+    /// Timestamp when this endpoint was last used
     pub last_used: DateTime<Utc>,
 }
 
 /// IP pool for rotation
+/// 
+/// Manages a pool of IP endpoints for rotation, tracking usage
+/// statistics and maintaining rotation state.
 #[derive(Debug, Clone)]
 pub struct IpPool {
-    /// Pool ID
+    /// Unique identifier for this IP pool
     pub pool_id: String,
-    /// Pool name
+    /// Human-readable name for the pool
     pub name: String,
-    /// Available endpoints
+    /// List of available IP endpoints in the pool
     pub endpoints: Vec<IpEndpoint>,
-    /// Current endpoint index
+    /// Index of the currently active endpoint
     pub current_index: usize,
-    /// Total rotations
+    /// Total number of IP rotations performed
     pub total_rotations: u64,
-    /// Created at
+    /// Timestamp when the pool was created
     pub created_at: DateTime<Utc>,
 }
 
-/// IP Rotator configuration
+/// IP rotator configuration
+/// 
+/// Configuration settings for IP rotation, including rotation strategies,
+/// thresholds, and geographic diversity options.
 #[derive(Debug, Clone)]
 pub struct RotatorConfig {
-    /// Rotation strategy
+    /// Strategy to use for IP rotation
     pub strategy: RotationStrategy,
     /// Rotation interval in seconds (for TimeInterval strategy)
     pub rotation_interval: u64,
-    /// Data threshold in bytes (for DataThreshold strategy)
+    /// Data threshold in bytes before rotation (for DataThreshold strategy)
     pub data_threshold: u64,
-    /// Minimum latency threshold in milliseconds
+    /// Minimum acceptable latency in milliseconds
     pub min_latency_ms: u32,
-    /// Maximum load threshold (0-100)
+    /// Maximum acceptable server load percentage (0-100)
     pub max_load: u8,
-    /// Enable geographic diversity
+    /// Enable geographic diversity in endpoint selection
     pub enable_geo_diversity: bool,
-    /// Minimum number of countries to rotate through
+    /// Minimum number of different countries to rotate through
     pub min_countries: usize,
-    /// Adaptive threat level threshold (0-1)
+    /// Adaptive threat level threshold for automatic rotation (0-1)
     pub adaptive_threshold: f64,
 }
 
@@ -103,7 +113,10 @@ impl Default for RotatorConfig {
     }
 }
 
-/// Rotation statistics
+/// IP rotation statistics
+///
+/// Contains statistics about IP rotation operations, including
+/// rotation counts, timing, and data transfer metrics.
 #[derive(Debug, Clone)]
 pub struct RotationStats {
     /// Total rotations performed
@@ -123,6 +136,10 @@ pub struct RotationStats {
 }
 
 /// IP Rotator - Dynamic IP Address Rotation
+/// IP rotator manager
+///
+/// Manages IP address rotation across multiple pools of VPN endpoints,
+/// implementing various rotation strategies for enhanced privacy.
 pub struct IpRotator {
     config: RotatorConfig,
     pools: Arc<Mutex<HashMap<String, IpPool>>>,

@@ -35,34 +35,61 @@ pub enum AuthState {
 
 /// ZK Authentication Challenge
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Zero-knowledge authentication challenge
+/// 
+/// Represents a cryptographic challenge sent from the server to the client
+/// as part of the zero-knowledge authentication protocol.
 pub struct ZkChallenge {
+    /// Unique identifier for this challenge
     pub challenge_id: String,
+    /// Server's public key for this authentication session
     pub server_public_key: Vec<u8>,
+    /// Unix timestamp when the challenge was created
     pub timestamp: u64,
+    /// Type of zero-knowledge proof required
     pub proof_type: ZkProofType,
+    /// Random nonce to prevent replay attacks
     pub nonce: Vec<u8>,
 }
 
-/// ZK Authentication Response
+/// Zero-knowledge authentication response
+/// 
+/// Contains the client's response to the authentication challenge,
+/// including the zero-knowledge proof and cryptographic commitments.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ZkResponse {
+    /// ID of the challenge being responded to
     pub challenge_id: String,
+    /// Zero-knowledge proof demonstrating knowledge of credentials
     pub proof: Vec<u8>,
+    /// Client's public key
     public_key: Vec<u8>,
-    public_key_commitment: Vec<u8>,
-    signature: Vec<u8>,
+    /// Cryptographic commitment to the public key
+    pub public_key_commitment: Vec<u8>,
+    /// Signature authenticating the response
+    pub signature: Vec<u8>,
 }
 
-/// ZK Authentication Result
+/// Zero-knowledge authentication result
+/// 
+/// Contains the result of a zero-knowledge authentication attempt,
+/// including session token if successful or error message if failed.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ZkAuthResult {
+    /// Whether authentication was successful
     pub success: bool,
+    /// Session token if authentication succeeded
     pub session_token: Option<String>,
+    /// Unix timestamp when the session expires
     pub expires_at: Option<u64>,
+    /// Error message if authentication failed
     pub error_message: Option<String>,
 }
 
-/// User Credentials (stored locally, never transmitted)
+/// User credentials for zero-knowledge authentication
+///
+/// Stores user authentication credentials locally with cryptographic keys.
+/// These credentials are never transmitted to the server.
 #[derive(Debug, Clone)]
 pub struct UserCredentials {
     pub user_id: String,
@@ -108,20 +135,23 @@ impl UserCredentials {
     }
 }
 
-/// Zero-Knowledge Login Configuration
+/// Zero-knowledge login configuration
+/// 
+/// Configuration settings for zero-knowledge authentication system,
+/// including session management and authentication options.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ZkLoginConfig {
-    /// Enable ZK authentication
+    /// Enable zero-knowledge authentication
     pub enabled: bool,
-    /// Proof type to use
+    /// Type of zero-knowledge proof to use for authentication
     pub proof_type: ZkProofType,
-    /// Session duration in seconds
+    /// Duration of authentication sessions in seconds
     pub session_duration_secs: u64,
-    /// Enable multi-factor authentication
+    /// Enable multi-factor authentication as additional security layer
     pub enable_mfa: bool,
-    /// Enable biometric authentication
+    /// Enable biometric authentication (fingerprint, face ID, etc.)
     pub enable_biometrics: bool,
-    /// Enable logging
+    /// Enable logging of authentication events (for security monitoring)
     pub enable_logging: bool,
 }
 
@@ -138,7 +168,10 @@ impl Default for ZkLoginConfig {
     }
 }
 
-/// Zero-Knowledge Login Manager
+/// Zero-knowledge login manager
+///
+/// Manages zero-knowledge authentication sessions, user credentials,
+/// and authentication challenges without storing passwords on the server.
 pub struct ZkLoginManager {
     config: ZkLoginConfig,
     credentials: Arc<RwLock<HashMap<String, UserCredentials>>>,
@@ -359,9 +392,16 @@ impl ZkLoginManager {
 
 /// ZK Login Statistics
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Zero-knowledge login statistics
+/// 
+/// Contains statistics about the zero-knowledge authentication system,
+/// including user counts and active sessions.
 pub struct ZkLoginStats {
+    /// Total number of registered users
     pub total_users: usize,
+    /// Number of currently active authentication sessions
     pub active_sessions: usize,
+    /// Type of zero-knowledge proof being used
     pub proof_type: ZkProofType,
 }
 
