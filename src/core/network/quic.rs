@@ -7,17 +7,29 @@ use std::time::Duration;
 use tracing::{debug, info};
 
 /// QUIC connection configuration
+/// 
+/// Configuration settings for QUIC connections.
 #[derive(Debug, Clone)]
 pub struct QuicConfig {
     /// Server endpoint
+    /// 
+    /// QUIC server endpoint address.
     pub endpoint: String,
     /// Connection timeout
+    /// 
+    /// Timeout for establishing connection.
     pub timeout: Duration,
     /// Enable 0-RTT
+    /// 
+    /// Whether to enable 0-RTT for faster connection resumption.
     pub enable_0rtt: bool,
     /// Keepalive interval
+    /// 
+    /// Interval for keepalive packets.
     pub keepalive_interval: Duration,
     /// Maximum concurrent streams
+    /// 
+    /// Maximum number of concurrent streams.
     pub max_streams: u64,
 }
 
@@ -34,15 +46,31 @@ impl Default for QuicConfig {
 }
 
 /// QUIC connection state
+/// 
+/// States of a QUIC connection.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum QuicState {
+    /// Disconnected
+    /// 
+    /// Connection is not established.
     Disconnected,
+    /// Connecting
+    /// 
+    /// Connection is being established.
     Connecting,
+    /// Connected
+    /// 
+    /// Connection is established and active.
     Connected,
+    /// Closing
+    /// 
+    /// Connection is being closed.
     Closing,
 }
 
 /// QUIC connection
+/// 
+/// Represents a QUIC connection to a remote endpoint.
 pub struct QuicConnection {
     config: QuicConfig,
     state: QuicState,
@@ -123,6 +151,9 @@ impl QuicConnection {
 }
 
 /// QUIC server
+/// QUIC server
+/// 
+/// QUIC server for accepting incoming connections.
 pub struct QuicServer {
     config: QuicConfig,
 }
