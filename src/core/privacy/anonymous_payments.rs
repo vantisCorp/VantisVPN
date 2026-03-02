@@ -12,137 +12,253 @@ use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc, Duration};
 
 /// Payment method type
+/// 
+/// Anonymous payment methods supported by the system.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PaymentMethod {
     /// Monero (XMR) - privacy-focused cryptocurrency
+    /// 
+    /// Monero is a privacy-focused cryptocurrency that provides
+    /// untraceable transactions through ring signatures and stealth addresses.
     Monero,
     /// Lightning Network - instant Bitcoin payments
+    /// 
+    /// Lightning Network provides instant, low-fee Bitcoin payments
+    /// through payment channels.
     Lightning,
     /// Cash - physical cash payments
+    /// 
+    /// Physical cash payments made at designated locations.
     Cash,
 }
 
 /// Payment status
+/// 
+/// Status of a payment transaction.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PaymentStatus {
     /// Payment pending
+    /// 
+    /// Payment is awaiting confirmation or verification.
     Pending,
     /// Payment confirmed
+    /// 
+    /// Payment has been successfully confirmed.
     Confirmed,
     /// Payment failed
+    /// 
+    /// Payment failed to process.
     Failed,
     /// Payment refunded
+    /// 
+    /// Payment has been refunded.
     Refunded,
     /// Payment expired
+    /// 
+    /// Payment has expired without confirmation.
     Expired,
 }
 
 /// Monero payment details
+/// 
+/// Represents a Monero cryptocurrency payment.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MoneroPayment {
     /// Payment ID
+    /// 
+    /// Unique identifier for this payment.
     pub payment_id: String,
     /// Monero address
+    /// 
+    /// Monero address to receive payment.
     pub address: String,
     /// Amount in XMR
+    /// 
+    /// Payment amount in Monero (XMR).
     pub amount: f64,
     /// Transaction ID
+    /// 
+    /// Monero transaction ID (when confirmed).
     pub tx_id: Option<String>,
     /// Number of confirmations
+    /// 
+    /// Current number of blockchain confirmations.
     pub confirmations: u32,
     /// Required confirmations
+    /// 
+    /// Number of confirmations required for payment completion.
     pub required_confirmations: u32,
     /// Payment status
+    /// 
+    /// Current status of the payment.
     pub status: PaymentStatus,
     /// Created at
+    /// 
+    /// When the payment was created.
     pub created_at: DateTime<Utc>,
     /// Confirmed at
+    /// 
+    /// When the payment was confirmed.
     pub confirmed_at: Option<DateTime<Utc>>,
 }
 
 /// Lightning Network payment details
+/// 
+/// Represents a Lightning Network payment.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LightningPayment {
     /// Payment ID
+    /// 
+    /// Unique identifier for this payment.
     pub payment_id: String,
     /// Lightning invoice
+    /// 
+    /// Lightning Network invoice for payment.
     pub invoice: String,
     /// Amount in satoshis
+    /// 
+    /// Payment amount in satoshis.
     pub amount_sat: u64,
     /// Payment hash
+    /// 
+    /// Lightning payment hash (when confirmed).
     pub payment_hash: Option<String>,
     /// Payment preimage
+    /// 
+    /// Lightning payment preimage (when confirmed).
     pub preimage: Option<String>,
     /// Payment status
+    /// 
+    /// Current status of the payment.
     pub status: PaymentStatus,
     /// Created at
+    /// 
+    /// When the payment was created.
     pub created_at: DateTime<Utc>,
     /// Confirmed at
+    /// 
+    /// When the payment was confirmed.
     pub confirmed_at: Option<DateTime<Utc>>,
     /// Expires at
+    /// 
+    /// When the invoice expires.
     pub expires_at: DateTime<Utc>,
 }
 
 /// Cash payment details
+/// 
+/// Represents a physical cash payment.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CashPayment {
     /// Payment ID
+    /// 
+    /// Unique identifier for this payment.
     pub payment_id: String,
     /// Reference code
+    /// 
+    /// Reference code for the payment.
     pub reference_code: String,
     /// Amount in local currency
+    /// 
+    /// Payment amount in local currency.
     pub amount: f64,
     /// Currency code
+    /// 
+    /// Currency code (e.g., USD, EUR).
     pub currency: String,
     /// Payment location
+    /// 
+    /// Location where payment was made.
     pub location: String,
     /// Verification code
+    /// 
+    /// Code used to verify the payment.
     pub verification_code: String,
     /// Payment status
+    /// 
+    /// Current status of the payment.
     pub status: PaymentStatus,
     /// Created at
+    /// 
+    /// When the payment was created.
     pub created_at: DateTime<Utc>,
     /// Verified at
+    /// 
+    /// When the payment was verified.
     pub verified_at: Option<DateTime<Utc>>,
 }
 
 /// Payment transaction
+/// 
+/// Represents a payment transaction record.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PaymentTransaction {
     /// Transaction ID
+    /// 
+    /// Unique identifier for this transaction.
     pub transaction_id: String,
     /// Payment method
+    /// 
+    /// Payment method used for this transaction.
     pub method: PaymentMethod,
     /// Amount
+    /// 
+    /// Transaction amount.
     pub amount: f64,
     /// Currency
+    /// 
+    /// Currency code for the amount.
     pub currency: String,
     /// Status
+    /// 
+    /// Current status of the transaction.
     pub status: PaymentStatus,
     /// Created at
+    /// 
+    /// When the transaction was created.
     pub created_at: DateTime<Utc>,
     /// Updated at
+    /// 
+    /// When the transaction was last updated.
     pub updated_at: DateTime<Utc>,
 }
 
 /// Anonymous Payment Manager configuration
+/// 
+/// Configuration settings for the anonymous payment system.
 #[derive(Debug, Clone)]
 pub struct PaymentConfig {
     /// Enable Monero payments
+    /// 
+    /// Whether Monero payments are enabled.
     pub enable_monero: bool,
     /// Enable Lightning payments
+    /// 
+    /// Whether Lightning Network payments are enabled.
     pub enable_lightning: bool,
     /// Enable cash payments
+    /// 
+    /// Whether cash payments are enabled.
     pub enable_cash: bool,
     /// Monero required confirmations
+    /// 
+    /// Number of blockchain confirmations required for Monero payments.
     pub monero_confirmations: u32,
     /// Lightning invoice expiry in seconds
+    /// 
+    /// Expiry time for Lightning invoices in seconds.
     pub lightning_expiry: u64,
     /// Cash verification expiry in seconds
+    /// 
+    /// Expiry time for cash payment verification in seconds.
     pub cash_expiry: u64,
     /// Maximum payment amount
+    /// 
+    /// Maximum allowed payment amount.
     pub max_amount: f64,
     /// Minimum payment amount
+    /// 
+    /// Minimum allowed payment amount.
     pub min_amount: f64,
 }
 
