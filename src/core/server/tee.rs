@@ -10,15 +10,25 @@ use crate::error::{VantisError, Result};
 use crate::crypto::{Cipher, CipherSuite, SecureRandom};
 
 /// TEE Type enumeration
+/// 
+/// Types of Trusted Execution Environments supported by the system.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TeeType {
     /// Intel Software Guard Extensions
+    /// 
+    /// Intel's hardware-based TEE technology providing secure enclaves.
     IntelSGX,
     /// AMD Secure Encrypted Virtualization
+    /// 
+    /// AMD's hardware-based memory encryption technology.
     AmdSEV,
     /// ARM TrustZone
+    /// 
+    /// ARM's hardware-based TEE technology for mobile and embedded systems.
     ArmTrustZone,
     /// Software-based TEE (fallback)
+    /// 
+    /// Software-based TEE implementation as fallback when hardware TEE is unavailable.
     SoftwareTEE,
 }
 
@@ -38,19 +48,33 @@ impl TeeType {
 }
 
 /// TEE Configuration
+/// 
+/// Configuration settings for the Trusted Execution Environment.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TeeConfig {
     /// TEE type to use
+    /// 
+    /// Type of TEE to use for confidential computing.
     pub tee_type: TeeType,
     /// Enable attestation
+    /// 
+    /// Whether to enable remote attestation for enclaves.
     pub enable_attestation: bool,
     /// Enable secure key storage
+    /// 
+    /// Whether to enable secure key storage within the enclave.
     pub enable_secure_key_storage: bool,
     /// Memory encryption enabled
+    /// 
+    /// Whether to enable memory encryption for enclave data.
     pub enable_memory_encryption: bool,
     /// Maximum enclave size in MB
+    /// 
+    /// Maximum size of enclave memory in megabytes.
     pub max_enclave_size_mb: u64,
     /// Attestation timeout in seconds
+    /// 
+    /// Timeout for attestation requests in seconds.
     pub attestation_timeout_secs: u64,
 }
 
@@ -68,18 +92,43 @@ impl Default for TeeConfig {
 }
 
 /// Attestation Report
+/// 
+/// Report from remote attestation proving the integrity of a secure enclave.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AttestationReport {
+    /// TEE type
+    /// 
+    /// Type of TEE that generated this report.
     pub tee_type: TeeType,
+    /// Report ID
+    /// 
+    /// Unique identifier for this attestation report.
     pub report_id: String,
+    /// Timestamp
+    /// 
+    /// Unix timestamp when the report was generated.
     pub timestamp: u64,
+    /// Measurement
+    /// 
+    /// Cryptographic measurement of the enclave state.
     pub measurement: Vec<u8>,
+    /// Signature
+    /// 
+    /// Signature proving the authenticity of the report.
     pub signature: Vec<u8>,
+    /// Certificate
+    /// 
+    /// Certificate chain for verification.
     pub certificate: Vec<u8>,
+    /// Is valid
+    /// 
+    /// Whether the attestation report is valid.
     pub is_valid: bool,
 }
 
 /// Secure Enclave
+/// 
+/// Represents a secure enclave within a Trusted Execution Environment.
 #[derive(Debug, Clone)]
 pub struct SecureEnclave {
     enclave_id: String,
@@ -116,15 +165,31 @@ impl SecureEnclave {
 }
 
 /// Encrypted Key Storage
+/// 
+/// Encrypted key stored within a secure enclave.
 #[derive(Debug, Clone)]
 pub struct EncryptedKey {
+    /// Key ID
+    /// 
+    /// Unique identifier for this encrypted key.
     pub key_id: String,
+    /// Encrypted data
+    /// 
+    /// Encrypted key data.
     pub encrypted_data: Vec<u8>,
+    /// Nonce
+    /// 
+    /// Nonce used for encryption.
     pub nonce: Vec<u8>,
+    /// Created at
+    /// 
+    /// When this key was created.
     pub created_at: std::time::Instant,
 }
 
 /// TEE Manager
+/// 
+/// Manages Trusted Execution Environment enclaves and secure key storage.
 pub struct TeeManager {
     config: TeeConfig,
     enclaves: Arc<RwLock<HashMap<String, SecureEnclave>>>,
@@ -372,11 +437,25 @@ impl TeeManager {
 }
 
 /// TEE Statistics
+/// 
+/// Statistics about the Trusted Execution Environment.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TeeStats {
+    /// TEE type
+    /// 
+    /// Type of TEE being used.
     pub tee_type: TeeType,
+    /// Active enclaves
+    /// 
+    /// Number of currently active enclaves.
     pub active_enclaves: usize,
+    /// Stored keys
+    /// 
+    /// Number of keys stored securely in enclaves.
     pub stored_keys: usize,
+    /// Is hardware backed
+    /// 
+    /// Whether the TEE is hardware-backed.
     pub is_hardware_backed: bool,
     pub attestation_enabled: bool,
     pub secure_key_storage_enabled: bool,
