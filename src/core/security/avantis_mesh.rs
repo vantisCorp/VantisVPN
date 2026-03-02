@@ -16,98 +16,150 @@ use chrono::{DateTime, Utc};
 
 /// Mesh node information
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Mesh network node
+/// 
+/// Represents a node in the Avantis Mesh P2P network, containing
+/// connection details, capabilities, and trust information.
 pub struct MeshNode {
-    /// Unique node ID
+    /// Unique identifier for this mesh node
     pub node_id: String,
-    /// Node name
+    /// Human-readable name for the node
     pub name: String,
-    /// Node IP address
+    /// IP address of the node
     pub ip_address: IpAddr,
-    /// Node port
+    /// Port number for mesh communication
     pub port: u16,
-    /// Public key for encryption
+    /// Public key for encrypted communication
     pub public_key: Vec<u8>,
-    /// Node capabilities
+    /// List of capabilities supported by this node
     pub capabilities: Vec<String>,
-    /// Last seen timestamp
+    /// Timestamp when this node was last seen
     pub last_seen: DateTime<Utc>,
-    /// Is this node online
+    /// Whether this node is currently online
     pub online: bool,
-    /// Node trust score (0-100)
+    /// Trust score for this node (0-100)
     pub trust_score: u8,
 }
 
 /// Mesh message type
+/// 
+/// Represents different types of messages that can be sent through the
+/// Avantis Mesh P2P network, including discovery, direct messaging,
+/// broadcasting, file transfer, and network management.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum MeshMessage {
     /// Node discovery announcement
+    /// 
+    /// Broadcast by a node to announce its presence and capabilities
+    /// to other nodes in the mesh network.
     Discovery {
+        /// Unique identifier of the announcing node
         node_id: String,
+        /// Human-readable name of the node
         name: String,
+        /// List of capabilities supported by the node
         capabilities: Vec<String>,
     },
     /// Direct message to node
+    /// 
+    /// Sends a message directly to a specific node in the mesh network.
     DirectMessage {
+        /// Node ID of the sender
         from_node: String,
+        /// Node ID of the recipient
         to_node: String,
+        /// Message content (encrypted if encryption is enabled)
         content: Vec<u8>,
     },
     /// Broadcast message to all nodes
+    /// 
+    /// Sends a message to all nodes in the mesh network.
     Broadcast {
+        /// Node ID of the sender
         from_node: String,
+        /// Message content (encrypted if encryption is enabled)
         content: Vec<u8>,
     },
     /// File transfer request
+    /// 
+    /// Initiates a file transfer between two nodes in the mesh network.
     FileTransferRequest {
+        /// Node ID of the sender
         from_node: String,
+        /// Node ID of the recipient
         to_node: String,
+        /// Unique identifier for the file transfer
         file_id: String,
+        /// Name of the file being transferred
         file_name: String,
+        /// Size of the file in bytes
         file_size: u64,
     },
     /// File transfer response
+    /// 
+    /// Response to a file transfer request, indicating acceptance or rejection.
     FileTransferResponse {
+        /// Node ID of the responder
         from_node: String,
+        /// Node ID of the original requester
         to_node: String,
+        /// Unique identifier for the file transfer
         file_id: String,
+        /// Whether the file transfer was accepted
         accepted: bool,
     },
     /// File chunk
+    /// 
+    /// Contains a chunk of data being transferred as part of a file transfer.
     FileChunk {
+        /// Node ID of the sender
         from_node: String,
+        /// Node ID of the recipient
         to_node: String,
+        /// Unique identifier for the file transfer
         file_id: String,
+        /// Index of this chunk in the file
         chunk_index: u32,
+        /// Chunk data (encrypted if encryption is enabled)
         chunk_data: Vec<u8>,
     },
     /// Heartbeat
+    /// 
+    /// Periodic message sent by a node to indicate it is still online.
     Heartbeat {
+        /// Node ID of the sender
         node_id: String,
     },
     /// Node leave notification
+    /// 
+    /// Sent by a node when it is leaving the mesh network.
     Leave {
+        /// Node ID of the leaving node
         node_id: String,
     },
 }
 
-/// Mesh configuration
+/// Avantis Mesh configuration
+/// 
+/// Configuration settings for the Avantis Mesh P2P network, including
+/// discovery parameters, heartbeat settings, and security options.
 #[derive(Debug, Clone)]
 pub struct MeshConfig {
-    /// Local node name
+    /// Name for the local mesh node
     pub node_name: String,
-    /// Listen port
+    /// Port to listen for mesh connections
     pub listen_port: u16,
-    /// Discovery interval in seconds
+    /// Interval between node discovery broadcasts in seconds
     pub discovery_interval: u64,
-    /// Heartbeat interval in seconds
+    /// Interval between heartbeat messages in seconds
     pub heartbeat_interval: u64,
-    /// Node timeout in seconds
+    /// Timeout before considering a node offline in seconds
     pub node_timeout: u64,
-    /// Maximum hops for message routing
+    /// Maximum number of hops for message routing
     pub max_hops: u8,
-    /// Enable encryption
+    /// Enable end-to-end encryption for mesh traffic
     pub enable_encryption: bool,
-    /// Enable compression
+    /// Enable compression for mesh messages
     pub enable_compression: bool,
 }
 
@@ -126,24 +178,31 @@ impl Default for MeshConfig {
     }
 }
 
-/// Mesh statistics
+/// Mesh network statistics
+/// 
+/// Contains statistics about the Avantis Mesh network, including node counts,
+/// traffic metrics, and uptime information.
 #[derive(Debug, Clone)]
 pub struct MeshStats {
-    /// Total nodes in mesh
+    /// Total number of nodes in the mesh network
     pub total_nodes: usize,
-    /// Online nodes
+    /// Number of currently online nodes
     pub online_nodes: usize,
-    /// Messages sent
+    /// Total messages sent through the mesh
     pub messages_sent: u64,
-    /// Messages received
+    /// Total messages received through the mesh
     pub messages_received: u64,
-    /// Bytes transferred
+    /// Total bytes transferred through the mesh
     pub bytes_transferred: u64,
-    /// Uptime in seconds
+    /// Mesh network uptime in seconds
     pub uptime: u64,
 }
 
 /// Avantis Mesh - LAN P2P Networking
+/// Avantis Mesh P2P network manager
+///
+/// Manages the Avantis Mesh peer-to-peer network for LAN P2P
+/// networking, including node discovery, message routing, and encryption.
 pub struct AvantisMesh {
     config: MeshConfig,
     local_node: Arc<Mutex<MeshNode>>,
