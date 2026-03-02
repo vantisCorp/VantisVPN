@@ -10,24 +10,28 @@ use crate::error::{VantisError, Result};
 
 /// Jumbo Frame Configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Jumbo frame configuration for FTTH
+/// 
+/// Configuration settings for jumbo frame support in Fiber-to-the-Home
+/// networks, enabling larger packet sizes for improved throughput.
 pub struct JumboFrameConfig {
-    /// Enable jumbo frames
+    /// Enable jumbo frame support
     pub enabled: bool,
-    /// Maximum transmission unit in bytes
+    /// Maximum Transmission Unit size in bytes (typically 9000 for jumbo frames)
     pub mtu: usize,
-    /// Enable automatic MTU discovery
+    /// Enable automatic Path MTU Discovery
     pub enable_mtu_discovery: bool,
-    /// Enable frame fragmentation
+    /// Enable frame fragmentation for paths with smaller MTU
     pub enable_fragmentation: bool,
-    /// Fragmentation threshold in bytes
+    /// Threshold in bytes at which to fragment frames
     pub fragmentation_threshold: usize,
-    /// Enable frame aggregation
+    /// Enable frame aggregation for efficiency
     pub enable_aggregation: bool,
-    /// Aggregation timeout in milliseconds
+    /// Timeout for frame aggregation in milliseconds
     pub aggregation_timeout_ms: u64,
-    /// Enable path MTU caching
+    /// Enable caching of Path MTU values
     pub enable_pmtu_cache: bool,
-    /// PMTU cache TTL in seconds
+    /// Time-to-live for PMTU cache entries in seconds
     pub pmtu_cache_ttl_secs: u64,
 }
 
@@ -58,13 +62,21 @@ pub enum FrameType {
     SuperJumbo,
 }
 
-/// Network Path
+/// Network path for MTU tracking
+/// 
+/// Represents a network path with its MTU size and jumbo frame support,
+/// used for Path MTU Discovery and caching.
 #[derive(Debug, Clone)]
 pub struct NetworkPath {
+    /// Unique identifier for this network path
     pub path_id: String,
+    /// Destination address or endpoint
     pub destination: String,
+    /// Maximum Transmission Unit for this path
     pub mtu: usize,
+    /// Timestamp when this path was last updated
     pub last_updated: std::time::Instant,
+    /// Whether jumbo frames are supported on this path
     pub is_jumbo_supported: bool,
 }
 
@@ -84,13 +96,21 @@ impl NetworkPath {
     }
 }
 
-/// Frame Fragment
+/// Jumbo frame fragment
+/// 
+/// Represents a fragment of a jumbo frame that has been split for
+/// transmission over a path with smaller MTU.
 #[derive(Debug, Clone)]
 pub struct FrameFragment {
+    /// Unique identifier for the original frame
     pub fragment_id: u64,
+    /// Index of this fragment in the sequence
     pub fragment_index: u32,
+    /// Total number of fragments for the original frame
     pub total_fragments: u32,
+    /// Fragment data payload
     pub data: Vec<u8>,
+    /// Timestamp when this fragment was created
     pub timestamp: std::time::Instant,
 }
 
@@ -106,25 +126,45 @@ impl FrameFragment {
     }
 }
 
-/// Jumbo Frame Statistics
+/// Jumbo frame statistics
+/// 
+/// Contains statistics about jumbo frame operations, including frame counts,
+/// fragmentation metrics, and throughput measurements.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JumboFrameStats {
+    /// Total number of frames sent
     pub total_frames_sent: u64,
+    /// Total number of frames received
     pub total_frames_received: u64,
+    /// Number of jumbo frames sent (>1500 bytes)
     pub jumbo_frames_sent: u64,
+    /// Number of jumbo frames received (>1500 bytes)
     pub jumbo_frames_received: u64,
+    /// Number of standard frames sent (≤1500 bytes)
     pub standard_frames_sent: u64,
+    /// Number of standard frames received (≤1500 bytes)
     pub standard_frames_received: u64,
+    /// Number of frame fragments sent
     pub fragments_sent: u64,
+    /// Number of frame fragments received
     pub fragments_received: u64,
+    /// Number of frames aggregated
     pub aggregated_frames: u64,
+    /// Average frame size in bytes
     pub average_frame_size: f64,
+    /// Current throughput in Mbps
     pub throughput_mbps: f64,
+    /// Total bytes sent
     pub total_bytes_sent: u64,
+    /// Total bytes received
     pub total_bytes_received: u64,
 }
 
 /// Jumbo Frame Manager
+/// Jumbo frame manager for FTTH
+///
+/// Manages jumbo frame operations for Fiber-to-the-Home networks,
+/// including MTU discovery, fragmentation, and aggregation.
 pub struct JumboFrameManager {
     config: JumboFrameConfig,
     paths: Arc<RwLock<HashMap<String, NetworkPath>>>,

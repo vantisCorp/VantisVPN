@@ -54,14 +54,26 @@ pub enum IntegrityStatus {
 
 /// Boot Component
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Boot component for secure boot verification
+/// 
+/// Represents a system component that is verified during the secure boot
+/// process, including its hash, signature, and integrity status.
 pub struct BootComponent {
+    /// Unique identifier for this boot component
     pub component_id: String,
+    /// Type of boot component (kernel, bootloader, firmware, etc.)
     pub component_type: ComponentType,
+    /// File system path to the component
     pub path: String,
+    /// Expected cryptographic hash of the component
     pub expected_hash: Vec<u8>,
+    /// Actual computed hash of the component
     pub actual_hash: Vec<u8>,
+    /// Digital signature of the component
     pub signature: Vec<u8>,
+    /// Current integrity verification status
     pub status: IntegrityStatus,
+    /// Order in which this component should be loaded
     pub load_order: u32,
 }
 
@@ -90,22 +102,25 @@ impl BootComponent {
     }
 }
 
-/// Secure Boot Configuration
+/// Secure boot configuration
+/// 
+/// Configuration settings for secure boot verification, including
+/// component verification requirements and recovery options.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SecureBootConfig {
-    /// Enable secure boot
+    /// Enable secure boot verification
     pub enabled: bool,
-    /// Require all components to be verified
+    /// Require all components to be verified before boot
     pub require_all_verified: bool,
-    /// Allow boot with warnings
+    /// Allow system to boot with verification warnings
     pub allow_boot_with_warnings: bool,
-    /// Boot timeout in seconds
+    /// Timeout for boot verification in seconds
     pub boot_timeout_secs: u64,
-    /// Enable component logging
+    /// Enable logging of boot verification events
     pub enable_logging: bool,
-    /// Enable automatic recovery
+    /// Enable automatic recovery on verification failure
     pub enable_auto_recovery: bool,
-    /// Recovery image path
+    /// Path to the recovery image for automatic recovery
     pub recovery_image_path: String,
 }
 
@@ -123,17 +138,29 @@ impl Default for SecureBootConfig {
     }
 }
 
-/// Boot Event
+/// Boot event for secure boot logging
+/// 
+/// Represents an event that occurred during the secure boot process,
+/// including timestamp, event type, and severity information.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BootEvent {
+    /// Unix timestamp when the event occurred
     pub timestamp: u64,
+    /// Type of boot event (verification, loading, error, etc.)
     pub event_type: String,
+    /// ID of the component associated with this event
     pub component_id: String,
+    /// Detailed message describing the event
     pub message: String,
+    /// Severity level of the event (info, warning, error, critical)
     pub severity: String,
 }
 
 /// Secure Boot Manager
+/// Secure boot manager
+///
+/// Manages secure boot verification process, ensuring only trusted
+/// components are loaded during system boot according to CIS Controls.
 pub struct SecureBootManager {
     config: SecureBootConfig,
     state: Arc<Mutex<SecureBootState>>,
@@ -402,22 +429,40 @@ impl SecureBootManager {
 
 /// Boot Result
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Secure boot result
+/// 
+/// Contains the result of a secure boot verification process, including
+/// component verification counts and any warnings encountered.
 pub struct BootResult {
+    /// Whether the boot process completed successfully
     pub success: bool,
+    /// Number of components that were verified
     pub verified_count: usize,
+    /// Number of components that failed verification
     pub failed_count: usize,
+    /// List of warnings generated during boot
     pub warnings: Vec<String>,
+    /// Total boot time in milliseconds
     pub boot_time: u64,
 }
 
-/// Integrity Report
+/// Secure boot integrity report
+/// 
+/// Contains a comprehensive report of the secure boot verification process,
+/// including component status and event log.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IntegrityReport {
+    /// Final state of the secure boot process
     pub boot_state: SecureBootState,
+    /// Total number of components verified
     pub total_components: usize,
+    /// Number of components that passed verification
     pub verified_components: usize,
+    /// Number of components that failed verification
     pub failed_components: usize,
+    /// List of all boot events that occurred
     pub boot_events: Vec<BootEvent>,
+    /// Unix timestamp when the report was generated
     pub timestamp: u64,
 }
 

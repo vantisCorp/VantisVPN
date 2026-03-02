@@ -56,16 +56,30 @@ pub enum LinkState {
 
 /// Wi-Fi Link
 #[derive(Debug, Clone)]
+/// Wi-Fi 7 link for Multi-Link Operation
+/// 
+/// Represents a single Wi-Fi link in a Multi-Link Operation (MLO) setup,
+/// with performance metrics and link state information.
 pub struct WifiLink {
+    /// Unique identifier for this link
     pub link_id: String,
+    /// Frequency band of the link (2.4GHz, 5GHz, 6GHz)
     pub band: WifiBand,
+    /// Channel number used by this link
     pub channel: u32,
+    /// Channel bandwidth in MHz
     pub bandwidth_mhz: u32,
+    /// Current state of the link
     pub state: LinkState,
+    /// Received Signal Strength Indicator in dBm
     pub rssi_dbm: i32,
+    /// Signal-to-Noise Ratio in dB
     pub snr_db: f64,
+    /// Current throughput in Mbps
     pub throughput_mbps: f64,
+    /// Current latency in milliseconds
     pub latency_ms: f64,
+    /// Current packet loss rate (0.0-1.0)
     pub packet_loss_rate: f64,
 }
 
@@ -103,24 +117,27 @@ impl WifiLink {
     }
 }
 
-/// MLO Configuration
+/// Multi-Link Operation (MLO) configuration
+/// 
+/// Configuration settings for Wi-Fi 7 Multi-Link Operation, including
+/// link aggregation, failover, and adaptive selection options.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MloConfig {
-    /// Enable MLO
+    /// Enable Multi-Link Operation
     pub enabled: bool,
-    /// Maximum number of simultaneous links
+    /// Maximum number of simultaneous links to use
     pub max_links: usize,
-    /// Minimum number of active links
+    /// Minimum number of active links required
     pub min_active_links: usize,
-    /// Enable link aggregation
+    /// Enable link aggregation for increased throughput
     pub enable_aggregation: bool,
-    /// Enable link failover
+    /// Enable automatic link failover
     pub enable_failover: bool,
-    /// Link failover timeout in milliseconds
+    /// Timeout for link failover in milliseconds
     pub failover_timeout_ms: u64,
-    /// Enable adaptive link selection
+    /// Enable adaptive link selection based on quality
     pub enable_adaptive_selection: bool,
-    /// Link quality update interval in milliseconds
+    /// Interval for updating link quality metrics in milliseconds
     pub quality_update_interval_ms: u64,
 }
 
@@ -139,20 +156,35 @@ impl Default for MloConfig {
     }
 }
 
-/// MLO Statistics
+/// Multi-Link Operation (MLO) statistics
+/// 
+/// Contains statistics about MLO performance, including link counts,
+/// throughput metrics, and failover statistics.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MloStats {
+    /// Total number of configured links
     pub total_links: usize,
+    /// Number of currently active links
     pub active_links: usize,
+    /// Total aggregated throughput in Mbps
     pub total_throughput_mbps: f64,
+    /// Average latency across all active links in milliseconds
     pub average_latency_ms: f64,
+    /// Average packet loss rate across all active links (0.0-1.0)
     pub average_packet_loss_rate: f64,
+    /// Total bytes sent through MLO
     pub total_bytes_sent: u64,
+    /// Total bytes received through MLO
     pub total_bytes_received: u64,
+    /// Number of link failovers that have occurred
     pub failover_count: u64,
 }
 
 /// MLO Manager
+/// Multi-Link Operation (MLO) manager
+///
+/// Manages Wi-Fi 7 Multi-Link Operation, including link aggregation,
+/// failover, and adaptive link selection for optimal performance.
 pub struct MloManager {
     config: MloConfig,
     links: Arc<RwLock<HashMap<String, WifiLink>>>,
