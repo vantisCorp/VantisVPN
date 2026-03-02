@@ -30,7 +30,8 @@ pub const PUBLIC_KEY_SIZE: usize = 32;
 
 /// Ephemeral key pair
 /// 
-/// Automatically zeroized when dropped.
+/// Ephemeral key pair that is automatically zeroized when dropped.
+/// The private key is never serialized or transmitted.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct EphemeralKeyPair {
     /// Private key (never serialized/transmitted)
@@ -114,6 +115,8 @@ impl Drop for EphemeralKeyPair {
 }
 
 /// Private key with secure memory handling
+/// 
+/// Private key stored in secure memory and automatically zeroized when dropped.
 #[derive(Clone)]
 pub struct PrivateKey([u8; PRIVATE_KEY_SIZE]);
 
@@ -147,6 +150,8 @@ impl Drop for PrivateKey {
 }
 
 /// Public key
+/// 
+/// Public key that can be safely shared and transmitted.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PublicKey([u8; PUBLIC_KEY_SIZE]);
 
@@ -168,11 +173,17 @@ impl AsRef<[u8]> for PublicKey {
 }
 
 /// Cipher suite for VPN encryption
+/// 
+/// Supported cipher suites for VPN traffic encryption.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CipherSuite {
     /// ChaCha20-Poly1305 (default)
+    /// 
+    /// ChaCha20-Poly1305 AEAD cipher (default for VPN).
     ChaCha20Poly1305,
     /// AES-256-GCM (FIPS compliant)
+    /// 
+    /// AES-256-GCM AEAD cipher (FIPS 140-3 compliant).
     Aes256Gcm,
 }
 
@@ -183,6 +194,8 @@ impl Default for CipherSuite {
 }
 
 /// Cipher for encrypting/decrypting VPN traffic
+/// 
+/// Symmetric cipher for encrypting and decrypting VPN traffic.
 pub struct Cipher {
     suite: CipherSuite,
     key: ChaCha20Poly1305,

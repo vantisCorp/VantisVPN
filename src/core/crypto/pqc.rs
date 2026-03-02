@@ -23,6 +23,7 @@ pub const KYBER_SHARED_SECRET_SIZE: usize = 32;
 /// Kyber (ML-KEM) - Post-Quantum Key Encapsulation Mechanism
 /// 
 /// Used for secure key exchange that is resistant to quantum attacks.
+/// This is a placeholder implementation - production code will use actual Kyber implementation.
 pub struct KyberKEM {
     // Placeholder - production will use actual Kyber implementation
     public_key: Option<Vec<u8>>,
@@ -107,6 +108,7 @@ impl Drop for KyberKEM {
 /// Dilithium (ML-DSA) - Post-Quantum Digital Signature Algorithm
 /// 
 /// Used for authentication and digital signatures that are quantum-resistant.
+/// This is a placeholder implementation - production code will use actual Dilithium implementation.
 #[derive(Serialize, Deserialize)]
 pub struct DilithiumSignature {
     // Placeholder structure
@@ -151,6 +153,7 @@ impl DilithiumSignature {
 /// Hybrid key exchange combining classical and post-quantum algorithms
 /// 
 /// Uses both X25519 (classical) and Kyber (post-quantum) for defense in depth.
+/// This is a placeholder implementation - production code will use actual algorithms.
 pub struct HybridKeyExchange {
     classical_key: Option<super::keys::EphemeralKeyPair>,
     pqc_key: Option<KyberKEM>,
