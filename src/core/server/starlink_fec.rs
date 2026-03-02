@@ -9,15 +9,25 @@ use serde::{Serialize, Deserialize};
 use crate::error::{VantisError, Result};
 
 /// FEC Algorithm Type
+/// 
+/// Types of Forward Error Correction algorithms available for satellite links.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum FecAlgorithm {
     /// Reed-Solomon codes
+    /// 
+    /// Reed-Solomon error correction codes, good for burst errors.
     ReedSolomon,
     /// Low-Density Parity-Check codes
+    /// 
+    /// LDPC codes, efficient for large data blocks.
     Ldpc,
     /// Turbo codes
+    /// 
+    /// Turbo codes, excellent for high BER channels.
     Turbo,
     /// Hybrid approach
+    /// 
+    /// Hybrid approach combining multiple algorithms for optimal performance.
     Hybrid,
 }
 
@@ -48,21 +58,37 @@ impl FecConfig {
 }
 
 /// FEC Configuration
+/// 
+/// Configuration settings for Forward Error Correction on satellite links.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FecConfig {
     /// FEC algorithm to use
+    /// 
+    /// The FEC algorithm to use for error correction.
     pub algorithm: FecAlgorithm,
     /// Data block size in bytes
+    /// 
+    /// Size of data blocks for FEC encoding.
     pub block_size: usize,
     /// Number of parity symbols
+    /// 
+    /// Number of parity symbols to add for error correction.
     pub parity_symbols: usize,
     /// Enable interleaving
+    /// 
+    /// Whether to enable packet interleaving to combat burst errors.
     pub enable_interleaving: bool,
     /// Interleaving depth
+    /// 
+    /// Depth of interleaving if enabled.
     pub interleaving_depth: usize,
     /// Maximum latency in milliseconds
+    /// 
+    /// Maximum acceptable latency for FEC processing.
     pub max_latency_ms: u64,
     /// Enable adaptive FEC
+    /// 
+    /// Whether to adaptively adjust FEC parameters based on network conditions.
     pub enable_adaptive: bool,
 }
 
@@ -81,11 +107,25 @@ impl Default for FecConfig {
 }
 
 /// FEC Block
+/// 
+/// Represents a data block with FEC parity information.
 #[derive(Debug, Clone)]
 pub struct FecBlock {
+    /// Block ID
+    /// 
+    /// Unique identifier for this FEC block.
     pub block_id: u64,
+    /// Data
+    /// 
+    /// Original data payload.
     pub data: Vec<u8>,
+    /// Parity
+    /// 
+    /// Parity symbols for error correction.
     pub parity: Vec<u8>,
+    /// Timestamp
+    /// 
+    /// When this block was created.
     pub timestamp: std::time::Instant,
 }
 
@@ -105,20 +145,51 @@ impl FecBlock {
 }
 
 /// FEC Statistics
+/// 
+/// Statistics about Forward Error Correction performance.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FecStats {
+    /// Algorithm
+    /// 
+    /// FEC algorithm being used.
     pub algorithm: FecAlgorithm,
+    /// Blocks encoded
+    /// 
+    /// Total number of blocks encoded.
     pub blocks_encoded: u64,
+    /// Blocks decoded
+    /// 
+    /// Total number of blocks decoded.
     pub blocks_decoded: u64,
+    /// Blocks recovered
+    /// 
+    /// Number of blocks successfully recovered using FEC.
     pub blocks_recovered: u64,
+    /// Blocks failed
+    /// 
+    /// Number of blocks that could not be recovered.
     pub blocks_failed: u64,
+    /// Total bytes sent
+    /// 
+    /// Total bytes sent including parity overhead.
     pub total_bytes_sent: u64,
+    /// Total bytes received
+    /// 
+    /// Total bytes received.
     pub total_bytes_received: u64,
+    /// Recovery rate
+    /// 
+    /// Percentage of blocks successfully recovered.
     pub recovery_rate: f64,
+    /// Average latency
+    /// 
+    /// Average latency in milliseconds.
     pub average_latency_ms: f64,
 }
 
 /// FEC Encoder
+/// 
+/// Encodes data with Forward Error Correction for transmission.
 pub struct FecEncoder {
     config: FecConfig,
     block_counter: Arc<Mutex<u64>>,
@@ -273,6 +344,9 @@ impl FecEncoder {
 }
 
 /// FEC Decoder
+/// FEC Decoder
+/// 
+/// Decodes data with Forward Error Correction for received packets.
 pub struct FecDecoder {
     config: FecConfig,
     buffer: Arc<Mutex<VecDeque<FecBlock>>>,
@@ -421,6 +495,9 @@ impl FecDecoder {
 }
 
 /// FEC Manager
+/// FEC Manager
+/// 
+/// Manages Forward Error Correction encoding and decoding for satellite links.
 pub struct FecManager {
     config: FecConfig,
     encoder: Arc<FecEncoder>,
