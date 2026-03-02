@@ -30,24 +30,28 @@ pub const MAX_CIRCUIT_ATTEMPTS: u32 = 3;
 
 /// MultiHop+ configuration
 #[derive(Debug, Clone)]
+/// MultiHop+ configuration
+/// 
+/// Configuration settings for MultiHop+ onion routing, including hop count,
+/// path selection options, and geographic preferences.
 pub struct MultiHopConfig {
-    /// Number of hops
+    /// Number of VPN hops in the circuit (2-7)
     pub num_hops: usize,
-    /// Enable path randomization
+    /// Enable random path selection
     pub enable_path_randomization: bool,
-    /// Enable geographic diversity
+    /// Ensure hops are in different countries
     pub enable_geo_diversity: bool,
-    /// Enable latency optimization
+    /// Optimize path for low latency
     pub enable_latency_optimization: bool,
-    /// Circuit timeout
+    /// Timeout for circuit establishment
     pub circuit_timeout: Duration,
-    /// Path refresh interval
+    /// Interval between path refreshes
     pub path_refresh_interval: Duration,
-    /// Maximum circuit attempts
+    /// Maximum attempts to establish a circuit
     pub max_circuit_attempts: u32,
-    /// Preferred countries (ISO 3166-1 alpha-2)
+    /// Preferred countries for hops (ISO 3166-1 alpha-2 codes)
     pub preferred_countries: Vec<String>,
-    /// Excluded countries
+    /// Countries to exclude from path selection
     pub excluded_countries: Vec<String>,
 }
 
@@ -67,32 +71,35 @@ impl Default for MultiHopConfig {
     }
 }
 
-/// VPN node information
+/// VPN node for MultiHop+ routing
+/// 
+/// Represents a VPN server node that can be used as a hop in a
+/// MultiHop+ circuit, with performance metrics and capabilities.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VpnNode {
-    /// Node ID
+    /// Unique identifier for this VPN node
     pub node_id: String,
-    /// Public key
+    /// Public key for cryptographic operations
     pub public_key: [u8; 32],
-    /// Endpoint address
+    /// Network endpoint address (IP:port)
     pub endpoint: SocketAddr,
-    /// Virtual IP address
+    /// Virtual IPv6 address assigned to this node
     pub virtual_ip: Ipv6Addr,
-    /// Country code
+    /// ISO 3166-1 alpha-2 country code
     pub country: String,
-    /// City
+    /// City where the node is located
     pub city: String,
-    /// Latency estimate
+    /// Estimated network latency to this node
     pub latency: Duration,
-    /// Load percentage (0-100)
+    /// Current server load percentage (0-100)
     pub load: u8,
-    /// Bandwidth capacity (Mbps)
+    /// Bandwidth capacity in Mbps
     pub bandwidth: u32,
-    /// Supports MultiHop+
+    /// Whether this node supports MultiHop+
     pub supports_multihop: bool,
-    /// Supports PQC
+    /// Whether this node supports Post-Quantum Cryptography
     pub supports_pqc: bool,
-    /// Last seen timestamp
+    /// Timestamp when this node was last seen
     pub last_seen: Instant,
 }
 
@@ -133,16 +140,19 @@ impl VpnNode {
     }
 }
 
-/// Circuit hop
+/// Circuit hop in MultiHop+ routing
+/// 
+/// Represents a single hop in a MultiHop+ circuit, containing the VPN node,
+/// session key, and routing information for that hop.
 #[derive(Debug, Clone)]
 pub struct CircuitHop {
-    /// Node
+    /// VPN node for this hop
     pub node: VpnNode,
-    /// Session key for this hop
+    /// Session key for encrypting traffic to this hop
     pub session_key: [u8; 32],
-    /// Next hop address
+    /// Address of the next hop in the circuit
     pub next_hop: Option<SocketAddr>,
-    /// Hop index
+    /// Index of this hop in the circuit (0-based)
     pub index: usize,
 }
 
@@ -167,27 +177,30 @@ pub enum CircuitState {
 }
 
 /// MultiHop+ circuit
+/// 
+/// Represents a complete MultiHop+ circuit with multiple hops, tracking
+/// state, statistics, and usage metrics for the circuit.
 #[derive(Debug)]
 pub struct Circuit {
-    /// Circuit ID
+    /// Unique identifier for this circuit
     pub circuit_id: String,
-    /// Hops in the circuit
+    /// Ordered list of hops in the circuit
     pub hops: Vec<CircuitHop>,
-    /// Circuit state
+    /// Current state of the circuit
     pub state: Arc<Mutex<CircuitState>>,
-    /// Created at
+    /// Timestamp when the circuit was created
     pub created_at: Instant,
-    /// Last used at
+    /// Timestamp when the circuit was last used
     pub last_used: Arc<Mutex<Instant>>,
-    /// Bytes sent
+    /// Total bytes sent through this circuit
     pub bytes_sent: Arc<Mutex<u64>>,
-    /// Bytes received
+    /// Total bytes received through this circuit
     pub bytes_received: Arc<Mutex<u64>>,
-    /// Packets sent
+    /// Total packets sent through this circuit
     pub packets_sent: Arc<Mutex<u64>>,
-    /// Packets received
+    /// Total packets received through this circuit
     pub packets_received: Arc<Mutex<u64>>,
-    /// Number of failures
+    /// Number of failures encountered
     pub failures: Arc<Mutex<u32>>,
 }
 
@@ -255,28 +268,41 @@ impl Circuit {
     }
 }
 
+/// Circuit statistics
+/// 
+/// Contains statistics about a MultiHop+ circuit, including traffic
+/// metrics, packet counts, and uptime information.
 #[derive(Debug, Clone)]
 pub struct CircuitStats {
+    /// Total bytes sent through the circuit
     pub bytes_sent: u64,
+    /// Total bytes received through the circuit
     pub bytes_received: u64,
+    /// Total packets sent through the circuit
     pub packets_sent: u64,
+    /// Total packets received through the circuit
     pub packets_received: u64,
+    /// Number of failures encountered
     pub failures: u32,
+    /// Circuit uptime duration
     pub uptime: Duration,
 }
 
-/// Onion packet
+/// Onion packet for MultiHop+ routing
+/// 
+/// Represents an onion-routed packet that is encrypted layer-by-layer
+/// as it passes through each hop in the MultiHop+ circuit.
 #[derive(Debug, Clone)]
 pub struct OnionPacket {
-    /// Circuit ID
+    /// Circuit ID this packet belongs to
     pub circuit_id: String,
-    /// Hop index
+    /// Index of the target hop in the circuit
     pub hop_index: usize,
-    /// Encrypted payload
+    /// Encrypted payload data
     pub payload: Vec<u8>,
-    /// MAC
+    /// Message authentication code for integrity
     pub mac: [u8; 16],
-    /// Flags
+    /// Packet flags for various features
     pub flags: u8,
 }
 
@@ -372,6 +398,10 @@ impl OnionPacket {
 }
 
 /// MultiHop+ manager
+/// MultiHop+ manager
+///
+/// Manages MultiHop+ onion routing circuits, including path selection,
+/// circuit establishment, and packet forwarding through multiple hops.
 pub struct MultiHopManager {
     config: MultiHopConfig,
     nodes: Arc<RwLock<HashMap<String, VpnNode>>>,

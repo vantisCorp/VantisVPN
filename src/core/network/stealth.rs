@@ -52,26 +52,30 @@ const HTTP2_FRAME_TYPE_CONTINUATION: u8 = 9;
 
 /// Stealth mode configuration
 #[derive(Debug, Clone)]
+/// Stealth protocol configuration
+/// 
+/// Configuration settings for the stealth protocol that obfuscates VPN
+/// traffic to appear as normal HTTPS/TLS traffic.
 pub struct StealthConfig {
-    /// Enable TLS 1.3 mimicry
+    /// Enable TLS 1.3 traffic mimicry
     pub enable_tls_mimicry: bool,
-    /// Enable HTTP/2 obfuscation
+    /// Enable HTTP/2 frame obfuscation
     pub enable_http2_obfuscation: bool,
-    /// Enable domain fronting
+    /// Enable domain fronting for censorship resistance
     pub enable_domain_fronting: bool,
-    /// Enable packet padding
+    /// Enable packet padding to obscure packet sizes
     pub enable_padding: bool,
-    /// Enable timing obfuscation
+    /// Enable timing obfuscation to hide traffic patterns
     pub enable_timing_obfuscation: bool,
-    /// Target domain for fronting
+    /// Target domain for domain fronting
     pub fronting_domain: Option<String>,
-    /// Minimum packet size
+    /// Minimum packet size in bytes
     pub min_packet_size: usize,
-    /// Maximum packet size
+    /// Maximum packet size in bytes
     pub max_packet_size: usize,
-    /// Padding strategy
+    /// Strategy for packet padding
     pub padding_strategy: PaddingStrategy,
-    /// Timing jitter range
+    /// Random timing jitter range for packet delays
     pub timing_jitter: Duration,
 }
 
@@ -106,10 +110,16 @@ pub enum PaddingStrategy {
 }
 
 /// TLS 1.3 record header
+/// 
+/// Represents a TLS 1.3 record header used for traffic mimicry,
+/// containing content type, version, and length fields.
 #[derive(Debug, Clone)]
 pub struct TlsRecordHeader {
+    /// TLS content type (e.g., application_data, handshake, alert)
     pub content_type: u8,
+    /// TLS version (typically 0x03, 0x04 for TLS 1.3)
     pub version: [u8; 2],
+    /// Length of the TLS record payload
     pub length: u16,
 }
 
@@ -144,11 +154,18 @@ impl TlsRecordHeader {
 }
 
 /// HTTP/2 frame header
+/// 
+/// Represents an HTTP/2 frame header used for traffic obfuscation,
+/// containing length, type, flags, and stream identifier fields.
 #[derive(Debug, Clone)]
 pub struct Http2FrameHeader {
+    /// Length of the HTTP/2 frame payload (24 bits)
     pub length: u32,
+    /// HTTP/2 frame type (e.g., DATA, HEADERS, SETTINGS)
     pub frame_type: u8,
+    /// Frame-specific flags
     pub flags: u8,
+    /// Stream identifier (31 bits)
     pub stream_id: u32,
 }
 
@@ -189,15 +206,26 @@ impl Http2FrameHeader {
 }
 
 /// Stealth protocol packet
+/// 
+/// Represents a stealth protocol packet with obfuscated headers and
+/// payload, designed to appear as normal HTTPS/TLS traffic.
 #[derive(Debug, Clone)]
 pub struct StealthPacket {
+    /// Magic bytes identifying the stealth protocol
     pub magic: Vec<u8>,
+    /// Protocol version
     pub version: u8,
+    /// Packet flags for various features
     pub flags: u8,
+    /// Packet sequence number
     pub sequence: u64,
+    /// Unix timestamp when packet was created
     pub timestamp: u64,
+    /// Encrypted payload data
     pub payload: Vec<u8>,
+    /// Padding to obscure packet size
     pub padding: Vec<u8>,
+    /// Message authentication code for integrity
     pub mac: [u8; 16],
 }
 
@@ -332,6 +360,10 @@ impl StealthPacket {
 }
 
 /// Stealth protocol handler
+/// Stealth protocol handler
+///
+/// Handles stealth protocol operations including packet obfuscation,
+/// TLS/HTTP2 mimicry, and traffic pattern hiding.
 pub struct StealthHandler {
     config: StealthConfig,
     cipher: Arc<Cipher>,
