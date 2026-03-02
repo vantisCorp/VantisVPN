@@ -28,37 +28,37 @@ pub enum MessageType {
 /// Handshake initiation message
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HandshakeInit {
-    /// Ephemeral public key
+    /// Ephemeral public key for this session
     pub ephemeral_public: Vec<u8>,
-    /// Static public key (optional)
+    /// Static public key (optional, for identity verification)
     pub static_public: Option<Vec<u8>>,
-    /// PQC public key
+    /// Post-quantum cryptography public key
     pub pqc_public: Vec<u8>,
-    /// Timestamp
+    /// Message timestamp (Unix timestamp)
     pub timestamp: u64,
-    /// Encrypted payload
+    /// Encrypted payload containing handshake data
     pub encrypted: Vec<u8>,
 }
 
 /// Handshake response message
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HandshakeResponse {
-    /// Ephemeral public key
+    /// Ephemeral public key for this session
     pub ephemeral_public: Vec<u8>,
-    /// PQC ciphertext
+    /// Post-quantum cryptography ciphertext
     pub pqc_ciphertext: Vec<u8>,
-    /// Encrypted payload
+    /// Encrypted payload containing handshake response data
     pub encrypted: Vec<u8>,
 }
 
 /// Transport data message
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TransportMessage {
-    /// Receiver index
+    /// Receiver index (identifies the receiving peer)
     pub receiver: u32,
-    /// Counter
+    /// Packet counter (for replay protection)
     pub counter: u64,
-    /// Encrypted data
+    /// Encrypted payload data
     pub data: Vec<u8>,
 }
 
@@ -67,15 +67,15 @@ pub struct TransportMessage {
 pub struct ProtocolConfig {
     /// Enable post-quantum key exchange
     pub enable_pqc: bool,
-    /// Enable key rotation
+    /// Enable automatic key rotation
     pub enable_key_rotation: bool,
-    /// Key rotation interval (seconds)
+    /// Key rotation interval in seconds
     pub key_rotation_interval: u64,
-    /// Enable QUIC transport
+    /// Enable QUIC transport layer
     pub enable_quic: bool,
-    /// MTU
+    /// Maximum Transmission Unit (bytes)
     pub mtu: u16,
-    /// Keepalive interval (seconds)
+    /// Keepalive interval in seconds
     pub keepalive_interval: u64,
 }
 

@@ -37,21 +37,21 @@ pub enum KillSwitchMode {
 /// Kill Switch Configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KillSwitchConfig {
-    /// Enable kill switch
+    /// Enable kill switch functionality
     pub enabled: bool,
-    /// Kill switch mode
+    /// Kill switch operation mode
     pub mode: KillSwitchMode,
-    /// Enable automatic activation on VPN disconnect
+    /// Automatically activate when VPN disconnects
     pub auto_activate: bool,
-    /// Allow LAN traffic when active
+    /// Allow LAN traffic when kill switch is active
     pub allow_lan: bool,
-    /// LAN subnet ranges (CIDR notation)
+    /// LAN subnet ranges in CIDR notation
     pub lan_subnets: Vec<String>,
-    /// Allowed applications (process names)
+    /// Allowed application process names
     pub allowed_apps: Vec<String>,
-    /// Enable logging
+    /// Enable kill switch logging
     pub enable_logging: bool,
-    /// Log file path
+    /// Path to kill switch log file
     pub log_path: String,
 }
 
@@ -77,13 +77,21 @@ impl Default for KillSwitchConfig {
 /// Kill Switch Statistics
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KillSwitchStats {
+    /// Current kill switch state
     pub state: KillSwitchState,
+    /// Total number of activations
     pub activation_count: u64,
+    /// Total number of deactivations
     pub deactivation_count: u64,
+    /// Total packets blocked
     pub blocked_packets: u64,
+    /// Total bytes blocked
     pub blocked_bytes: u64,
+    /// Last activation timestamp (Unix timestamp)
     pub last_activation_time: Option<u64>,
+    /// Last deactivation timestamp (Unix timestamp)
     pub last_deactivation_time: Option<u64>,
+    /// Total time active in seconds
     pub total_active_time_secs: u64,
 }
 
