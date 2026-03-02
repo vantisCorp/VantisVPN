@@ -10,6 +10,8 @@ use std::sync::Mutex;
 static CSPRNG: Mutex<Option<ChaCha20Rng>> = Mutex::new(None);
 
 /// Cryptographically secure random number generator
+/// 
+/// Thread-safe CSPRNG using ChaCha20 for cryptographic operations.
 #[derive(Debug)]
 pub struct SecureRandom {
     rng: Mutex<ChaCha20Rng>,

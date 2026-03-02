@@ -9,6 +9,8 @@ use serde::{Serialize, Deserialize};
 pub const HASH_SIZE: usize = 32;
 
 /// BLAKE2s hash output
+/// 
+/// BLAKE2s hash output for cryptographic hashing operations.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Hash {
     bytes: [u8; HASH_SIZE],
