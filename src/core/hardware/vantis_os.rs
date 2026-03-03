@@ -153,7 +153,11 @@ pub enum Bootloader {
     SystemdBoot,
 }
 
-/// Persistence configuration
+/// Persistence configuration for Vantis OS
+///
+/// Controls how Vantis OS handles data persistence across reboots.
+/// Vantis OS is designed to be a live OS that runs from RAM,
+/// but can optionally persist specific data to encrypted storage.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PersistenceConfig {
     pub enabled: bool,
@@ -167,7 +171,11 @@ pub struct PersistenceConfig {
     pub plausible_deniability: bool,
 }
 
-/// Security configuration
+/// Security configuration for Vantis OS
+///
+/// Defines security parameters for the Vantis OS including authentication,
+/// encryption, and access control settings to protect against unauthorized
+/// access and data leakage.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SecurityConfig {
     pub memory_wipe_on_shutdown: bool,
@@ -189,7 +197,10 @@ pub struct SecurityConfig {
     pub auto_logout_timeout: Duration,
 }
 
-/// Network configuration
+/// Network configuration for Vantis OS
+///
+/// Controls network settings including interface configuration,
+/// DNS settings, and network security options for the Vantis OS.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NetworkConfig {
     pub tor_config: TorConfig,
@@ -199,7 +210,11 @@ pub struct NetworkConfig {
     pub network_manager: NetworkManager,
 }
 
-/// Tor configuration
+/// Tor configuration for Vantis OS
+///
+/// Settings for the Tor network integration in Vantis OS,
+/// allowing all traffic to be routed through the Tor network
+/// for enhanced anonymity.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TorConfig {
     pub enabled: bool,
@@ -212,7 +227,11 @@ pub struct TorConfig {
     pub exit_node_country: Option<String>,
 }
 
-/// VPN configuration for OS
+/// VPN configuration for Vantis OS
+///
+/// Defines VPN settings that are integrated into the Vantis OS,
+/// allowing all network traffic to be automatically routed through
+/// the VANTISVPN service for protection.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VpnOsConfig {
     pub enabled: bool,
