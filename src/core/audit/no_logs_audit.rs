@@ -9,7 +9,10 @@ use tokio::sync::Mutex;
 use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
 
-/// Audit status
+/// Status of no-logs audit
+///
+/// Current state of the independent no-logs audit process,
+/// tracking audit execution and findings.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AuditStatus {
     /// Audit not started
@@ -22,7 +25,10 @@ pub enum AuditStatus {
     Failed,
 }
 
-/// Audit evidence type
+/// Type of audit evidence
+///
+/// Categories of evidence collected during no-logs audit to verify
+/// that no user activity logs are retained by the VPN service.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum EvidenceType {
     /// System configuration

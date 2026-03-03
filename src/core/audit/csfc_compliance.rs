@@ -9,7 +9,10 @@ use tokio::sync::Mutex;
 use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
 
-/// CSfC component type
+/// Type of NSA CSfC component
+///
+/// Categories of components within the NSA Commercial Solutions for
+/// Classified (CSfC) architecture that must be implemented for certification.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CsfcComponentType {
     /// Cryptographic module
@@ -24,7 +27,10 @@ pub enum CsfcComponentType {
     Hardware,
 }
 
-/// CSfC component status
+/// Status of NSA CSfC component
+///
+/// Current implementation and certification status of a CSfC component,
+/// tracking deployment and validation progress.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CsfcComponentStatus {
     /// Not started

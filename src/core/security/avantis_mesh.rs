@@ -44,8 +44,10 @@ pub struct MeshNode {
 /// Mesh message type
 /// 
 /// Represents different types of messages that can be sent through the
-/// Avantis Mesh P2P network, including discovery, direct messaging,
-/// broadcasting, file transfer, and network management.
+/// Types of messages in the Avantis Mesh P2P network
+///
+/// Different message types for peer-to-peer communication including
+/// discovery, direct messaging, broadcasting, file transfer, and network management.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum MeshMessage {
     /// Node discovery announcement

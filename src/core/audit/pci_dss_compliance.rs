@@ -9,7 +9,10 @@ use tokio::sync::Mutex;
 use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
 
-/// PCI DSS requirement status
+/// Status of PCI DSS compliance requirement
+///
+/// Current compliance state of a specific PCI DSS requirement,
+/// tracking implementation progress and audit results.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PciRequirementStatus {
     /// Not compliant

@@ -9,7 +9,10 @@ use tokio::sync::Mutex;
 use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
 
-/// HITRUST CSF control category
+/// Category of HITRUST CSF control
+///
+/// Classification of security controls within the HITRUST CSF framework,
+/// organizing requirements by domain and function.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HitrustControlCategory {
     /// Access Control
@@ -46,7 +49,10 @@ pub enum HitrustControlCategory {
     SystemAndInformationAcquisition,
 }
 
-/// HITRUST control status
+/// Status of HITRUST CSF control
+///
+/// Current implementation and compliance status of a HITRUST control,
+/// tracking assessment results and remediation progress.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HitrustControlStatus {
     /// Not implemented

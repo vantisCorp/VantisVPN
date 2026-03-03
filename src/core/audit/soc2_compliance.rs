@@ -9,7 +9,10 @@ use tokio::sync::Mutex;
 use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
 
-/// SOC 2 trust service criteria
+/// Trust Service Criteria category for SOC 2
+///
+/// The five SOC 2 Trust Service Criteria that organizations must meet:
+/// Security, Availability, Processing Integrity, Confidentiality, and Privacy.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Soc2TrustServiceCriteria {
     /// Security
@@ -24,7 +27,10 @@ pub enum Soc2TrustServiceCriteria {
     Privacy,
 }
 
-/// SOC 2 control status
+/// Status of SOC 2 control
+///
+/// Current implementation and testing status of a specific SOC 2 control,
+/// tracking compliance assessment results.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Soc2ControlStatus {
     /// Not implemented
