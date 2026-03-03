@@ -364,7 +364,6 @@ impl StealthPacket {
 }
 
 /// Stealth protocol handler
-/// Stealth protocol handler
 ///
 /// Handles stealth protocol operations including packet obfuscation,
 /// TLS/HTTP2 mimicry, and traffic pattern hiding.
