@@ -44,11 +44,17 @@ pub const MlDsa87_SECRET_KEY_SIZE: usize = 4896;
 pub const MlDsa87_PUBLIC_KEY_SIZE: usize = 2592;
 pub const MlDsa87_SIGNATURE_SIZE: usize = 4627;
 
-/// ML-KEM Security Level
+/// ML-KEM (Module-Lattice-Based Key-Encapsulation Mechanism) Security Level
+///
+/// Defines the security level for ML-KEM (formerly Kyber) key encapsulation mechanism.
+/// These levels correspond to NIST security categories.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MlKemSecurityLevel {
+    /// Security Level 1 (ML-KEM-512) - Approx. 128-bit security
     MlKem512,
+    /// Security Level 3 (ML-KEM-768) - Approx. 192-bit security
     MlKem768,
+    /// Security Level 5 (ML-KEM-1024) - Approx. 256-bit security
     MlKem1024,
 }
 
@@ -78,11 +84,17 @@ impl MlKemSecurityLevel {
     }
 }
 
-/// ML-DSA Security Level
+/// ML-DSA (Module-Lattice-Based Digital Signature Algorithm) Security Level
+///
+/// Defines the security level for ML-DSA (formerly Dilithium) digital signatures.
+/// These levels correspond to NIST security categories.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MlDsaSecurityLevel {
+    /// Security Level 1 (ML-DSA-44) - Approx. 128-bit security
     MlDsa44,
+    /// Security Level 3 (ML-DSA-65) - Approx. 192-bit security
     MlDsa65,
+    /// Security Level 5 (ML-DSA-87) - Approx. 256-bit security
     MlDsa87,
 }
 
@@ -112,11 +124,17 @@ impl MlDsaSecurityLevel {
     }
 }
 
-/// ML-KEM (Kyber) Key Pair
+/// ML-KEM (Kyber) Key Pair for quantum-resistant key encapsulation
+///
+/// Contains a public/private key pair for the ML-KEM (Module-Lattice-Based Key-Encapsulation Mechanism)
+/// algorithm, which is designed to be secure against quantum computer attacks.
 #[derive(Debug, Clone)]
 pub struct MlKemKeyPair {
+    /// The secret key used for decapsulation (variable size based on security level)
     pub secret_key: Vec<u8>,
+    /// The public key used for encapsulation (variable size based on security level)
     pub public_key: Vec<u8>,
+    /// The security level determining key sizes and security strength
     pub security_level: MlKemSecurityLevel,
 }
 
@@ -176,11 +194,17 @@ impl MlKemKeyPair {
     }
 }
 
-/// ML-DSA (Dilithium) Key Pair
+/// ML-DSA (Dilithium) Key Pair for quantum-resistant digital signatures
+///
+/// Contains a public/private key pair for the ML-DSA (Module-Lattice-Based Digital Signature Algorithm)
+/// algorithm, which provides quantum-resistant digital signatures.
 #[derive(Debug, Clone)]
 pub struct MlDsaKeyPair {
+    /// The secret key used for signing (variable size based on security level)
     pub secret_key: Vec<u8>,
+    /// The public key used for signature verification (variable size based on security level)
     pub public_key: Vec<u8>,
+    /// The security level determining key and signature sizes
     pub security_level: MlDsaSecurityLevel,
 }
 
@@ -232,14 +256,18 @@ impl MlDsaKeyPair {
     }
 }
 
-/// Hybrid Key Exchange (Classical + Post-Quantum)
+/// Hybrid Key Exchange combining classical and post-quantum cryptography
+///
+/// Implements a hybrid key exchange mechanism that combines X25519 (classical)
+/// with ML-KEM (post-quantum) to provide security against both classical and quantum attacks.
+/// The shared secrets from both algorithms are combined using HKDF for maximum security.
 #[derive(Debug, Clone)]
 pub struct HybridKeyExchange {
-    /// Classical key pair (X25519)
+    /// Classical key pair (X25519) - 32 bytes
     pub classical_keypair: Option<[u8; 32]>,
-    /// Post-quantum key pair (ML-KEM)
+    /// Post-quantum key pair (ML-KEM) for quantum-resistant encapsulation
     pub pqc_keypair: Option<MlKemKeyPair>,
-    /// Combined shared secret
+    /// Combined shared secret derived from both key exchanges
     pub shared_secret: Option<Vec<u8>>,
 }
 
@@ -330,8 +358,14 @@ impl Default for HybridKeyExchange {
 }
 
 /// Post-Quantum Cryptography Manager
+///
+/// Central manager for all post-quantum cryptographic operations in VANTISVPN.
+/// Provides convenient methods for generating key pairs and performing key exchanges
+/// using quantum-resistant algorithms.
 pub struct PqcManager {
+    /// Cryptographically secure random number generator
     rng: Arc<SecureRandom>,
+    /// Hash function for key derivation and combination
     hash: Arc<Hash>,
 }
 
