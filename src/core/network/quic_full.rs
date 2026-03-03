@@ -37,13 +37,21 @@ pub const HTTP3_ALPN: &[u8] = b"h3";
 pub const DEFAULT_MAX_FRAME_SIZE: u64 = 16384;
 pub const DEFAULT_HEADER_TABLE_SIZE: u64 = 4096;
 
-/// QUIC packet type
+/// QUIC packet type according to RFC 9000
+///
+/// Defines the different types of QUIC packets used during the connection
+/// lifecycle and for protocol negotiation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum QuicPacketType {
+    /// Initial packet sent by the client to start the connection
     Initial,
+    /// Handshake packet used during cryptographic handshake
     Handshake,
+    /// Application data packet for established connections
     Application,
+    /// Retry packet sent by server for address validation
     Retry,
+    /// Version negotiation packet for protocol version negotiation
     VersionNegotiation,
 }
 
@@ -69,10 +77,15 @@ impl QuicPacketType {
     }
 }
 
-/// QUIC stream type
+/// QUIC stream type according to RFC 9000
+///
+/// Defines whether a QUIC stream can send data in both directions or only one.
+/// Stream types are determined by the stream ID (even IDs are bidirectional, odd IDs are unidirectional).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StreamType {
+    /// Bidirectional stream - can send and receive data
     Bidirectional,
+    /// Unidirectional stream - can only send data (initiator to receiver)
     Unidirectional,
 }
 
@@ -86,50 +99,71 @@ impl StreamType {
     }
 }
 
-/// QUIC connection state
+/// QUIC connection state machine
+///
+/// Represents the current state of a QUIC connection according to RFC 9000.
+/// Connections progress through these states from establishment to closure.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ConnectionState {
+    /// Connection not yet created
     Idle,
+    /// Client has sent Initial packet, waiting for server response
     ClientInitial,
+    /// Server has received Initial packet, processing
     ServerInitial,
+    /// Cryptographic handshake in progress
     Handshake,
+    /// Connection fully established, application data flowing
     Established,
+    /// Connection is closing, draining packets
     Closing,
+    /// Connection is draining, no new packets will be processed
     Draining,
+    /// Connection is closed and resources freed
     Closed,
 }
 
 /// QUIC stream state
+///
+/// Represents the lifecycle state of a QUIC stream.
+/// Streams transition through these states based on operations and events.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StreamState {
+    /// Stream not yet created or initialized
     Idle,
+    /// Stream is active and can send/receive data
     Open,
+    /// Stream has been gracefully closed
     Closed,
+    /// Stream has been reset (abnormal termination)
     Reset,
 }
 
-/// QUIC configuration
+/// QUIC configuration parameters
+///
+/// Configuration settings for QUIC connections including limits, timeouts,
+/// and feature toggles. Default values follow RFC 9000 recommendations.
 #[derive(Debug, Clone)]
 pub struct QuicConfig {
-    /// Maximum packet size
+    /// Maximum packet size in bytes (default: 1350 for IPv6 compatibility)
     pub max_packet_size: usize,
-    /// Initial stream data limit
+    /// Initial stream data limit in bytes
     pub initial_stream_data_limit: u64,
-    /// Maximum bidirectional streams
+    /// Maximum number of concurrent bidirectional streams
     pub max_streams_bidi: u64,
-    /// Maximum unidirectional streams
+    /// Maximum number of concurrent unidirectional streams
     pub max_streams_uni: u64,
-    /// Idle timeout
+    /// Idle timeout before connection closure
     pub idle_timeout: Duration,
-    /// Maximum ACK delay
+    /// Maximum time to delay ACKs for efficiency
     pub max_ack_delay: Duration,
-    /// Initial RTT estimate
+    /// Initial RTT estimate for congestion control
     pub initial_rtt: Duration,
-    /// Enable 0-RTT
+    /// Enable 0-RTT early data for faster reconnections
     pub enable_0rtt: bool,
-    /// Enable connection migration
+    /// Enable connection migration for IP address changes
     pub enable_migration: bool,
-    /// BBRv3 congestion control
+    /// Enable BBRv3 congestion control algorithm
     pub enable_bbrv3: bool,
 }
 
@@ -150,14 +184,23 @@ impl Default for QuicConfig {
     }
 }
 
-/// QUIC packet header
+/// QUIC packet header containing routing and metadata
+///
+/// Represents the long header format used in Initial, Handshake, and Retry packets.
+/// Contains connection identifiers and packet numbers for reliable delivery.
 #[derive(Debug, Clone)]
 pub struct QuicPacketHeader {
+    /// Type of QUIC packet (Initial, Handshake, Application, Retry, VersionNegotiation)
     pub packet_type: QuicPacketType,
+    /// QUIC protocol version number
     pub version: u32,
+    /// Destination connection ID for routing
     pub destination_connection_id: Vec<u8>,
+    /// Source connection ID for response routing
     pub source_connection_id: Vec<u8>,
+    /// Packet number for ordering and ACK tracking
     pub packet_number: u64,
+    /// Optional token for address validation (Initial packets only)
     pub token: Option<Vec<u8>>,
 }
 
@@ -311,7 +354,10 @@ impl QuicPacketHeader {
     }
 }
 
-/// QUIC frame types
+/// QUIC frame types according to RFC 9000
+///
+/// Defines all frame types that can be transmitted in QUIC packets.
+/// Frames are the atomic units of QUIC communication.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum QuicFrame {
     Padding,
@@ -505,17 +551,29 @@ impl QuicFrame {
     }
 }
 
-/// QUIC stream
+/// QUIC stream for multiplexed data transmission
+///
+/// Represents a single stream within a QUIC connection.
+/// Streams provide ordered, reliable delivery of data within the connection.
 #[derive(Debug)]
 pub struct QuicStream {
+    /// Unique identifier for this stream
     pub stream_id: u64,
+    /// Type of stream (bidirectional or unidirectional)
     pub stream_type: StreamType,
+    /// Current state of the stream
     pub state: StreamState,
+    /// Buffer for data to be sent
     pub send_buffer: Vec<u8>,
+    /// Buffer for received data
     pub receive_buffer: Vec<u8>,
+    /// Current offset in send buffer
     pub send_offset: u64,
+    /// Current offset in receive buffer
     pub receive_offset: u64,
+    /// Maximum data allowed on this stream (flow control)
     pub max_stream_data: u64,
+    /// Timestamp when stream was created
     pub created_at: Instant,
 }
 
@@ -549,32 +607,44 @@ impl QuicStream {
     }
 }
 
-/// BBRv3 congestion control state
+/// BBRv3 congestion control algorithm state
+///
+/// Contains all state variables for the BBRv3 congestion control algorithm.
+/// BBR (Bottleneck Bandwidth and Round-trip propagation time) optimizes throughput
+/// by measuring available bandwidth and minimum RTT.
 #[derive(Debug, Clone)]
 pub struct Bbrv3State {
-    /// Current bandwidth estimate (bytes per second)
+    /// Current bandwidth estimate in bytes per second
     pub bandwidth: u64,
-    /// Minimum RTT observed
+    /// Minimum round-trip time observed (propagation delay)
     pub min_rtt: Duration,
-    /// Current RTT estimate
+    /// Current RTT estimate including queueing delay
     pub rtt: Duration,
-    /// Congestion window (bytes)
+    /// Congestion window in bytes (maximum in-flight data)
     pub cwnd: u64,
-    /// Pacing rate (bytes per second)
+    /// Pacing rate in bytes per second for smooth sending
     pub pacing_rate: u64,
-    /// Delivery rate sample
+    /// Delivery rate sample from recent packets
     pub delivery_rate: u64,
-    /// BBR state
+    /// Current BBR state machine state
     pub state: BbrState,
-    /// Last update time
+    /// Timestamp of last state update
     pub last_update: Instant,
 }
 
+/// BBR state machine states
+///
+/// Defines the states in the BBR congestion control state machine.
+/// BBR cycles through these states to optimize throughput and minimize latency.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BbrState {
+    /// Startup phase - probing for maximum bandwidth
     Startup,
+    /// Drain phase - draining queue after bandwidth probe
     Drain,
+    /// Probe bandwidth phase - periodically probing available bandwidth
     ProbeBW,
+    /// Probe RTT phase - measuring minimum RTT (propagation delay)
     ProbeRTT,
 }
 
@@ -646,31 +716,57 @@ impl Bbrv3State {
     }
 }
 
-/// QUIC connection
+/// QUIC connection representing an established session
+///
+/// Contains all state for a QUIC connection including streams, crypto, congestion control,
+/// and statistics. Manages multiplexed streams and reliable packet delivery.
 #[derive(Debug)]
 pub struct QuicConnection {
+    /// Our connection ID for receiving packets
     pub connection_id: Vec<u8>,
+    /// Peer's connection ID for sending packets
     pub peer_connection_id: Vec<u8>,
+    /// Current connection state
     pub state: ConnectionState,
+    /// All active streams in this connection
     pub streams: Arc<RwLock<HashMap<u64, QuicStream>>>,
+    /// Connection configuration parameters
     pub config: QuicConfig,
+    /// Cipher for packet encryption/decryption
     pub cipher: Arc<Cipher>,
+    /// Hash function for key derivation
     pub hash: Arc<Hash>,
+    /// Cryptographically secure random number generator
     pub rng: Arc<SecureRandom>,
+    /// BBRv3 congestion control state
     pub bbr_state: Arc<Mutex<Bbrv3State>>,
+    /// Next packet number to send
     pub packet_number: Arc<Mutex<u64>>,
+    /// Timestamp of last network activity
     pub last_activity: Arc<Mutex<Instant>>,
+    /// Connection statistics and metrics
     pub statistics: Arc<Mutex<ConnectionStats>>,
 }
 
+/// QUIC connection statistics and metrics
+///
+/// Tracks performance metrics and counters for a QUIC connection.
+/// Useful for monitoring and debugging connection behavior.
 #[derive(Debug, Clone, Default)]
 pub struct ConnectionStats {
+    /// Total bytes sent over this connection
     pub bytes_sent: u64,
+    /// Total bytes received over this connection
     pub bytes_received: u64,
+    /// Total packets sent over this connection
     pub packets_sent: u64,
+    /// Total packets received over this connection
     pub packets_received: u64,
+    /// Number of streams opened
     pub streams_opened: u64,
+    /// Number of streams closed
     pub streams_closed: u64,
+    /// Number of packet retransmissions
     pub retransmissions: u64,
 }
 
@@ -781,13 +877,24 @@ impl QuicConnection {
 }
 
 /// QUIC endpoint (server or client)
+/// QUIC endpoint for listening and accepting connections
+///
+/// Manages multiple QUIC connections on a single UDP socket.
+/// Handles incoming packets and routes them to appropriate connections.
 pub struct QuicEndpoint {
+    /// All active connections indexed by connection ID
     pub connections: Arc<RwLock<HashMap<Vec<u8>, Arc<QuicConnection>>>>,
+    /// UDP socket for sending and receiving QUIC packets
     pub socket: Arc<UdpSocket>,
+    /// Configuration for new connections
     pub config: QuicConfig,
+    /// Flag indicating if endpoint is running
     pub running: Arc<Mutex<bool>>,
+    /// Cipher for packet encryption/decryption
     pub cipher: Arc<Cipher>,
+    /// Hash function for key derivation
     pub hash: Arc<Hash>,
+    /// Cryptographically secure random number generator
     pub rng: Arc<SecureRandom>,
 }
 
