@@ -99,11 +99,11 @@ impl Default for TrafficStats {
     }
 }
 
-/// DAITA - Defensive AI Traffic Analysis
+/// DAITA Manager
 ///
 /// Implements traffic obfuscation techniques to defend against traffic
-/// analysis attacks, including packet padding, bursting, and adaptive strategies.
-pub struct Daita {
+/// analysis attacks, including packet padding, bursting, and adaptive strategies
+/// for preserving user privacy through traffic pattern masking.
 pub struct Daita {
     config: DaitaConfig,
     rng: Arc<Mutex<SecureRandom>>,

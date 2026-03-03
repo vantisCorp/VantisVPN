@@ -256,7 +256,11 @@ pub struct DeviceTrust {
     pub factors: Vec<String>,
 }
 
-/// Zero Trust - Micro-segmentation and Access Control
+/// Zero Trust Manager
+/// 
+/// Implements micro-segmentation and access control based on the Zero Trust
+/// security model, requiring continuous verification for all access requests
+/// and implementing least privilege access principles.
 pub struct ZeroTrust {
     config: ZeroTrustConfig,
     policies: Arc<Mutex<HashMap<String, ZeroTrustPolicy>>>,
