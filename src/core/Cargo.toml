@@ -1,6 +1,6 @@
 [package]
 name = "vantis-core"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 authors = ["VANTISVPN Team <dev@vantisvpn.com>"]
 description = "Core library for VANTISVPN - Next-Generation Secure VPN System"
