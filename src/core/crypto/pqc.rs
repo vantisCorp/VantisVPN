@@ -24,9 +24,12 @@ pub const KYBER_SHARED_SECRET_SIZE: usize = 32;
 /// 
 /// Used for secure key exchange that is resistant to quantum attacks.
 /// This is a placeholder implementation - production code will use actual Kyber implementation.
+/// 
+/// Kyber (NIST FIPS 203) provides quantum-resistant key encapsulation.
 pub struct KyberKEM {
-    // Placeholder - production will use actual Kyber implementation
+    /// Public key for encapsulation (variable size based on security level)
     public_key: Option<Vec<u8>>,
+    /// Secret key for decapsulation (variable size based on security level)
     secret_key: Option<Vec<u8>>,
 }
 
@@ -110,8 +113,14 @@ impl Drop for KyberKEM {
 /// Used for authentication and digital signatures that are quantum-resistant.
 /// This is a placeholder implementation - production code will use actual Dilithium implementation.
 #[derive(Serialize, Deserialize)]
+/// Dilithium (ML-DSA) - Post-Quantum Digital Signature Algorithm
+/// 
+/// Used for creating quantum-resistant digital signatures.
+/// This is a placeholder implementation - production code will use actual Dilithium implementation.
+/// 
+/// Dilithium (NIST FIPS 204) provides quantum-resistant digital signatures.
 pub struct DilithiumSignature {
-    // Placeholder structure
+    /// Raw signature bytes (variable size based on security level)
     signature: Vec<u8>,
 }
 
@@ -153,9 +162,12 @@ impl DilithiumSignature {
 /// Hybrid key exchange combining classical and post-quantum algorithms
 /// 
 /// Uses both X25519 (classical) and Kyber (post-quantum) for defense in depth.
+/// The shared secrets from both algorithms are combined for maximum security.
 /// This is a placeholder implementation - production code will use actual algorithms.
 pub struct HybridKeyExchange {
+    /// Classical X25519 key pair for traditional key exchange
     classical_key: Option<super::keys::EphemeralKeyPair>,
+    /// Post-quantum Kyber key pair for quantum-resistant key exchange
     pqc_key: Option<KyberKEM>,
 }
 
