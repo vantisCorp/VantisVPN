@@ -51,7 +51,11 @@ impl Default for JumboFrameConfig {
     }
 }
 
-/// Frame Type
+/// Types of frames in jumbo frame operations
+///
+/// Identifies the frame type for proper handling in the
+/// jumbo frame pipeline, including standard frames and
+/// fragmented jumbo frames.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum FrameType {
     /// Standard Ethernet frame (1500 bytes)

@@ -8,7 +8,10 @@ use tokio::sync::{Mutex, RwLock};
 use serde::{Serialize, Deserialize};
 use crate::error::{VantisError, Result};
 
-/// Wi-Fi Band
+/// Frequency bands supported by Wi-Fi 7
+///
+/// Different frequency bands with varying characteristics including
+/// range, speed, and interference levels.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WifiBand {
     /// 2.4 GHz
@@ -41,7 +44,10 @@ impl WifiBand {
     }
 }
 
-/// Link State
+/// State of a Wi-Fi link in MLO operation
+///
+/// Tracks the current operational state of each link in the
+/// Multi-Link Operation setup for health monitoring and failover.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LinkState {
     /// Link not active

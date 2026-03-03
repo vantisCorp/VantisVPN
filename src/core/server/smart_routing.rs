@@ -9,7 +9,10 @@ use serde::{Serialize, Deserialize};
 use rand::Rng;
 use crate::error::{VantisError, Result};
 
-/// Routing Metric
+/// Metric used to evaluate network paths for routing decisions
+///
+/// Defines different criteria for selecting the optimal network path,
+/// including latency, bandwidth, packet loss, and quality of service.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RoutingMetric {
     /// Latency optimization
@@ -36,7 +39,10 @@ impl RoutingMetric {
     }
 }
 
-/// Network Path
+/// Represents a network path available for routing
+///
+/// Contains information about a specific network route including
+/// endpoints, performance metrics, and path characteristics.
 #[derive(Debug, Clone)]
 pub struct NetworkPath {
     /// Unique path identifier
@@ -102,7 +108,10 @@ impl NetworkPath {
     }
 }
 
-/// Routing Decision
+/// Represents a routing decision made by the smart routing system
+///
+/// Contains the selected path, decision rationale, and confidence
+/// score for the routing choice made by the AI system.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RoutingDecision {
     /// Selected path identifier
@@ -117,7 +126,10 @@ pub struct RoutingDecision {
     pub timestamp: u64,
 }
 
-/// Smart Routing Configuration
+/// Configuration for the AI-powered smart routing system
+///
+/// Controls how the smart routing system evaluates paths, including
+/// ML model settings, health check intervals, and optimization goals.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SmartRoutingConfig {
     /// Primary optimization metric
@@ -153,7 +165,10 @@ impl Default for SmartRoutingConfig {
     }
 }
 
-/// Routing Statistics
+/// Statistics about smart routing performance
+///
+/// Tracks routing decisions, path quality metrics, and
+/// system performance over time for optimization.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RoutingStats {
     /// Total number of routing decisions made
@@ -172,7 +187,10 @@ pub struct RoutingStats {
     pub ml_model_updates: u64,
 }
 
-/// ML Model Weights
+/// Machine learning model weights for path prediction
+///
+/// Contains the learned weights for the neural network model
+/// that predicts optimal network paths based on historical data.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MlWeights {
     pub latency_weight: f64,

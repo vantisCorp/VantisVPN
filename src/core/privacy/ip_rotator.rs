@@ -12,7 +12,10 @@ use tokio::sync::Mutex;
 use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
 
-/// IP rotation strategy
+/// Strategy for rotating IP addresses to enhance privacy
+///
+/// Defines different algorithms for selecting new IP endpoints from
+/// the available pool, balancing privacy requirements with performance.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RotationStrategy {
     /// Rotate on every connection
