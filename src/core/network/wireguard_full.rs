@@ -35,22 +35,25 @@ pub const STEALTH_MODE_HEADER: &[u8] = b"VANTIS";
 pub const PQC_HYBRID_EXCHANGE: bool = true;
 pub const ENHANCED_REPLAY_PROTECTION: bool = true;
 
-/// WireGuard peer configuration
+/// WireGuard peer configuration for VPN connections
+///
+/// Contains all configuration parameters for a WireGuard peer including
+/// cryptographic keys, routing information, and VANTISVPN-specific enhancements.
 #[derive(Debug, Clone)]
 pub struct PeerConfig {
-    /// Peer's public key
+    /// Peer's 32-byte public key for authentication
     pub public_key: [u8; 32],
-    /// Allowed IP addresses (IPv6)
+    /// Allowed IPv6 addresses for this peer
     pub allowed_ips: Vec<Ipv6Addr>,
-    /// Endpoint address
+    /// UDP endpoint address (IP:port) for this peer
     pub endpoint: Option<SocketAddr>,
-    /// Persistent keepalive interval
+    /// Interval for sending keepalive packets to maintain NAT mapping
     pub persistent_keepalive: Option<Duration>,
-    /// PQC public key (post-quantum)
+    /// Post-quantum cryptography public key (optional for hybrid exchange)
     pub pqc_public_key: Option<Vec<u8>>,
-    /// Stealth mode enabled
+    /// Enable stealth mode for traffic obfuscation
     pub stealth_mode: bool,
-    /// MultiHop+ next hop
+    /// Next hop for MultiHop+ onion routing (32-byte public key)
     pub next_hop: Option<[u8; 32]>,
 }
 
@@ -68,24 +71,27 @@ impl Default for PeerConfig {
     }
 }
 
-/// WireGuard interface configuration
+/// WireGuard interface configuration for local VPN endpoint
+///
+/// Contains all configuration parameters for the local WireGuard interface including
+/// cryptographic keys, network settings, and VANTISVPN enhancements.
 #[derive(Debug, Clone)]
 pub struct InterfaceConfig {
-    /// Private key
+    /// 32-byte private key for this interface
     pub private_key: [u8; 32],
-    /// Public key (derived from private)
+    /// 32-byte public key derived from private key
     pub public_key: [u8; 32],
-    /// Listen port
+    /// UDP port to listen on for incoming connections
     pub listen_port: u16,
-    /// Virtual IPv6 address
+    /// Virtual IPv6 address assigned to this interface
     pub virtual_ip: Ipv6Addr,
-    /// Virtual subnet prefix
+    /// Virtual subnet prefix length (e.g., 64 for /64 subnet)
     pub virtual_subnet: u8,
-    /// MTU
+    /// Maximum transmission unit for the tunnel interface
     pub mtu: u16,
-    /// PQC key pair
+    /// Post-quantum cryptography key pair for hybrid exchange
     pub pqc_keypair: Option<EphemeralKeyPair>,
-    /// Stealth mode enabled
+    /// Enable stealth mode for traffic obfuscation
     pub stealth_mode: bool,
 }
 
@@ -117,22 +123,25 @@ impl InterfaceConfig {
     }
 }
 
-/// Handshake initiation message
+/// WireGuard handshake initiation message (type 1)
+///
+/// Sent by the initiator to begin a WireGuard handshake.
+/// Contains ephemeral and static public keys with authentication.
 #[derive(Debug, Clone)]
 pub struct HandshakeInitiation {
-    /// Message type (1)
+    /// Message type identifier (always 1 for initiation)
     pub message_type: u8,
-    /// Sender index
+    /// Random sender index for identifying this session
     pub sender_index: u32,
-    /// Ephemeral public key
+    /// Ephemeral Curve25519 public key for this handshake
     pub ephemeral_public: [u8; 32],
-    /// Static public key encrypted
+    /// Encrypted static public key of the sender
     pub static_public_enc: [u8; 32],
-    /// Timestamp encrypted
+    /// Encrypted timestamp for replay protection
     pub timestamp_enc: [u8; 12],
-    /// MAC1
+    /// First message authentication code
     pub mac1: [u8; 16],
-    /// MAC2
+    /// Second message authentication code (cookie-based)
     pub mac2: [u8; 16],
 }
 
@@ -184,22 +193,25 @@ impl HandshakeInitiation {
     }
 }
 
-/// Handshake response message
+/// WireGuard handshake response message (type 2)
+///
+/// Sent by the responder to complete the WireGuard handshake.
+/// Contains the responder's ephemeral key and authentication.
 #[derive(Debug, Clone)]
 pub struct HandshakeResponse {
-    /// Message type (2)
+    /// Message type identifier (always 2 for response)
     pub message_type: u8,
-    /// Sender index
+    /// Sender's random index for this session
     pub sender_index: u32,
-    /// Receiver index
+    /// Receiver's index from the initiation message
     pub receiver_index: u32,
-    /// Ephemeral public key
+    /// Ephemeral Curve25519 public key for this handshake
     pub ephemeral_public: [u8; 32],
-    /// Empty encrypted
+    /// Empty encrypted field for future use
     pub empty_enc: [u8; 16],
-    /// MAC1
+    /// First message authentication code
     pub mac1: [u8; 16],
-    /// MAC2
+    /// Second message authentication code (cookie-based)
     pub mac2: [u8; 16],
 }
 
@@ -251,16 +263,19 @@ impl HandshakeResponse {
     }
 }
 
-/// Cookie reply message
+/// WireGuard cookie reply message (type 3)
+///
+/// Sent in response to handshake messages under load conditions
+/// to prevent DoS attacks with proof of work.
 #[derive(Debug, Clone)]
 pub struct CookieReply {
-    /// Message type (3)
+    /// Message type identifier (always 3 for cookie reply)
     pub message_type: u8,
-    /// Receiver index
+    /// Receiver index from the original message
     pub receiver_index: u32,
-    /// Cookie nonce
+    /// Nonce for cookie encryption
     pub nonce: [u8; 24],
-    /// Cookie encrypted
+    /// Encrypted cookie value
     pub cookie_enc: [u8; 16],
 }
 
@@ -297,14 +312,17 @@ impl CookieReply {
     }
 }
 
-/// Transport data message
+/// WireGuard transport data message (type 4)
+///
+/// Used for sending encrypted application data after handshake completion.
+/// Includes sequence counter for replay protection.
 #[derive(Debug, Clone)]
 pub struct TransportData {
-    /// Receiver index
+    /// Receiver index for identifying the session
     pub receiver_index: u32,
-    /// Counter
+    /// Sequence counter for replay protection
     pub counter: u64,
-    /// Encrypted data
+    /// Encrypted application data
     pub data: Vec<u8>,
 }
 
@@ -336,12 +354,15 @@ impl TransportData {
     }
 }
 
-/// Replay protection window
+/// Replay protection window for WireGuard packets
+///
+/// Uses a sliding window of 64 bits to detect and reject replayed packets.
+/// Packets with counters outside the window or already seen are rejected.
 #[derive(Debug)]
 pub struct ReplayWindow {
-    /// Bitset for tracking received packets
+    /// Bitset for tracking received packets within the window
     window: u64,
-    /// Last received counter
+    /// Highest sequence counter received so far
     last_counter: u64,
 }
 
@@ -386,44 +407,51 @@ impl Default for ReplayWindow {
     }
 }
 
-/// WireGuard peer state
+/// WireGuard peer state for active connections
+///
+/// Maintains all state for an established WireGuard peer including
+/// session keys, handshake state, and replay protection.
 #[derive(Debug)]
 pub struct PeerState {
     /// Peer configuration
     config: PeerConfig,
-    /// Current handshake state
+    /// Current handshake state machine state
     handshake_state: HandshakeState,
-    /// Session keys
+    /// Session encryption/decryption keys
     session_keys: Option<SessionKeys>,
-    /// Replay protection
+    /// Replay protection window for packet validation
     replay_window: ReplayWindow,
-    /// Last handshake time
+    /// Timestamp of last successful handshake
     last_handshake: Option<Instant>,
-    /// Last received time
+    /// Timestamp of last received packet
     last_received: Option<Instant>,
-    /// Last sent time
+    /// Timestamp of last sent packet
     last_sent: Option<Instant>,
-    /// Cookie for DoS protection
+    /// Cookie for DoS protection under load
     cookie: Option<[u8; 16]>,
-    /// Cookie expiration
+    /// Cookie expiration timestamp
     cookie_expiration: Option<Instant>,
-    /// Peer index
+    /// Peer index for routing
     index: u32,
-    /// Statistics
+    /// Peer statistics and metrics
     stats: PeerStats,
 }
 
+/// WireGuard session keys for encryption and decryption
+///
+/// Contains the symmetric keys derived from the handshake
+/// for encrypting and decrypting transport data.
 #[derive(Debug, Clone)]
 pub struct SessionKeys {
-    /// Sending key
+    /// 32-byte key for encrypting outgoing packets
     pub sending_key: [u8; 32],
-    /// Receiving key
+    /// 32-byte key for decrypting incoming packets
     pub receiving_key: [u8; 32],
-    /// Sending key ID
+    /// ID of the current sending key
     pub sending_key_id: u32,
-    /// Receiving key ID
+    /// ID of the current receiving key
     pub receiving_key_id: u32,
-    /// Key creation time
+    /// Timestamp when these keys were created
     pub created_at: Instant,
 }
 
@@ -435,19 +463,22 @@ enum HandshakeState {
     Established,
 }
 
+/// WireGuard peer statistics and metrics
+///
+/// Tracks performance metrics and counters for a WireGuard peer connection.
 #[derive(Debug, Clone)]
 pub struct PeerStats {
-    /// Bytes sent
+    /// Total bytes sent to this peer
     pub bytes_sent: u64,
-    /// Bytes received
+    /// Total bytes received from this peer
     pub bytes_received: u64,
-    /// Packets sent
+    /// Total packets sent to this peer
     pub packets_sent: u64,
-    /// Packets received
+    /// Total packets received from this peer
     pub packets_received: u64,
-    /// Handshakes initiated
+    /// Number of handshakes initiated with this peer
     pub handshakes_initiated: u64,
-    /// Handshakes completed
+    /// Number of handshakes successfully completed
     pub handshakes_completed: u64,
 }
 
@@ -506,25 +537,28 @@ impl PeerState {
     }
 }
 
-/// WireGuard device (interface)
+/// WireGuard device (interface) managing multiple peers
+///
+/// Represents a WireGuard interface that handles packet routing,
+/// encryption, and peer management for VPN connections.
 pub struct WireGuardDevice {
     /// Interface configuration
     config: InterfaceConfig,
-    /// Peers indexed by public key
+    /// All peers indexed by their 32-byte public key
     peers: Arc<RwLock<HashMap<[u8; 32], Arc<Mutex<PeerState>>>>>,
-    /// Peers indexed by index
+    /// Peer lookup by index for routing
     peer_indices: Arc<RwLock<HashMap<u32, [u8; 32]>>>,
-    /// Next peer index
+    /// Next available peer index
     next_index: Arc<Mutex<u32>>,
-    /// UDP socket
+    /// UDP socket for sending and receiving packets
     socket: Arc<UdpSocket>,
-    /// Running state
+    /// Flag indicating if the device is running
     running: Arc<Mutex<bool>>,
-    /// Cipher for encryption
+    /// Cipher for packet encryption/decryption
     cipher: Arc<Cipher>,
-    /// Hash for MAC calculations
+    /// Hash function for MAC calculations
     hash: Arc<Hash>,
-    /// Random number generator
+    /// Cryptographically secure random number generator
     rng: Arc<SecureRandom>,
 }
 
