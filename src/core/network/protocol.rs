@@ -105,12 +105,20 @@ pub enum ProtocolState {
     Closing,
 }
 
-/// Protocol implementation
+/// Protocol implementation for VPN connections
+///
+/// Manages the state machine for the VANTISVPN protocol including
+/// handshake initiation, key exchange, and secure transport.
 pub struct Protocol {
+    /// Protocol configuration parameters
     config: ProtocolConfig,
+    /// Current protocol state machine state
     state: ProtocolState,
+    /// Whether handshake has been successfully completed
     handshake_complete: bool,
+    /// Local session index for this connection
     local_index: u32,
+    /// Remote session index from the peer
     remote_index: u32,
 }
 
