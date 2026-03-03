@@ -11,7 +11,10 @@ use tokio::sync::Mutex;
 use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
 
-/// Biometric type
+/// Type of biometric authentication method
+///
+/// Different biometric modalities supported for authentication,
+/// including fingerprint, facial recognition, and voice analysis.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BiometricType {
     /// Fingerprint

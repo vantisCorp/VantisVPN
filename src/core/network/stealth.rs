@@ -98,6 +98,10 @@ impl Default for StealthConfig {
 
 /// Padding strategy
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// Strategy for packet padding in stealth protocol
+///
+/// Defines how padding is applied to packets to obscure their
+/// true size and make traffic analysis more difficult.
 pub enum PaddingStrategy {
     /// No padding
     None,

@@ -11,7 +11,10 @@ use tokio::sync::Mutex;
 use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
 
-/// Tunnel protocol type
+/// Protocol types supported by developer tunnels
+///
+/// Different tunneling protocols available for secure remote access,
+/// including SSH, WireGuard, and custom protocols.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TunnelProtocol {
     /// SSH tunnel
@@ -26,7 +29,10 @@ pub enum TunnelProtocol {
     Custom,
 }
 
-/// Tunnel status
+/// Status of a developer tunnel
+///
+/// Current operational state of a tunnel, tracking connection
+/// establishment, active sessions, and any error conditions.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TunnelStatus {
     /// Tunnel not started

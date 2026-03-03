@@ -9,7 +9,11 @@ use serde::{Serialize, Deserialize};
 use crate::error::{VantisError, Result};
 use crate::crypto::{Hash, SecureRandom};
 
-/// Secure Boot State
+/// State of the secure boot system
+///
+/// Tracks the current operational state of the secure boot
+/// verification system, including enabled, disabled, and
+/// enforcement modes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SecureBootState {
     /// Boot process not started
@@ -22,7 +26,10 @@ pub enum SecureBootState {
     Failed,
 }
 
-/// Component Type
+/// Type of system component verified during secure boot
+///
+/// Categories of boot components that are integrity-checked,
+/// including firmware, bootloader, kernel, and system modules.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ComponentType {
     /// Bootloader
@@ -39,7 +46,10 @@ pub enum ComponentType {
     Configuration,
 }
 
-/// Component Integrity Status
+/// Integrity verification status of a component
+///
+/// Result of the cryptographic verification process for
+/// a boot component, indicating whether it passed or failed.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum IntegrityStatus {
     /// Component verified successfully
