@@ -10,7 +10,10 @@ use chrono::{DateTime, Utc, Duration};
 use crate::error::{VantisError, Result};
 use crate::crypto::{Hash, SecureRandom};
 
-/// Identity Type
+/// Type of digital identity
+///
+/// Categories of digital identities available in the Avantis ID system,
+/// supporting different use cases and privacy levels.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum IdentityType {
     /// Personal identity

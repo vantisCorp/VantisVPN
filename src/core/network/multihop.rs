@@ -167,7 +167,10 @@ impl CircuitHop {
     }
 }
 
-/// Circuit state
+/// State of a MultiHop circuit
+///
+/// Current operational state of the multi-hop circuit through
+/// the chain of VPN nodes for onion routing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CircuitState {
     Building,

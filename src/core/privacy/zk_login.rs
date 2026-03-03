@@ -9,7 +9,10 @@ use serde::{Serialize, Deserialize};
 use crate::error::{VantisError, Result};
 use crate::crypto::{Hash, SecureRandom};
 
-/// ZK-SNARKs Proof Type
+/// Type of zero-knowledge proof used for authentication
+///
+/// Different ZK-SNARK proof systems supported by the authentication
+/// protocol, offering varying security levels and performance characteristics.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ZkProofType {
     /// Schnorr-based proof
@@ -20,7 +23,10 @@ pub enum ZkProofType {
     ZkSnarks,
 }
 
-/// Authentication State
+/// State of a zero-knowledge authentication session
+///
+/// Tracks the progress of an authentication attempt through
+/// the zero-knowledge protocol handshake stages.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AuthState {
     /// Not authenticated

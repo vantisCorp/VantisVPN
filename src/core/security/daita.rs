@@ -8,7 +8,10 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use std::time::{Duration, Instant};
 
-/// DAITA strategy for traffic obfuscation
+/// Strategy for DAITA traffic obfuscation
+///
+/// Different approaches for defending against traffic analysis,
+/// including constant rate padding, random bursts, and adaptive patterns.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DaitaStrategy {
     /// No obfuscation (for testing)

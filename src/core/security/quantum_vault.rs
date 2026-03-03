@@ -78,7 +78,10 @@ impl Default for VaultConfig {
     }
 }
 
-/// Vault state
+/// State of the Quantum Vault password manager
+///
+/// Current operational state of the secure password vault,
+/// including locked, unlocked, and migration states.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VaultState {
     Locked,
