@@ -259,7 +259,10 @@ pub struct ProxyConfig {
     pub password: Option<String>,
 }
 
-/// Network manager
+/// Network manager for Vantis OS
+///
+/// Different network management systems available for configuring
+/// network interfaces and connections in the live USB OS.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum NetworkManager {
     /// NetworkManager (GNOME)

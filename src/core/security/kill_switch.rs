@@ -8,7 +8,10 @@ use tokio::sync::{Mutex, RwLock};
 use serde::{Serialize, Deserialize};
 use crate::error::{VantisError, Result};
 
-/// Kill Switch State
+/// State of the Kill Switch system
+///
+/// Current operational state of the kernel-level kill switch,
+/// monitoring VPN connection status and enforcing traffic blocking.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum KillSwitchState {
     /// Kill switch disabled
@@ -21,7 +24,10 @@ pub enum KillSwitchState {
     Error,
 }
 
-/// Kill Switch Mode
+/// Operational mode of the Kill Switch
+///
+/// Different blocking behaviors available when the VPN connection
+/// is lost or the kill switch is activated manually.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum KillSwitchMode {
     /// Block all traffic when VPN disconnects
