@@ -102,6 +102,10 @@ pub struct KillSwitchStats {
 }
 
 /// Kill Switch Manager
+/// 
+/// Manages kernel-level kill switch functionality to protect against data leaks
+/// when the VPN connection is lost, blocking all network traffic until the VPN
+/// is re-established or the user manually disables protection.
 pub struct KillSwitchManager {
     config: KillSwitchConfig,
     state: Arc<RwLock<KillSwitchState>>,

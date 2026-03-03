@@ -211,6 +211,9 @@ impl Default for MlWeights {
 }
 
 /// Smart Routing Manager
+/// 
+/// Manages AI-powered intelligent routing for VPN traffic, using machine
+/// learning to select optimal network paths based on real-time metrics.
 pub struct SmartRoutingManager {
     config: SmartRoutingConfig,
     paths: Arc<RwLock<HashMap<String, NetworkPath>>>,
