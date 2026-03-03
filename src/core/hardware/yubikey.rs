@@ -190,7 +190,11 @@ pub struct YubiKeyOtp {
     pub use_count: u32,
 }
 
-/// YubiKey manager
+/// YubiKey Manager
+/// 
+/// Manages YubiKey two-factor authentication for VPN access, supporting
+/// multiple authentication methods including OTP, FIDO2/WebAuthn, and
+/// challenge-response protocols for secure hardware key integration.
 pub struct YubiKeyManager {
     config: YubiKeyConfig,
     registered_keys: HashMap<String, RegisteredYubiKey>,

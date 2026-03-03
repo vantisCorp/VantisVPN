@@ -277,6 +277,10 @@ pub struct RbiStats {
 }
 
 /// Remote Browser Isolation Manager
+/// 
+/// Manages secure remote browser isolation sessions that execute web content
+/// in isolated environments, rendering frames remotely to protect against
+/// malware, drive-by downloads, and web-based attacks.
 pub struct RbiManager {
     config: RbiConfig,
     sessions: Arc<RwLock<HashMap<String, BrowserSession>>>,

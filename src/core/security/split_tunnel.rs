@@ -205,6 +205,10 @@ pub struct SplitTunnelStats {
 }
 
 /// Split Tunneling Manager
+/// 
+/// Manages selective traffic routing, allowing specific applications or
+/// destinations to bypass the VPN tunnel while protecting all other traffic,
+/// with support for whitelist and blacklist rule management.
 pub struct SplitTunnelManager {
     config: SplitTunnelConfig,
     rules: Arc<RwLock<Vec<SplitTunnelRule>>>,

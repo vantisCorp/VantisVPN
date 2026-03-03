@@ -256,6 +256,10 @@ pub struct NetShieldStats {
 }
 
 /// NetShield AI Manager
+/// 
+/// Manages AI-powered DNS filtering that blocks access to malicious domains,
+/// phishing sites, and inappropriate content, with family-friendly protection
+/// and customizable filtering rules.
 pub struct NetShieldManager {
     config: NetShieldConfig,
     blocklist: Arc<RwLock<HashMap<String, BlocklistEntry>>>,
