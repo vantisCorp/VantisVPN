@@ -23,8 +23,13 @@ pub enum CipherMode {
 }
 
 /// Encryption context for VPN tunnel
+///
+/// Maintains cipher state and sequence numbers for encrypting VPN traffic.
+/// Sequence numbers are used for replay protection and packet ordering.
 pub struct EncryptionContext {
+    /// Symmetric cipher instance for encryption
     cipher: Cipher,
+    /// Sequence number for replay protection and ordering
     sequence_number: u64,
 }
 
@@ -86,8 +91,13 @@ impl EncryptionContext {
 }
 
 /// Decryption context for VPN tunnel
+///
+/// Maintains cipher state and sequence number verification for decrypting VPN traffic.
+/// Detects replay attacks by rejecting packets with duplicate sequence numbers.
 pub struct DecryptionContext {
+    /// Symmetric cipher instance for decryption
     cipher: Cipher,
+    /// Expected sequence number (replay protection)
     expected_sequence: u64,
 }
 
