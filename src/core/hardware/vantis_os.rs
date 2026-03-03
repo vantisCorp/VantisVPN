@@ -7,66 +7,149 @@ use serde::{Serialize, Deserialize};
 use crate::error::VantisError;
 
 /// Vantis OS configuration
+/// 
+/// Complete configuration for the Vantis OS secure USB operating system.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VantisOsConfig {
     /// Operating system name
+    /// 
+    /// Name of the operating system.
     pub os_name: String,
     /// Version number
+    /// 
+    /// Version string of the operating system.
     pub version: String,
     /// Build number
+    /// 
+    /// Build number of this release.
     pub build_number: String,
     /// Boot configuration
+    /// 
+    /// Boot configuration settings.
     pub boot_config: BootConfig,
     /// Persistence configuration
+    /// 
+    /// Data persistence configuration.
     pub persistence_config: PersistenceConfig,
     /// Security configuration
+    /// 
+    /// Security settings and policies.
     pub security_config: SecurityConfig,
     /// Network configuration
+    /// 
+    /// Network configuration settings.
     pub network_config: NetworkConfig,
     /// List of applications
+    /// 
+    /// Pre-installed applications.
     pub applications: Vec<ApplicationConfig>,
     /// System locale
+    /// 
+    /// System locale setting.
     pub locale: String,
     /// System timezone
+    /// 
+    /// System timezone setting.
     pub timezone: String,
     /// Keyboard layout
+    /// 
+    /// Keyboard layout setting.
     pub keyboard_layout: String,
 }
 
 /// Boot configuration
+/// 
+/// Boot configuration settings for Vantis OS.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BootConfig {
+    /// Boot mode
+    /// 
+    /// Mode of operation (live, persistent, or encrypted).
     pub boot_mode: BootMode,
+    /// Secure boot
+    /// 
+    /// Whether secure boot is enabled.
     pub secure_boot: bool,
+    /// Boot timeout
+    /// 
+    /// Timeout before automatic boot in seconds.
     pub boot_timeout: Duration,
+    /// Default boot option
+    /// 
+    /// Default boot option to use.
     pub default_boot_option: BootOption,
+    /// Kernel parameters
+    /// 
+    /// Additional kernel parameters.
     pub kernel_parameters: Vec<String>,
+    /// Initramfs compression
+    /// 
+    /// Compression algorithm for initramfs.
     pub initramfs_compression: String,
+    /// Bootloader
+    /// 
+    /// Bootloader to use (GRUB, Syslinux, or systemd-boot).
     pub bootloader: Bootloader,
 }
 
 /// Boot mode
+/// 
+/// Available boot modes for Vantis OS.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum BootMode {
+    /// Live mode
+    /// 
+    /// Boot from USB without persistence.
     Live,
+    /// Persistent mode
+    /// 
+    /// Boot from USB with encrypted persistence.
     Persistent,
+    /// Encrypted mode
+    /// 
+    /// Fully encrypted system mode.
     Encrypted,
 }
 
 /// Boot option
+/// 
+/// Available boot options for the bootloader menu.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum BootOption {
+    /// Live mode
+    /// 
+    /// Boot in live mode (no persistence).
     LiveMode,
+    /// Persistent mode
+    /// 
+    /// Boot in persistent mode (encrypted persistence).
     PersistentMode,
+    /// Encrypted mode
+    /// 
+    /// Boot in fully encrypted mode.
     EncryptedMode,
+    /// Diagnostic mode
+    /// 
+    /// Boot in diagnostic/recovery mode.
     DiagnosticMode,
 }
 
 /// Bootloader
+/// 
+/// Supported bootloaders for Vantis OS.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Bootloader {
+    /// GRUB bootloader
+    /// 
+    /// GNU GRUB bootloader (default).
     Grub,
+    /// Syslinux bootloader
+    /// 
+    /// Syslinux bootloader (lightweight).
     Syslinux,
+    /// systemd-boot bootloader
+    /// 
+    /// systemd-boot bootloader (UEFI).
     SystemdBoot,
 }
 

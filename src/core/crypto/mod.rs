@@ -35,7 +35,9 @@ static INIT_ONCE: Once = Once::new();
 
 /// Initialize the cryptographic subsystem
 /// 
-/// This must be called once before any crypto operations.
+/// This function must be called once before any crypto operations.
+/// It initializes the random number generator and sets up global state.
+/// Safe to call multiple times (idempotent).
 pub fn init() -> crate::Result<()> {
     INIT_ONCE.call_once(|| {
         // Initialize random number generator

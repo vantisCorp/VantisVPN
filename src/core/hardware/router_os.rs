@@ -577,6 +577,8 @@ pub struct RouterStats {
 }
 
 /// Router firmware
+/// 
+/// Main firmware structure for VANTISVPN router.
 pub struct RouterFirmware {
     config: RouterConfig,
     state: RouterState,
@@ -825,6 +827,8 @@ impl Default for RouterStats {
 }
 
 /// Router firmware builder
+/// 
+/// Builder pattern for creating router firmware configurations.
 pub struct RouterFirmwareBuilder {
     config: RouterConfig,
 }
