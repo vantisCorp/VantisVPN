@@ -8,18 +8,21 @@ use tokio::sync::RwLock;
 pub mod state;
 pub mod manager;
 
-/// Tunnel statistics
+/// Tunnel statistics and performance metrics
+///
+/// Tracks real-time statistics for a VPN tunnel including
+/// data transfer rates and connection uptime.
 #[derive(Debug, Clone, Default)]
 pub struct TunnelStats {
-    /// Bytes sent
+    /// Total bytes sent through the tunnel
     pub bytes_sent: u64,
-    /// Bytes received
+    /// Total bytes received through the tunnel
     pub bytes_received: u64,
-    /// Packets sent
+    /// Total packets sent through the tunnel
     pub packets_sent: u64,
-    /// Packets received
+    /// Total packets received through the tunnel
     pub packets_received: u64,
-    /// Connection uptime (seconds)
+    /// Connection uptime in seconds
     pub uptime: u64,
 }
 
@@ -33,22 +36,25 @@ impl TunnelStats {
     }
 }
 
-/// Tunnel configuration
+/// Tunnel configuration parameters
+///
+/// Contains all configurable parameters for a VPN tunnel
+/// including server settings, network configuration, and feature toggles.
 #[derive(Debug, Clone)]
 pub struct TunnelConfig {
-    /// Server endpoint
+    /// Server endpoint address (host:port)
     pub server_endpoint: String,
-    /// Virtual IP
+    /// Virtual IP address assigned to this tunnel
     pub virtual_ip: String,
-    /// DNS servers
+    /// DNS servers to use while connected
     pub dns_servers: Vec<String>,
-    /// MTU
+    /// Maximum Transmission Unit for the tunnel
     pub mtu: u16,
-    /// Enable kill switch
+    /// Enable kill switch to block traffic on disconnect
     pub enable_kill_switch: bool,
-    /// Enable split tunneling
+    /// Enable split tunneling for selective routing
     pub enable_split_tunneling: bool,
-    /// Split tunneling apps
+    /// Applications to route through VPN when split tunneling is enabled
     pub split_tunnel_apps: Vec<String>,
 }
 
@@ -66,11 +72,18 @@ impl Default for TunnelConfig {
     }
 }
 
-/// VPN tunnel
+/// VPN tunnel for secure network connections
+///
+/// Represents an active VPN tunnel with configuration, state management,
+/// and statistics tracking. Supports async operations for connect/disconnect.
 pub struct Tunnel {
+    /// Unique identifier for this tunnel
     id: String,
+    /// Tunnel configuration parameters
     config: TunnelConfig,
+    /// Current tunnel state (connecting, connected, etc.)
     state: Arc<RwLock<state::TunnelState>>,
+    /// Real-time statistics for this tunnel
     stats: Arc<RwLock<TunnelStats>>,
 }
 
