@@ -18,17 +18,27 @@ pub mod wireguard_full;
 pub mod stealth;
 pub mod multihop;
 
-/// Supported IP versions
+/// Supported IP protocol versions
+///
+/// Defines the IP address types supported by VANTISVPN.
+/// IPv6 is the primary protocol for DoDI 8310.01 compliance.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum IpVersion {
+    /// IPv4 protocol version 4 (32-bit addresses)
     IPv4,
+    /// IPv6 protocol version 6 (128-bit addresses)
     IPv6,
 }
 
-/// Network address
+/// Network address representation
+///
+/// Represents either an IPv4 or IPv6 address with validation
+/// and conversion utilities for network operations.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkAddress {
+    /// IPv4 address (4 bytes)
     IPv4([u8; 4]),
+    /// IPv6 address (16 bytes)
     IPv6([u8; 16]),
 }
 
@@ -64,10 +74,15 @@ impl NetworkAddress {
     }
 }
 
-/// Endpoint representing a server address
+/// Network endpoint representing an address and port
+///
+/// Combines a network address with a port number to specify
+/// a complete network endpoint for connection establishment.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Endpoint {
+    /// Network address (IPv4 or IPv6)
     pub address: NetworkAddress,
+    /// Port number (0-65535)
     pub port: u16,
 }
 
@@ -173,9 +188,13 @@ pub use multihop::{
     VpnNode, OnionPacket, CircuitStats
 };
 
-/// MTU (Maximum Transmission Unit)
+/// MTU (Maximum Transmission Unit) for network packets
+///
+/// Encapsulates MTU values with validation to ensure packets
+/// stay within network size limits for reliable transmission.
 #[derive(Debug, Clone, Copy)]
 pub struct Mtu {
+    /// MTU value in bytes (576-9000)
     value: u16,
 }
 
