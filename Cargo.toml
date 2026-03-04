@@ -25,7 +25,7 @@ vantis-core = { path = "src/core" }
 tokio = { version = "1.35", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-thiserror = "1.0"
+thiserror = "2.0"
 anyhow = "1.0"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
@@ -37,12 +37,12 @@ chacha20poly1305 = "0.10"
 blake2 = "0.10"
 x25519-dalek = "2.0"
 ed25519-dalek = "2.0"
-rand = "0.8"
-rand_core = "0.6"
+rand = "0.10"
+rand_core = "0.10"
 zeroize = "1.7"
 
 # Network dependencies
-quinn = "0.10"
+quinn = "0.11"
 hyper = { version = "1.0", features = ["full"] }
 hyper-util = "0.1"
 http = "1.0"

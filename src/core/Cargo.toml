@@ -15,27 +15,27 @@ tokio = { version = "1.35", features = ["full"] }
 async-trait = "0.1"
 
 # Cryptography
-rand = "0.8"
-rand_chacha = { version = "0.3", features = ["std"] }
+rand = "0.10"
+rand_chacha = { version = "0.10", features = ["std"] }
 chacha20poly1305 = { version = "0.10", features = ["std"] }
 blake2 = "0.10"
-getrandom = "0.2"
+getrandom = "0.4"
 # Post-quantum cryptography (placeholder - will use external libs when available)
 # kyber = { version = "0.1", git = "https://github.com/..." }
 # dilithium = { version = "0.1", git = "https://github.com/..." }
 
 # Networking
-tokio-tungstenite = "0.21"
+tokio-tungstenite = "0.28"
 quinn = "0.11"  # QUIC implementation
-socket2 = "0.5"
+socket2 = "0.6"
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-bincode = "1.3"
+bincode = "3.0"
 
 # Error handling
-thiserror = "1.0"
+thiserror = "2.0"
 anyhow = "1.0"
 
 # Logging
@@ -45,22 +45,22 @@ log = "0.4"
 
 # Utilities
 hex = "0.4"
-base64 = "0.21"
+base64 = "0.22"
 zeroize = { version = "1.7", features = ["zeroize_derive"] }
 chrono = { version = "0.4", features = ["serde"] }
 
 # Platform-specific
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.52", features = ["Win32_NetworkManagement_IpHelper"] }
+windows = { version = "0.62", features = ["Win32_NetworkManagement_IpHelper"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 libc = "0.2"
 
 [target.'cfg(target_os = "linux")'.dependencies]
-nix = "0.27"
+nix = "0.31"
 
 [dev-dependencies]
-criterion = "0.5"
+criterion = "0.8"
 proptest = "1.4"
 
 [lib]
