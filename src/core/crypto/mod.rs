@@ -76,6 +76,10 @@ pub fn ensure_initialized() -> crate::Result<()> {
     Ok(())
 }
 
+// Comprehensive test module (see tests.rs)
+#[cfg(test)]
+mod comprehensive_tests;
+
 #[cfg(test)]
 mod tests {
     use super::*;
