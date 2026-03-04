@@ -2,7 +2,9 @@
 /target/
 **/*.rs.bk
 *.pdb
-Cargo.lock
+
+# Keep Cargo.lock for reproducible builds in workspace
+# Only ignore in individual crates if not workspace root
 
 # IDE
 .vscode/
@@ -38,19 +40,9 @@ secrets/
 
 # Workspace outputs
 outputs/
-*.txt
 
-# Test directories
+# Coverage reports
+coverage/
+
+# Test directories (exclude from commits)
 src/core/target/
-src/core/benches/
-src/core/tests/
-
-# Summarized conversations
-summarized_conversations/
-
-# Project analysis
-project_analysis.md
-test.txt
-
-# Strange filename
-"

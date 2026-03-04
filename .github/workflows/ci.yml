@@ -5,38 +5,54 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
 
 jobs:
+  # Build and Test job - runs on all platforms
   build-and-test:
-    name: Build and Test
-    runs-on: ubuntu-latest
+    name: Build and Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        rust: [stable]
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install Rust
-      run: |
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-        source $HOME/.cargo/env
-        rustup default stable
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: rustfmt, clippy
+
+    - name: Cache cargo registry
+      uses: Swatinem/rust-cache@v2
+      with:
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Check formatting
+      run: cargo fmt --all -- --check
+
+    - name: Run clippy
+      run: cargo clippy --all-targets --all-features -- -D warnings
+      continue-on-error: true
 
     - name: Build
-      run: |
-        source $HOME/.cargo/env
-        cargo build --verbose
-      continue-on-error: true
+      run: cargo build --workspace --verbose
 
-    - name: Test
-      run: |
-        source $HOME/.cargo/env
-        cargo test --verbose
-      continue-on-error: true
+    - name: Run tests
+      run: cargo test --workspace --verbose
 
+    - name: Generate documentation
+      run: cargo doc --workspace --no-deps
+
+  # Security audit job
   security-audit:
     name: Security Audit
     runs-on: ubuntu-latest
@@ -45,19 +61,61 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install Rust
-      run: |
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-        source $HOME/.cargo/env
-        rustup default stable
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
 
     - name: Install cargo-audit
-      run: |
-        source $HOME/.cargo/env
-        cargo install cargo-audit
+      run: cargo install cargo-audit
 
-    - name: Run audit
-      run: |
-        source $HOME/.cargo/env
-        cargo audit
+    - name: Run security audit
+      run: cargo audit
+
+  # Code coverage job
+  code-coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Install tarpaulin
+      run: cargo install cargo-tarpaulin
+
+    - name: Generate coverage report
+      run: cargo tarpaulin --workspace --out Xml --output-dir ./coverage
+
+    - name: Upload to codecov.io
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./coverage/cobertura.xml
+        flags: unittests
+        name: vantisvpn-coverage
+        token: ${{ secrets.CODECOV_TOKEN }}
       continue-on-error: true
+
+  # Release build job
+  release-build:
+    name: Release Build
+    runs-on: ubuntu-latest
+    needs: [build-and-test, security-audit]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Build release
+      run: cargo build --workspace --release
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: vantisvpn-release
+        path: target/release/
+        retention-days: 7
