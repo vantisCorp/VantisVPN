@@ -227,6 +227,10 @@ impl Mtu {
     }
 }
 
+// Comprehensive integration test module
+#[cfg(test)]
+mod integration_tests;
+
 #[cfg(test)]
 mod tests {
     use super::*;
