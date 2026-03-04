@@ -20,3 +20,6 @@ pub use vantis_os::{
     VantisOsConfig, VantisOsBuilder, VantisOsImage, BootConfig,
     PersistenceConfig, SecurityConfig, NetworkConfig
 };
+
+#[cfg(test)]
+mod comprehensive_tests;
