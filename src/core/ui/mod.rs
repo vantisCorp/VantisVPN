@@ -11,3 +11,6 @@ pub use devtunnel::{DevTunnel, TunnelConfig, TunnelSession, TunnelStats};
 pub use family_shield::{FamilyShield, ShieldConfig, ShieldRule, ShieldStats};
 pub use biometric_auth::{BiometricAuth, BiometricConfig, BiometricType, AuthResult};
 pub use theme_manager::{ThemeManager, ThemeConfig, ThemeMode, HapticType, HapticPattern, ThemeColors};
+
+#[cfg(test)]
+mod comprehensive_tests;
