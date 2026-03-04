@@ -1,0 +1,22 @@
+# CODEOWNERS file for VANTISVPN
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything
+* @vantisCorp/core-team
+
+# Security-critical files
+/security @vantisCorp/security-team
+/src/core/crypto @vantisCorp/security-team
+/src/core/security @vantisCorp/security-team
+/src/core/privacy @vantisCorp/security-team
+SECURITY.md @vantisCorp/security-team
+
+# Infrastructure and CI/CD
+/.github @vantisCorp/devops-team
+/docker @vantisCorp/devops-team
+Makefile @vantisCorp/devops-team
+
+# Documentation
+/docs @vantisCorp/docs-team
+README.md @vantisCorp/docs-team
+CONTRIBUTING.md @vantisCorp/docs-team

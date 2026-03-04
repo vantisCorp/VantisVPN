@@ -1,0 +1,196 @@
+name: Security Scanning
+
+on:
+  schedule:
+    # Run security scans every day at 2 AM UTC
+    - cron: '0 2 * * *'
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # Security audit with cargo-audit
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Install cargo-audit
+      run: cargo install cargo-audit
+
+    - name: Run cargo audit
+      run: cargo audit
+
+  # Check for outdated dependencies
+  dependency-check:
+    name: Dependency Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Install cargo-outdated
+      run: cargo install cargo-outdated
+
+    - name: Check for outdated dependencies
+      run: cargo outdated --exit-code 1
+      continue-on-error: true
+
+  # Run security tests
+  security-tests:
+    name: Security Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Run tests
+      run: cargo test --workspace --verbose
+
+  # Check for security vulnerabilities in dependencies
+  vulnerability-scan:
+    name: Vulnerability Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Install cargo-audit
+      run: cargo install cargo-audit
+
+    - name: Scan for vulnerabilities
+      run: cargo audit --json > audit-report.json || true
+
+    - name: Upload audit report
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-audit-report
+        path: audit-report.json
+        retention-days: 30
+
+  # Check for common security issues in code
+  code-security-check:
+    name: Code Security Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Run clippy with security lints
+      run: cargo clippy --all-targets --all-features -- -D warnings -W clippy::all -W clippy::cargo
+      continue-on-error: true
+
+  # Check for secrets in code
+  secrets-scan:
+    name: Secrets Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Run TruffleHog
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: ${{ github.event.repository.default_branch }}
+        head: HEAD
+
+  # Security compliance check
+  compliance-check:
+    name: Compliance Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Run no-logs audit
+      run: cargo test --manifest-path src/core/Cargo.toml --test integration_test -- --nocapture
+
+    - name: Run compliance tests
+      run: cargo test --workspace --test '*compliance*' --verbose
+
+  # Weekly security report
+  weekly-security-report:
+    name: Weekly Security Report
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Install security tools
+      run: |
+        cargo install cargo-audit
+        cargo install cargo-outdated
+
+    - name: Generate security report
+      run: |
+        echo "# Security Report - $(date)" > security-report.md
+        echo "" >> security-report.md
+        echo "## Dependency Audit" >> security-report.md
+        cargo audit >> security-report.md || true
+        echo "" >> security-report.md
+        echo "## Outdated Dependencies" >> security-report.md
+        cargo outdated >> security-report.md || true
+        echo "" >> security-report.md
+        echo "## Dependencies Summary" >> security-report.md
+        cargo tree >> security-report.md || true
+
+    - name: Upload security report
+      uses: actions/upload-artifact@v4
+      with:
+        name: weekly-security-report
+        path: security-report.md
+        retention-days: 90
+
+    - name: Create issue on critical findings
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: 'Security Scan Failed - Weekly Report',
+            body: 'The weekly security scan has failed. Please check the uploaded security report artifact.',
+            labels: ['security', 'high-priority']
+          })
