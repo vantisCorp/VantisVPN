@@ -180,6 +180,9 @@ impl Tunnel {
 }
 
 #[cfg(test)]
+mod comprehensive_tests;
+
+#[cfg(test)]
 mod tests {
     use super::*;
 
