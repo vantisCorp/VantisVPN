@@ -19,3 +19,6 @@ pub use daita::{Daita, DaitaConfig, DaitaStrategy, TrafficStats};
 pub use quantum_vault::{QuantumVault, VaultConfig, VaultEntry, VaultState, VaultStats};
 pub use zero_trust::{ZeroTrust, ZeroTrustConfig, ZeroTrustPolicy, PolicyAction, AccessRequest, AccessDecision, AccessLog, DeviceTrust};
 pub use avantis_mesh::{AvantisMesh, MeshConfig, MeshNode, MeshMessage, MeshStats};
+
+#[cfg(test)]
+mod comprehensive_tests;
