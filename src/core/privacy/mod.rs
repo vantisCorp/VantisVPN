@@ -7,6 +7,9 @@ pub mod ip_rotator;
 pub mod anonymous_payments;
 pub mod gdpr_compliance;
 
+#[cfg(test)]
+mod comprehensive_tests;
+
 // Re-exports
 pub use zk_login::{
     ZkLoginManager, ZkLoginConfig, ZkChallenge, ZkResponse, ZkAuthResult,
