@@ -1,0 +1,54 @@
+# VantisVPN - YAML Lint Configuration
+# https://yamllint.readthedocs.io/
+
+extends: default
+
+rules:
+  line-length:
+    max: 120
+    level: warning
+  document-start: disable
+  trailing-spaces:
+    level: warning
+  indentation:
+    spaces: 2
+    indent-sequences: true
+  comments:
+    min-spaces-from-content: 1
+  comments-indentation: {}
+  braces:
+    min-spaces-inside: 0
+    max-spaces-inside: 1
+  brackets:
+    min-spaces-inside: 0
+    max-spaces-inside: 0
+  commas:
+    max-spaces-before: 0
+    min-spaces-after: 1
+  comments:
+    require-starting-space: true
+  document-end: disable
+  empty-lines:
+    max: 2
+  hyphens:
+    max-spaces-after: 1
+  key-duplicates: enable
+  key-ordering: disable
+  new-line-at-end-of-file: enable
+  new-lines:
+    type: unix
+  octal-values:
+    forbid-implicit-octal: true
+    forbid-explicit-octal: true
+  trailing-newlines:
+    level: warning
+  truthy:
+    allowed-values: ['true', 'false', 'yes', 'no']
+    check-keys: false
+
+ignore: |
+  node_modules/
+  .github/
+  .gitlab-ci.yml
+  outputs/
+  target/

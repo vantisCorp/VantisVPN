@@ -1,48 +1,219 @@
-# Rust
-/target/
+# VantisVPN - Comprehensive .gitignore
+# https://github.com/vantisCorp/VantisVPN
+
+# ============== DEPENDENCIES ==============
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnp/
+.pnp.js
+
+# ============== BUILD OUTPUTS ==============
+dist/
+build/
+.next/
+out/
+target/
+*.wasm
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.exe
+
+# ============== RUST SPECIFIC ==============
 **/*.rs.bk
-*.pdb
+Cargo.lock
+.cargo/config
+.cargo/credentials
 
-# Keep Cargo.lock for reproducible builds in workspace
-# Only ignore in individual crates if not workspace root
+# ============== PYTHON SPECIFIC ==============
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+pip-log.txt
+pip-delete-this-directory.txt
+.coverage
+.pytest_cache/
+htmlcov/
+.tox/
+.hypothesis/
 
-# IDE
+# ============== TERRAFORM ==============
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# ============== DEVCONTAINERS ==============
+.devcontainer/.devcontainer.json.local
+.devcontainer/env.cache
+
+# ============== IDE & EDITORS ==============
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-
-# OS
 .DS_Store
-Thumbs.db
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
 
-# Build
-/dist/
-/build/
-
-# Logs
+# ============== LOGS ==============
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Environment
+# ============== ENVIRONMENT ==============
 .env
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+.secrets/
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
 
-# Temporary files
+# ============== TESTING ==============
+coverage/
+.nyc_output/
+test-results/
+benchmark-results/
+
+# ============== CACHE ==============
+.cache/
+.parcel-cache/
+.vite/
+.turbo/
+.next/cache/
+.eslintcache
+.stylelintcache
+.rustup/
+.cargo/registry/
+
+# ============== DOCKER ==============
+.docker/
+docker-compose.override.yml
+
+# ============== OPERATIONS ==============
+*.pid
+*.seed
+*.pid.lock
+.npm
+.eslintcache
+
+# ============== MISC ==============
+outputs/
+summarized_conversations/
+.turbo/
+.vercel/
+.netlify/
+.cache/
+
+# ============== BACKUP FILES ==============
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+
+# ============== TEMPORARY FILES ==============
+tmp/
+temp/
 *.tmp
 *.temp
 
-# Keys and secrets (never commit!)
-*.key
-*.pem
-*.p12
-secrets/
+# ============== OS GENERATED ==============
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
 
-# Workspace outputs
-outputs/
+# ============== PACKAGE MANAGERS ==============
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
 
-# Coverage reports
-coverage/
+# ============== SECURITY ==============
+.gitleaks.toml
+.secrets.baseline
+.secrets.report
 
-# Test directories (exclude from commits)
-src/core/target/
+# ============== DOCUMENTATION ==============
+docs/.vitepress/cache/
+docs/.docusaurus/
+site/
+
+# ============== ANSIBLE ==============
+*.retry
+ansible/roles/.cache/
+
+# ============== KUBERNETES ==============
+*.kubeconfig
+kubectl
+helm
+
+# ============== CI/CD ==============
+.github/workflows/*.local.yml
+.gitlab-ci.local.yml

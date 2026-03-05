@@ -3,11 +3,11 @@ members = ["src/core"]
 resolver = "2"
 
 [workspace.package]
-version = "1.0.0"
+version = "1.1.0"
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.82"
 authors = ["VANTISVPN Team <security@vantisvpn.com>"]
-license = "Proprietary"
+license = "AGPL-3.0-or-later"
 repository = "https://github.com/vantisCorp/VantisVPN"
 homepage = "https://vantisvpn.com"
 documentation = "https://docs.vantisvpn.com"
@@ -21,31 +21,62 @@ rustdoc-args = ["--cfg", "docsrs"]
 # Internal dependencies
 vantis-core = { path = "src/core" }
 
-# External dependencies
+# Async runtime
 tokio = { version = "1.50", features = ["full"] }
+async-trait = "0.1"
+
+# Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+postcard = { version = "1.0", features = ["alloc"] }  # Replacing unmaintained bincode
+
+# Error handling
 thiserror = "2.0"
 anyhow = "1.0"
+
+# Logging
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+log = "0.4"
+
+# Utilities
 uuid = { version = "1.6", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
+hex = "0.4"
+base64 = "0.22"
+zeroize = { version = "1.7", features = ["zeroize_derive"] }
 
-# Cryptography dependencies
-chacha20poly1305 = "0.10"
+# Cryptography
+rand = "0.10"
+rand_chacha = { version = "0.10", features = ["std"] }
+rand_core = "0.10"
+getrandom = "0.4"
+chacha20poly1305 = { version = "0.10", features = ["std"] }
 blake2 = "0.10"
 x25519-dalek = "2.0"
 ed25519-dalek = "2.0"
-rand = "0.9"
-rand_core = "0.9"
-zeroize = "1.7"
 
-# Network dependencies
+# Networking
 quinn = "0.11"
+tokio-tungstenite = "0.28"
+socket2 = "0.6"
 hyper = { version = "1.0", features = ["full"] }
 hyper-util = "0.1"
 http = "1.0"
+
+# Testing
+criterion = "0.8"
+proptest = "1.4"
+
+# Platform-specific
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62", features = ["Win32_NetworkManagement_IpHelper"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+libc = "0.2"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+nix = "0.31"
 
 [profile.release]
 opt-level = 3
