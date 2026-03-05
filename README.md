@@ -24,6 +24,96 @@
     <img alt="GitHub watchers" src="https://img.shields.io/github/watchers/vantisCorp/VantisVPN?style=social">
 </a>
 
+<!-- TYPING ANIMATION -->
+<div align="center">
+  <h3>
+    <code>
+      <span id="typed-text"></span><span class="cursor">|</span>
+    </code>
+  </h3>
+  <p>
+    <em>Next-Generation VPN with Post-Quantum Cryptography</em>
+  </p>
+</div>
+
+<script>
+  const words = [
+    "🔒 Quantum-Resistant Security",
+    "⚡ Lightning Fast Performance",
+    "🛡️ Zero Trust Architecture",
+    "🌍 Global Network Coverage",
+    "🔐 End-to-End Encryption",
+    "🚀 Open Source & Transparent"
+  ];
+  
+  let i = 0;
+  let timer;
+  
+  function typeWriter() {
+    const text = words[i];
+    const typedText = document.getElementById('typed-text');
+    const cursor = document.querySelector('.cursor');
+    
+    let j = 0;
+    const speed = 100;
+    
+    function type() {
+      if (j < text.length) {
+        typedText.innerHTML += text.charAt(j);
+        j++;
+        timer = setTimeout(type, speed);
+      } else {
+        setTimeout(() => {
+          typedText.innerHTML = '';
+          i = (i + 1) % words.length;
+          typeWriter();
+        }, 2000);
+      }
+    }
+    
+    type();
+  }
+  
+  // Start typing animation when page loads
+  window.onload = typeWriter;
+  
+  // Cursor blink effect
+  setInterval(() => {
+    const cursor = document.querySelector('.cursor');
+    cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
+  }, 500);
+</script>
+
+<style>
+  #typed-text {
+    font-size: 1.5em;
+    color: #ff0000;
+    font-family: 'Courier New', monospace;
+  }
+  
+  .cursor {
+    color: #ff0000;
+    animation: blink 0.7s infinite;
+  }
+  
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  
+  [data-theme="dark"] #typed-text,
+  [data-theme="dark"] .cursor {
+    color: #ff4444;
+  }
+  
+  [data-theme="light"] #typed-text,
+  [data-theme="light"] .cursor {
+    color: #cc0000;
+  }
+</style>
+
+---
+
 # 🔴⬛ VANTISVPN ⬛🔴
 ## Next-Generation Quantum-Resistant Secure VPN System with Zero Trust Architecture
 
@@ -156,6 +246,24 @@ vantisvpn doctor
 # Test connection
 vantisvpn test
 ```
+
+---
+
+### 📼 Asciinema Recording
+
+<details>
+<summary><h4>🎬 Watch Demo in Terminal</h4></summary>
+
+[![asciicast](https://asciinema.org/a/000000.svg)](https://asciinema.org/a/000000)
+
+**What you'll see:**
+- Installation process
+- Configuration setup
+- Connecting to VPN
+- Testing performance
+- Advanced features
+
+</details>
 
 ---
 
