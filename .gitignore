@@ -27,7 +27,8 @@ target/
 
 # ============== RUST SPECIFIC ==============
 **/*.rs.bk
-Cargo.lock
+# Cargo.lock should be committed for binary projects
+# Cargo.lock
 .cargo/config
 .cargo/credentials
 
