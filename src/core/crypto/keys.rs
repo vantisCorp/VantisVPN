@@ -3,8 +3,8 @@
 //! Ephemeral key management with secure memory handling.
 //! All keys are temporary and automatically zeroized when dropped.
 
+use rand::Rng;
 use rand::random;
-use rand_core::RngCore as _;
 use rand_core::SeedableRng;
 use rand_chacha::ChaCha20Rng;
 use crate::error::VantisError;
