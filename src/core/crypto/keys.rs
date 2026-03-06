@@ -3,8 +3,9 @@
 //! Ephemeral key management with secure memory handling.
 //! All keys are temporary and automatically zeroized when dropped.
 
-use rand::RngCore;
-use rand::SeedableRng;
+use rand_core::RngCore;
+use rand_core::SeedableRng;
+use rand::rngs::OsRng;
 use rand_chacha::ChaCha20Rng;
 use chacha20poly1305::{
     aead::{Aead, KeyInit},
@@ -48,7 +49,7 @@ impl EphemeralKeyPair {
     pub fn new() -> crate::Result<Self> {
         super::ensure_initialized()?;
         
-        let mut rng = ChaCha20Rng::from_entropy();
+        let mut rng = ChaCha20Rng::from_rng(OsRng)?;
         let mut private_bytes = [0u8; PRIVATE_KEY_SIZE];
         let mut public_bytes = [0u8; PUBLIC_KEY_SIZE];
         

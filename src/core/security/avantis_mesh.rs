@@ -13,6 +13,7 @@ use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
 use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
+use postcard;
 
 /// Mesh node information
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -340,7 +341,7 @@ impl AvantisMesh {
 
     /// Send a message
     async fn send_message(&self, message: MeshMessage) -> Result<(), VantisError> {
-        let serialized = bincode::serialize(&message)
+        let serialized = postcard::to_allocvec(&message)
             .map_err(|e| VantisError::InvalidData(format!("Failed to serialize message: {}", e)))?;
 
         let encrypted = if self.config.enable_encryption {

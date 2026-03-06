@@ -7,6 +7,7 @@ use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
 use serde::{Serialize, Deserialize};
 use rand::Rng;
+use rand::rngs::OsRng;
 use crate::error::{VantisError, Result};
 
 /// Metric used to evaluate network paths for routing decisions
@@ -371,7 +372,7 @@ impl SmartRoutingManager {
     ) -> Result<RoutingDecision> {
         // Exploration vs exploitation
         if self.config.enable_exploration {
-            let mut rng = rand::thread_rng();
+            let mut rng = OsRng;
             if rng.gen::<f64>() < self.config.exploration_rate {
                 // Explore: choose random path
                 let random_path = paths
