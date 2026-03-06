@@ -7,7 +7,7 @@ use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
 use serde::{Serialize, Deserialize};
 use rand::Rng;
-use rand::rngs::OsRng;
+use rand::Rng;
 use crate::error::{VantisError, Result};
 
 /// Metric used to evaluate network paths for routing decisions
@@ -372,11 +372,12 @@ impl SmartRoutingManager {
     ) -> Result<RoutingDecision> {
         // Exploration vs exploitation
         if self.config.enable_exploration {
-            let mut rng = OsRng;
-            if rng.gen::<f64>() < self.config.exploration_rate {
+            let exploration_value: f64 = rand::random();
+            if exploration_value < self.config.exploration_rate {
                 // Explore: choose random path
+                let random_index = rand::random::<usize>() % paths.len();
                 let random_path = paths
-                    .get(rng.gen_range(0..paths.len()))
+                    .get(random_index)
                     .ok_or_else(|| VantisError::InvalidPeer("No paths available".to_string()))?;
 
                 return Ok(RoutingDecision {

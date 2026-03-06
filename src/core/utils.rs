@@ -64,15 +64,13 @@ pub fn is_valid_ipv6(s: &str) -> bool {
 /// Generate random string of specified length
 pub fn random_string(length: usize) -> String {
     use rand::Rng;
-    use rand::rngs::OsRng;
     const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
                             abcdefghijklmnopqrstuvwxyz\
                             0123456789";
-    let mut rng = OsRng;
     
     (0..length)
         .map(|_| {
-            let idx = rng.gen_range(0..CHARSET.len());
+            let idx = rand::random::<usize>() % CHARSET.len();
             CHARSET[idx] as char
         })
         .collect()

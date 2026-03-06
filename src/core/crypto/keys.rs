@@ -5,8 +5,8 @@
 
 use rand_core::RngCore;
 use rand_core::SeedableRng;
-use rand::rngs::OsRng;
 use rand_chacha::ChaCha20Rng;
+use getrandom::getrandom;
 use chacha20poly1305::{
     aead::{Aead, KeyInit},
     ChaCha20Poly1305,
@@ -49,7 +49,9 @@ impl EphemeralKeyPair {
     pub fn new() -> crate::Result<Self> {
         super::ensure_initialized()?;
         
-        let mut rng = ChaCha20Rng::from_rng(OsRng)?;
+        let mut seed = [0u8; 32];
+        getrandom(&mut seed).map_err(|e| VantisError::CryptoError(format!("Failed to generate random seed: {}", e)))?;
+        let mut rng = ChaCha20Rng::from_seed(seed);
         let mut private_bytes = [0u8; PRIVATE_KEY_SIZE];
         let mut public_bytes = [0u8; PUBLIC_KEY_SIZE];
         
