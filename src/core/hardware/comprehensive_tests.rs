@@ -6,6 +6,7 @@
 use super::*;
 use crate::error::{VantisError, Result};
 use std::net::Ipv4Addr;
+use std::time::{Duration, SystemTime};
 
 #[cfg(test)]
 mod router_os_tests {
