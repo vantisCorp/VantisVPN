@@ -5,6 +5,7 @@
 use rand::Rng;
 use rand_core::RngCore;
 use rand_core::SeedableRng;
+use getrandom;
 use rand_chacha::ChaCha20Rng;
 use std::sync::Mutex;
 
@@ -23,7 +24,7 @@ impl SecureRandom {
     /// Create a new SecureRandom instance
     pub fn new() -> crate::Result<Self> {
         let mut seed = [0u8; 32];
-        rand_core::OsRng.fill_bytes(&mut seed);
+        getrandom::getrandom(&mut seed).map_err(|_| VantisError::CryptoError("Failed to get random seed".to_string()))?;
         Ok(Self {
             rng: Mutex::new(ChaCha20Rng::from_seed(seed)),
         })
@@ -68,7 +69,7 @@ impl SecureRandom {
 pub fn init() {
     let mut rng = CSPRNG.lock().unwrap();
     let mut seed = [0u8; 32];
-    rand_core::OsRng.fill_bytes(&mut seed);
+    getrandom::getrandom(&mut seed).expect("Failed to get random seed");
     *rng = Some(ChaCha20Rng::from_seed(seed));
     tracing::debug!("CSPRNG initialized");
 }
