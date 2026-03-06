@@ -371,6 +371,29 @@ pub struct FirewallRule {
     pub log: bool,
 }
 
+/// Firewall protocol
+/// 
+/// Network protocols for firewall rules.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum FirewallProtocol {
+    /// TCP
+    /// 
+    /// Transmission Control Protocol.
+    Tcp,
+    /// UDP
+    /// 
+    /// User Datagram Protocol.
+    Udp,
+    /// ICMP
+    /// 
+    /// Internet Control Message Protocol.
+    Icmp,
+    /// Any
+    /// 
+    /// Any protocol.
+    Any,
+}
+
 /// Firewall action
 /// 
 /// Actions that can be taken on matching firewall rules.
@@ -380,10 +403,18 @@ pub enum FirewallAction {
     /// 
     /// Allow the packet to pass through.
     Accept,
+    /// Allow
+    /// 
+    /// Allow the packet to pass through (alias for Accept).
+    Allow,
     /// Drop
     /// 
     /// Silently drop the packet.
     Drop,
+    /// Deny
+    /// 
+    /// Deny the packet (alias for Drop).
+    Deny,
     /// Reject
     /// 
     /// Reject the packet and send a rejection response.
@@ -897,6 +928,30 @@ pub enum QosPriority {
     Medium,
     High,
     Critical,
+}
+
+impl std::fmt::Display for FirewallProtocol {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Tcp => write!(f, "TCP"),
+            Self::Udp => write!(f, "UDP"),
+            Self::Icmp => write!(f, "ICMP"),
+            Self::Any => write!(f, "Any"),
+        }
+    }
+}
+
+impl std::fmt::Display for FirewallAction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Accept => write!(f, "Accept"),
+            Self::Allow => write!(f, "Allow"),
+            Self::Drop => write!(f, "Drop"),
+            Self::Deny => write!(f, "Deny"),
+            Self::Reject => write!(f, "Reject"),
+            Self::Log => write!(f, "Log"),
+        }
+    }
 }
 
 impl std::fmt::Display for QosPriority {

@@ -132,6 +132,10 @@ pub enum BootOption {
     /// 
     /// Boot in diagnostic/recovery mode.
     DiagnosticMode,
+    /// Standard
+    /// 
+    /// Boot in standard mode.
+    Standard,
 }
 
 /// Bootloader
@@ -643,6 +647,18 @@ pub enum WanConnectionType {
     Pppoe,
     Pptp,
     L2tp,
+}
+
+impl std::fmt::Display for BootOption {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::LiveMode => write!(f, "LiveMode"),
+            Self::PersistentMode => write!(f, "PersistentMode"),
+            Self::EncryptedMode => write!(f, "EncryptedMode"),
+            Self::DiagnosticMode => write!(f, "DiagnosticMode"),
+            Self::Standard => write!(f, "Standard"),
+        }
+    }
 }
 
 impl std::fmt::Display for WanConnectionType {

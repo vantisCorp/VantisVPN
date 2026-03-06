@@ -8,7 +8,7 @@ pub mod vantis_os;
 pub use router_os::{
     RouterConfig, RouterFirmware, RouterState, RouterStats,
     FirewallRule, PortForwarding, QosPolicy, NetworkInterface,
-    RouterFirmwareBuilder, InterfaceType, FirewallAction, QosPriority
+    RouterFirmwareBuilder, InterfaceType, FirewallAction, FirewallProtocol, QosPriority
 };
 
 pub use yubikey::{
