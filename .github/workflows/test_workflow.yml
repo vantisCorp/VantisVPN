@@ -1,0 +1,14 @@
+name: Test Workflow
+
+on:
+  push:
+    branches: [fix/cicd-target-dependencies]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Echo
+        run: echo "Test workflow running"
