@@ -635,23 +635,6 @@ impl Default for VantisOsBuilder {
     }
 }
 
-/// System time representation
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub struct SystemTime {
-    timestamp: u64,
-}
-
-impl SystemTime {
-    pub fn now() -> Self {
-        Self {
-            timestamp: std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_secs(),
-        }
-    }
-}
-
 /// WAN connection types
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WanConnectionType {

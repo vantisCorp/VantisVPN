@@ -5,6 +5,7 @@ use std::net::{IpAddr, Ipv4Addr};
 use std::time::{Duration, SystemTime};
 use serde::{Serialize, Deserialize};
 use crate::error::VantisError;
+use super::vantis_os::WanConnectionType;
 
 /// Router configuration
 /// 
@@ -797,7 +798,7 @@ impl Default for LanConfig {
 impl Default for WanConfig {
     fn default() -> Self {
         Self {
-            connection_type: "DHCP".to_string(),
+            connection_type: WanConnectionType::Dhcp,
             ip_address: None,
             subnet_mask: None,
             gateway: None,
