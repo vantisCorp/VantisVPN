@@ -70,7 +70,7 @@ pub fn random_string(length: usize) -> String {
     
     (0..length)
         .map(|_| {
-            let idx = rand::random::<usize>() % CHARSET.len();
+            let idx = (rand::random::<u32>() as usize) % CHARSET.len();
             CHARSET[idx] as char
         })
         .collect()

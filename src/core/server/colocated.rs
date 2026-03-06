@@ -7,7 +7,6 @@ use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
 use serde::{Serialize, Deserialize};
 use rand::Rng;
-use rand::Rng;
 use crate::error::{VantisError, Result};
 
 /// Server Status
@@ -523,7 +522,7 @@ impl ColocatedInfrastructureManager {
     /// Weighted selection
     fn select_weighted(&self, servers: Vec<VpnServer>) -> VpnServer {
         let total_capacity: f64 = servers.iter().map(|s| s.capacity_score()).sum();
-        let threshold: f64 = rand::random::<f64>() * total_capacity;
+        let mut threshold: f64 = rand::random::<f64>() * total_capacity;
 
         for server in &servers {
             threshold -= server.capacity_score();
@@ -537,7 +536,7 @@ impl ColocatedInfrastructureManager {
 
     /// Random selection
     fn select_random(&self, servers: Vec<VpnServer>) -> VpnServer {
-        let random_index = rand::random::<usize>() % servers.len();
+        let random_index = (rand::random::<u32>() as usize) % servers.len();
         servers[random_index].clone()
     }
 
