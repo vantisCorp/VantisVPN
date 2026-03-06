@@ -5,6 +5,7 @@
 
 use super::*;
 use crate::error::{VantisError, Result};
+use std::net::Ipv4Addr;
 
 #[cfg(test)]
 mod router_os_tests {
