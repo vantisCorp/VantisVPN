@@ -8,7 +8,7 @@ pub mod theme_manager;
 
 // Re-exports
 pub use devtunnel::{DevTunnel, TunnelConfig, TunnelSession, TunnelStats, TunnelProtocol, TunnelStatus};
-pub use family_shield::{FamilyShield, ShieldConfig, ShieldRule, ShieldStats, ShieldCategory};
+pub use family_shield::{FamilyShield, ShieldConfig, ShieldRule, ShieldStats, ShieldCategory, ShieldAction};
 pub use biometric_auth::{BiometricAuth, BiometricConfig, BiometricType, AuthResult, BiometricTemplate};
 pub use theme_manager::{ThemeManager, ThemeConfig, ThemeMode, HapticType, HapticPattern, ThemeColors};
 

@@ -206,7 +206,7 @@ pub struct WanConfig {
     /// Connection type
     /// 
     /// Type of WAN connection (DHCP, PPPoE, or Static).
-    pub connection_type: String,
+    pub connection_type: WanConnectionType,
     /// IP address
     /// 
     /// Static IP address (for static connections).
@@ -463,7 +463,7 @@ pub struct QosPolicy {
     /// Priority
     /// 
     /// Traffic priority (0-7, where 7 is highest).
-    pub priority: u8,
+    pub priority: QosPriority,
     /// Bandwidth limit
     /// 
     /// Maximum bandwidth limit in kbps.
@@ -886,5 +886,25 @@ impl RouterFirmwareBuilder {
 impl Default for RouterFirmwareBuilder {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+/// QoS priority levels
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum QosPriority {
+    Low,
+    Medium,
+    High,
+    Critical,
+}
+
+impl std::fmt::Display for QosPriority {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Low => write!(f, "Low"),
+            Self::Medium => write!(f, "Medium"),
+            Self::High => write!(f, "High"),
+            Self::Critical => write!(f, "Critical"),
+        }
     }
 }

@@ -634,3 +634,42 @@ impl Default for VantisOsBuilder {
         Self::new()
     }
 }
+
+/// System time representation
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SystemTime {
+    timestamp: u64,
+}
+
+impl SystemTime {
+    pub fn now() -> Self {
+        Self {
+            timestamp: std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs(),
+        }
+    }
+}
+
+/// WAN connection types
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum WanConnectionType {
+    Dhcp,
+    Static,
+    Pppoe,
+    Pptp,
+    L2tp,
+}
+
+impl std::fmt::Display for WanConnectionType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Dhcp => write!(f, "DHCP"),
+            Self::Static => write!(f, "Static"),
+            Self::Pppoe => write!(f, "PPPoE"),
+            Self::Pptp => write!(f, "PPTP"),
+            Self::L2tp => write!(f, "L2TP"),
+        }
+    }
+}
