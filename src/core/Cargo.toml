@@ -1,74 +1,88 @@
 [package]
 name = "vantis-core"
-version = "1.0.0"
+version = "1.1.0"
 edition = "2021"
+rust-version = "1.82"
 authors = ["VANTISVPN Team <dev@vantisvpn.com>"]
-description = "Core library for VANTISVPN - Next-Generation Secure VPN System"
-license = "Proprietary"
+description = "Core library for VANTISVPN - Next-Generation Secure VPN System with Post-Quantum Cryptography"
+license = "AGPL-3.0-or-later"
 repository = "https://github.com/vantisCorp/VantisVPN"
-keywords = ["vpn", "security", "cryptography", "privacy", "network"]
+keywords = ["vpn", "security", "cryptography", "privacy", "network", "post-quantum", "quic"]
 categories = ["network-programming", "cryptography"]
+readme = "README.md"
 
 [dependencies]
 # Async runtime
-tokio = { version = "1.50", features = ["full"] }
-async-trait = "0.1"
+tokio = { workspace = true }
+async-trait = { workspace = true }
 
 # Cryptography
-rand = "0.10"
-rand_chacha = { version = "0.10", features = ["std"] }
-chacha20poly1305 = { version = "0.10", features = ["std"] }
-blake2 = "0.10"
-getrandom = "0.4"
+rand = { workspace = true }
+rand_chacha = { workspace = true }
+rand_core = { workspace = true }
+chacha20poly1305 = { workspace = true }
+blake2 = { workspace = true }
+getrandom = { workspace = true }
+zeroize = { workspace = true }
+x25519-dalek = { workspace = true }
+ed25519-dalek = { workspace = true }
+
 # Post-quantum cryptography (placeholder - will use external libs when available)
-# kyber = { version = "0.1", git = "https://github.com/..." }
-# dilithium = { version = "0.1", git = "https://github.com/..." }
+# ml-kem = { version = "0.1", package = "pqcrypto-mlkem" }  # NIST FIPS 203
+# ml-dsa = { version = "0.1", package = "pqcrypto-mldsa" }  # NIST FIPS 204
 
 # Networking
-tokio-tungstenite = "0.28"
-quinn = "0.11"  # QUIC implementation
-socket2 = "0.6"
+quinn = { workspace = true }
+tokio-tungstenite = { workspace = true }
+socket2 = { workspace = true }
 
 # Serialization
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-bincode = "3.0"
+serde = { workspace = true }
+serde_json = { workspace = true }
+postcard = { workspace = true }  # Replacing unmaintained bincode
 
 # Error handling
-thiserror = "2.0"
-anyhow = "1.0"
+thiserror = { workspace = true }
+anyhow = { workspace = true }
 
 # Logging
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-log = "0.4"
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+log = { workspace = true }
 
 # Utilities
-hex = "0.4"
-base64 = "0.22"
-zeroize = { version = "1.7", features = ["zeroize_derive"] }
-chrono = { version = "0.4", features = ["serde"] }
+uuid = { workspace = true }
+chrono = { workspace = true }
+hex = { workspace = true }
+base64 = { workspace = true }
 
-# Platform-specific
+# Platform-specific dependencies
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.62", features = ["Win32_NetworkManagement_IpHelper"] }
+windows = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-libc = "0.2"
+libc = { workspace = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-nix = "0.31"
+nix = { workspace = true }
 
 [dev-dependencies]
-criterion = "0.8"
-proptest = "1.4"
+criterion = { workspace = true }
+proptest = { workspace = true }
+tokio-test = "0.4"
 
 [lib]
 name = "vantis_core"
 path = "lib.rs"
 crate-type = ["cdylib", "rlib"]
 
-
+[features]
+default = ["std", "quic"]
+std = []
+quic = ["quinn"]
+websocket = ["tokio-tungstenite"]
+post-quantum = []  # Enable post-quantum cryptography
+hardware-acceleration = []  # Enable hardware-level optimization
 
 [profile.release]
 opt-level = 3
@@ -78,3 +92,4 @@ strip = true
 
 [profile.dev]
 opt-level = 0
+debug = true

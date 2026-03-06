@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://docs.vantisvpn.com
+    about: Please check our documentation before opening an issue
+  - name: Discord Community
+    url: https://discord.gg/A5MzwsRj7D
+    about: Join our Discord community for support and discussions
+  - name: Security Vulnerability (Private)
+    url: mailto:security@vantisvpn.com
+    about: For critical security vulnerabilities, please email us directly
+  - name: Feature Discussions
+    url: https://github.com/vantisCorp/VantisVPN/discussions
+    about: Discuss new features and ideas with the community

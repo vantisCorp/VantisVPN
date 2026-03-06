@@ -1,407 +1,301 @@
-# Contributing to VANTISVPN
+# Contributing to VantisVPN
 
-Thank you for your interest in contributing to VANTISVPN! This document provides guidelines and instructions for contributing to the project.
+First off, thanks for taking the time to contribute! 🎉
+
+The following is a set of guidelines for contributing to VantisVPN. These are mostly guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
 
 ## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
-- [Development Workflow](#development-workflow)
+- [Development Setup](#development-setup)
+- [How to Contribute](#how-to-contribute)
+- [Pull Request Process](#pull-request-process)
 - [Coding Standards](#coding-standards)
-- [Testing](#testing)
-- [Documentation](#documentation)
-- [Submitting Changes](#submitting-changes)
+- [Commit Guidelines](#commit-guidelines)
 - [Security](#security)
 
 ## Code of Conduct
 
-### Our Pledge
-
-We are committed to providing a welcoming and inclusive environment for all contributors. We expect all contributors to:
-
-- Be respectful and inclusive
-- Welcome newcomers and help them learn
-- Focus on what is best for the community
-- Show empathy towards other community members
+This project and everyone participating in it is governed by our Code of Conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to conduct@vantisvpn.com.
 
 ### Our Standards
 
-Examples of behavior that contributes to a positive environment:
-
-- Using welcoming and inclusive language
-- Being respectful of differing viewpoints and experiences
-- Gracefully accepting constructive criticism
-- Focusing on what is best for the community
-- Showing empathy towards other community members
+- Be respectful and inclusive
+- Welcome newcomers warmly
+- Accept constructive criticism gracefully
+- Focus on what is best for the community
+- Show empathy towards other community members
 
 ## Getting Started
 
 ### Prerequisites
 
-- Rust 1.75 or later
-- Git
-- Docker (optional, for containerized development)
-- Make (optional, for using Makefile)
+- **Rust** 1.82 or later
+- **Node.js** 20.x (for frontend development)
+- **Git** 2.30 or later
+- **Docker** (optional, for containerized development)
 
-### Setting Up Development Environment
+### Fork and Clone
 
-1. **Clone the repository:**
+1. Fork the repository on GitHub
+2. Clone your fork locally:
    ```bash
-   gh repo clone vantisCorp/VantisVPN
+   gh repo clone your-username/VantisVPN
    cd VantisVPN
    ```
-
-2. **Install Rust toolchain:**
+3. Add upstream remote:
    ```bash
-   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-   source $HOME/.cargo/env
+   git remote add upstream https://github.com/vantisCorp/VantisVPN.git
    ```
 
-3. **Install development dependencies:**
-   ```bash
-   make install-deps
-   ```
+## Development Setup
 
-4. **Build the project:**
-   ```bash
-   make build
-   ```
+### Using DevContainer (Recommended)
 
-5. **Run tests:**
-   ```bash
-   make test
-   ```
+1. Open the repository in VS Code
+2. When prompted, click "Reopen in Container"
+3. Wait for the container to build and dependencies to install
 
-## Development Workflow
+### Manual Setup
 
-### Branching Strategy
+```bash
+# Install Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+rustup update stable
 
-We use a simplified Git flow:
+# Install pre-commit hooks
+pip install pre-commit
+pre-commit install
 
-- `main` - Production-ready code
-- `develop` - Integration branch for features
-- `feature/*` - Feature branches
-- `bugfix/*` - Bug fix branches
-- `hotfix/*` - Urgent production fixes
+# Build the project
+cargo build
 
-### Creating a Feature Branch
+# Run tests
+cargo test
 
-1. Ensure your `main` branch is up to date:
-   ```bash
-   git checkout main
-   git pull origin main
-   ```
-
-2. Create a new feature branch:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-3. Make your changes and commit:
-   ```bash
-   git add .
-   git commit -m "feat: add your feature description"
-   ```
-
-### Commit Message Format
-
-We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
-
-```
-<type>(<scope>): <subject>
-
-<body>
-
-<footer>
+# Run linting
+cargo clippy --all-targets --all-features
+cargo fmt --all -- --check
 ```
 
-**Types:**
-- `feat`: A new feature
-- `fix`: A bug fix
-- `docs`: Documentation only changes
-- `style`: Code style changes (formatting, etc.)
-- `refactor`: Code refactoring
-- `perf`: Performance improvements
-- `test`: Adding or updating tests
-- `chore`: Maintenance tasks
-- `ci`: CI/CD changes
+### Useful Commands
 
-**Examples:**
-```
-feat(crypto): add post-quantum key exchange
+| Command | Description |
+|---------|-------------|
+| `make build` | Build the project |
+| `make test` | Run all tests |
+| `make lint` | Run linting |
+| `make fmt` | Format code |
+| `make security-scan` | Run security scans |
+| `make docs` | Generate documentation |
+| `make clean` | Clean build artifacts |
 
-Implement Kyber (ML-KEM) for post-quantum secure key exchange.
-This provides protection against quantum computer attacks.
+## How to Contribute
 
-Closes #123
-```
+### Reporting Bugs
 
-```
-fix(network): resolve IPv6 connection issue
+1. Check if the bug has already been reported in [Issues](https://github.com/vantisCorp/VantisVPN/issues)
+2. If not, create a new issue using the [Bug Report template](https://github.com/vantisCorp/VantisVPN/issues/new?template=bug_report.yml)
+3. Include as much detail as possible
 
-Fixed a bug where IPv6 connections would fail when
-the MTU was set above 1500 bytes.
+### Suggesting Enhancements
 
-Fixes #456
-```
+1. Check existing [Feature Requests](https://github.com/vantisCorp/VantisVPN/issues?q=is%3Aopen+is%3Aissue+label%3Aenhancement)
+2. Create a new feature request using the [Feature Request template](https://github.com/vantisCorp/VantisVPN/issues/new?template=feature_request.yml)
+
+### Working on Issues
+
+1. Look for issues labeled `good first issue` or `help wanted`
+2. Comment on the issue to let others know you're working on it
+3. Create a branch for your work:
+   ```bash
+   git checkout -b feature/issue-number-description
+   ```
+
+## Pull Request Process
+
+### Before Submitting
+
+1. **Update your branch** with the latest upstream changes:
+   ```bash
+   git fetch upstream
+   git rebase upstream/main
+   ```
+
+2. **Run all tests**:
+   ```bash
+   cargo test --all-features
+   ```
+
+3. **Run linting**:
+   ```bash
+   cargo clippy --all-targets --all-features -- -D warnings
+   cargo fmt --all -- --check
+   ```
+
+4. **Run security scan**:
+   ```bash
+   make security-scan
+   ```
+
+### Submitting the PR
+
+1. Push your branch:
+   ```bash
+   git push https://x-access-token:$GITHUB_TOKEN@github.com/your-username/VantisVPN.git feature/issue-number-description
+   ```
+
+2. Create a Pull Request using `gh pr create`
+
+3. Fill out the PR template completely
+
+4. Link any related issues
+
+### PR Requirements
+
+- All tests must pass
+- Code must be formatted correctly
+- No clippy warnings
+- Security scan must pass
+- At least one approval from a maintainer
+- All conversations must be resolved
+
+### After Approval
+
+1. Squash your commits if requested
+2. A maintainer will merge your PR
 
 ## Coding Standards
 
-### Rust Guidelines
+### Rust Style Guide
 
-1. **Follow Rust API Guidelines:**
-   - Use `rustfmt` for formatting
-   - Run `clippy` for linting
-   - Document all public APIs
+We follow the official [Rust Style Guide](https://github.com/rust-dev-tools/fmt-rfcs/blob/master/guide/guide.md).
 
-2. **Error Handling:**
-   - Use `Result<T, E>` for fallible operations
-   - Use `thiserror` for custom error types
-   - Provide helpful error messages
+### Key Points
 
-3. **Memory Safety:**
-   - Avoid `unsafe` code unless absolutely necessary
-   - Use `zeroize` for sensitive data
-   - Implement `Drop` for cleanup
+- Use `clippy` for linting
+- Format code with `rustfmt`
+- Document all public items
+- Write tests for new functionality
+- Keep functions small and focused
 
-4. **Concurrency:**
-   - Prefer async/await over threads
-   - Use `tokio` for async runtime
-   - Be careful with shared state
-
-### Security Guidelines
-
-1. **Cryptographic Operations:**
-   - Never implement your own crypto
-   - Use vetted libraries only
-   - Follow NIST/FIPS guidelines
-
-2. **Input Validation:**
-   - Validate all external input
-   - Use type-safe parsing
-   - Sanitize user data
-
-3. **Secret Management:**
-   - Never hardcode secrets
-   - Use environment variables
-   - Implement zeroization
-
-### Code Style
+### Documentation
 
 ```rust
-// Good: Clear, documented, type-safe
-/// Encrypts data using ChaCha20-Poly1305
+/// Short description.
+///
+/// Longer description if needed.
 ///
 /// # Arguments
-/// * `plaintext` - Data to encrypt
-/// * `key` - 32-byte encryption key
+///
+/// * `param` - Description of parameter
 ///
 /// # Returns
-/// Encrypted ciphertext with authentication tag
 ///
-/// # Errors
-/// Returns an error if the key is invalid
-pub fn encrypt(plaintext: &[u8], key: &[u8]) -> Result<Vec<u8>> {
-    // Implementation
-}
-
-// Bad: Unclear, undocumented, unsafe
-pub fn enc(d: &[u8], k: &[u8]) -> Vec<u8> {
-    // Unsafe implementation
-}
-```
-
-## Testing
-
-### Unit Tests
-
-Write unit tests for all functions:
-
-```rust
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_encryption() {
-        let plaintext = b"test data";
-        let key = [0u8; 32];
-        let ciphertext = encrypt(plaintext, &key).unwrap();
-        assert_ne!(plaintext, ciphertext.as_slice());
-    }
-}
-```
-
-### Integration Tests
-
-Add integration tests in the `tests/` directory:
-
-```rust
-// tests/integration_test.rs
-use vantis_core::*;
-
-#[test]
-fn test_full_workflow() {
-    // Test complete workflow
-}
-```
-
-### Test Coverage
-
-Aim for >80% code coverage. Run coverage with:
-
-```bash
-make test-coverage
-```
-
-### Running Tests
-
-```bash
-# Run all tests
-make test
-
-# Run specific test
-cargo test test_name
-
-# Run tests with output
-cargo test -- --nocapture
-```
-
-## Documentation
-
-### Inline Documentation
-
-Document all public APIs:
-
-```rust
-/// Represents a VPN tunnel connection
+/// Description of return value
 ///
-/// # Example
+/// # Examples
 ///
-/// ```rust
-/// use vantis_core::Tunnel;
-///
-/// let tunnel = Tunnel::new("test".to_string());
 /// ```
-pub struct Tunnel {
+/// use vantis_core::function_name;
+/// let result = function_name(param);
+/// ```
+pub fn function_name(param: Type) -> ReturnType {
     // ...
 }
 ```
 
-### README Updates
+### Error Handling
 
-Update the README when:
-- Adding new features
-- Changing build instructions
-- Updating dependencies
-- Changing project structure
+- Use `thiserror` for library errors
+- Use `anyhow` for application errors
+- Provide meaningful error messages
+- Include context in errors
 
-### Architecture Docs
+## Commit Guidelines
 
-Update architecture documentation when:
-- Changing system design
-- Adding new components
-- Modifying data flow
-- Updating protocols
+We follow [Conventional Commits](https://www.conventionalcommits.org/).
 
-## Submitting Changes
+### Format
 
-### Pull Request Process
+```
+<type>(<scope>): <description>
 
-1. **Update your branch:**
-   ```bash
-   git checkout main
-   git pull origin main
-   git checkout feature/your-feature
-   git rebase main
-   ```
+[optional body]
 
-2. **Run all checks:**
-   ```bash
-   make ci
-   ```
+[optional footer(s)]
+```
 
-3. **Push your changes:**
-   ```bash
-   git push origin feature/your-feature
-   ```
+### Types
 
-4. **Create a Pull Request:**
-   ```bash
-   gh pr create --title "feat: your feature" --body "Description of changes"
-   ```
+| Type | Description |
+|------|-------------|
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `docs` | Documentation only |
+| `style` | Code style (formatting, etc.) |
+| `refactor` | Code refactoring |
+| `perf` | Performance improvement |
+| `test` | Adding or modifying tests |
+| `chore` | Maintenance tasks |
+| `ci` | CI/CD changes |
+| `security` | Security improvements |
 
-### Pull Request Checklist
+### Examples
 
-Before submitting a PR, ensure:
+```
+feat(crypto): add post-quantum key exchange support
 
-- [ ] Code follows style guidelines
-- [ ] All tests pass
-- [ ] New tests added for new features
-- [ ] Documentation updated
-- [ ] Commit messages follow conventions
-- [ ] No merge conflicts
-- [ ] Security review completed (if applicable)
+fix(network): resolve QUIC connection timeout issue
 
-### Review Process
+docs(readme): update installation instructions
 
-1. Automated checks must pass
-2. At least one maintainer approval required
-3. Address all review comments
-4. Squash commits if requested
-5. Update PR description if needed
+security(crypto): update to ML-KEM-768
+```
+
+### Commit Message Rules
+
+1. Use the imperative mood ("add feature" not "added feature")
+2. First line should be 50 characters or less
+3. Body should explain what and why, not how
+4. Reference issues and PRs in the footer
 
 ## Security
 
-### Reporting Vulnerabilities
+### Reporting Security Issues
 
-If you discover a security vulnerability, please:
+**Do not report security vulnerabilities through public GitHub issues.**
 
-1. **Do NOT** create a public issue
-2. Email us at: security@vantisvpn.com
-3. Include details about the vulnerability
-4. Allow us time to fix before disclosure
+Instead, email security@vantisvpn.com with:
+
+- Description of the vulnerability
+- Steps to reproduce
+- Affected versions
+- Potential impact
+
+See our [Security Policy](SECURITY.md) for more details.
 
 ### Security Best Practices
 
-- Never commit secrets or keys
-- Use environment variables for configuration
-- Implement proper authentication
-- Validate all inputs
-- Use secure cryptographic libraries
-- Follow OWASP guidelines
-- Regular security audits
-
-### Security Review Process
-
-All changes go through security review:
-
-1. Automated security scanning
-2. Manual code review
-3. Dependency vulnerability check
-4. Penetration testing (for major releases)
+- Never commit secrets or credentials
+- Use environment variables for sensitive data
+- Run `make security-scan` before committing
+- Keep dependencies updated
+- Follow the principle of least privilege
 
 ## Getting Help
 
-### Resources
-
-- **Documentation**: Check the `docs/` directory
-- **Issues**: Search existing GitHub issues
-- **Discussions**: Use GitHub Discussions for questions
+- **Discord**: https://discord.gg/A5MzwsRj7D
+- **GitHub Discussions**: https://github.com/vantisCorp/VantisVPN/discussions
 - **Email**: dev@vantisvpn.com
-
-### Community
-
-- Join our Discord server
-- Follow us on Twitter
-- Subscribe to our newsletter
 
 ## Recognition
 
-Contributors are recognized in:
-- CONTRIBUTORS.md file
-- Release notes
-- Project website
-- Annual contributor report
+Contributors are recognized in our:
 
-Thank you for contributing to VANTISVPN! 🚀
+- [Contributors page](https://github.com/vantisCorp/VantisVPN/graphs/contributors)
+- Release notes
+- README.md contributors section
+
+Thank you for contributing to VantisVPN! 🙏

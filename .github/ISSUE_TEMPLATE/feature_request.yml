@@ -1,0 +1,111 @@
+name: Feature Request
+description: Suggest a new feature or enhancement for VantisVPN
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature! Please provide as much detail as possible.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Feature Summary
+      description: A clear and concise summary of the feature you'd like
+      placeholder: I would like VantisVPN to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Problem/Motivation
+      description: |
+        Is your feature request related to a problem? Please describe.
+        Ex. I'm always frustrated when [...]
+      placeholder: |
+        This feature would help me because...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: A clear description of what you want to happen
+      placeholder: |
+        I think the solution could be...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: A clear description of any alternative solutions you've considered
+      placeholder: |
+        I've also considered...
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Critical (I can't use VantisVPN without it)
+        - High (Would significantly improve my workflow)
+        - Medium (Would be nice to have)
+        - Low (Minor enhancement)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component(s) would this affect?
+      multiple: true
+      options:
+        - Core VPN
+        - GUI/Interface
+        - CLI
+        - Network
+        - Cryptography
+        - Documentation
+        - Build System
+        - CI/CD
+
+  - type: dropdown
+    id: willing-to-contribute
+    attributes:
+      label: Would you be willing to help implement this feature?
+      options:
+        - "Yes, I can implement this"
+        - "Yes, I can help test this"
+        - "No, I'm just suggesting"
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups/Screenshots
+      description: If applicable, add mockups or screenshots
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Confirmations
+      options:
+        - label: I have searched for existing feature requests
+          required: true
+        - label: I have read the documentation
+          required: true
+        - label: This is not a duplicate request
+          required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context or screenshots about the feature request

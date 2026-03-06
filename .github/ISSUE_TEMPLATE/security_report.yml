@@ -1,0 +1,134 @@
+name: Security Vulnerability Report
+description: Report a security vulnerability (PUBLIC DISCLOSURES ONLY - Use security@vantisvpn.com for private reports)
+title: "[Security]: "
+labels: ["security", "triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ⚠️ **WARNING**: For sensitive security vulnerabilities, please email security@vantisvpn.com instead!
+        
+        This form is for NON-CRITICAL security issues that can be publicly disclosed.
+
+  - type: checkboxes
+    id: warning
+    attributes:
+      label: Important Notice
+      options:
+        - label: I understand this is a PUBLIC issue and my report will be visible to everyone
+          required: true
+        - label: I have NOT included sensitive information (keys, passwords, exploit code)
+          required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Vulnerability Summary
+      description: A brief description of the vulnerability
+      placeholder: Describe the vulnerability...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity Assessment
+      description: Your assessment of the severity (we will verify)
+      options:
+        - Critical (RCE, authentication bypass, data breach)
+        - High (privilege escalation, significant data exposure)
+        - Medium (limited data exposure, DoS)
+        - Low (minor issue, limited impact)
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: What is the potential impact of this vulnerability?
+      placeholder: |
+        This vulnerability could allow an attacker to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can this vulnerability be reproduced? (DO NOT include actual exploit code)
+      placeholder: |
+        1. Setup environment with...
+        2. Run command...
+        3. Observe behavior...
+    validations:
+      required: true
+
+  - type: textarea
+    id: mitigation
+    attributes:
+      label: Suggested Mitigation
+      description: Any suggestions for how to fix or mitigate this issue
+      placeholder: |
+        This could be fixed by...
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected Component
+      options:
+        - Core VPN
+        - Authentication
+        - Cryptography
+        - Network Protocol
+        - GUI/Application
+        - API
+        - Other
+
+  - type: dropdown
+    id: version
+    attributes:
+      label: Affected Versions
+      multiple: true
+      options:
+        - v1.1.0
+        - v1.0.0
+        - Development build
+        - All versions
+
+  - type: dropdown
+    id: disclosure
+    attributes:
+      label: Have you disclosed this to other parties?
+      options:
+        - No, only reporting here
+        - Yes, to other security researchers
+        - Yes, publicly disclosed elsewhere
+    validations:
+      required: true
+
+  - type: input
+    id: cve
+    attributes:
+      label: CVE (if assigned)
+      description: If a CVE has been assigned, please provide it
+      placeholder: CVE-XXXX-XXXXX
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Responsible Disclosure
+      options:
+        - label: I agree to follow responsible disclosure practices
+          required: true
+        - label: I will not publicly disclose until a fix is released
+          required: true
+        - label: I understand I may be eligible for the bug bounty program
+          required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other relevant information

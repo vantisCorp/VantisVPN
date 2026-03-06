@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400">
+  <defs>
+    <!-- Gradient Definitions -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a0a;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#7b2cbf;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e040fb;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="glowGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#00d4ff;stop-opacity:0" />
+    </linearGradient>
+    
+    <!-- Glow Filter -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Shield Clip Path -->
+    <clipPath id="shieldClip">
+      <path d="M50,10 L90,10 L90,55 L70,75 L50,55 Z"/>
+    </clipPath>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="400" fill="url(#bgGradient)"/>
+  
+  <!-- Animated Grid Lines -->
+  <g opacity="0.1">
+    <line x1="0" y1="100" x2="1200" y2="100" stroke="#00d4ff" stroke-width="0.5">
+      <animate attributeName="y1" values="100;102;100" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="y2" values="100;98;100" dur="4s" repeatCount="indefinite"/>
+    </line>
+    <line x1="0" y1="200" x2="1200" y2="200" stroke="#00d4ff" stroke-width="0.5">
+      <animate attributeName="y1" values="200;198;200" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="y2" values="200;202;200" dur="3s" repeatCount="indefinite"/>
+    </line>
+    <line x1="0" y1="300" x2="1200" y2="300" stroke="#00d4ff" stroke-width="0.5">
+      <animate attributeName="y1" values="300;303;300" dur="5s" repeatCount="indefinite"/>
+      <animate attributeName="y2" values="300;297;300" dur="5s" repeatCount="indefinite"/>
+    </line>
+  </g>
+  
+  <!-- Logo Shield -->
+  <g transform="translate(100, 125)">
+    <!-- Shield Background -->
+    <path d="M0,0 L80,0 L80,100 L40,150 L0,100 Z" fill="#1a1a2e" stroke="url(#accentGradient)" stroke-width="3" filter="url(#glow)">
+      <animate attributeName="stroke-opacity" values="1;0.6;1" dur="2s" repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Inner Shield Pattern -->
+    <path d="M10,10 L70,10 L70,90 L40,130 L10,90 Z" fill="none" stroke="#00d4ff" stroke-width="1" opacity="0.5">
+      <animate attributeName="stroke-opacity" values="0.5;0.8;0.5" dur="3s" repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Lock Icon -->
+    <g transform="translate(20, 40)">
+      <rect x="0" y="15" width="40" height="30" rx="3" fill="url(#accentGradient)" filter="url(#glow)"/>
+      <path d="M8,15 L8,8 C8,0 32,0 32,8 L32,15" fill="none" stroke="url(#accentGradient)" stroke-width="3" filter="url(#glow)"/>
+      <circle cx="20" cy="30" r="4" fill="#0a0a0a"/>
+      <rect x="18" y="30" width="4" height="10" fill="#0a0a0a"/>
+    </g>
+  </g>
+  
+  <!-- Title Text -->
+  <g transform="translate(220, 140)">
+    <text x="0" y="50" font-family="'Segoe UI', Arial, sans-serif" font-size="72" font-weight="bold" fill="#ffffff" filter="url(#glow)">
+      VantisVPN
+      <animate attributeName="opacity" values="1;0.9;1" dur="3s" repeatCount="indefinite"/>
+    </text>
+    <text x="0" y="90" font-family="'Segoe UI', Arial, sans-serif" font-size="24" fill="url(#accentGradient)" filter="url(#glow)">
+      Next-Generation Secure VPN with Post-Quantum Cryptography
+    </text>
+  </g>
+  
+  <!-- Feature Badges -->
+  <g transform="translate(220, 260)">
+    <!-- Badge 1: Post-Quantum -->
+    <g transform="translate(0, 0)">
+      <rect x="0" y="0" width="160" height="35" rx="17.5" fill="none" stroke="#00d4ff" stroke-width="1.5">
+        <animate attributeName="stroke-opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite"/>
+      </rect>
+      <text x="80" y="23" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="#00d4ff" text-anchor="middle">Post-Quantum Ready</text>
+    </g>
+    
+    <!-- Badge 2: Zero Trust -->
+    <g transform="translate(180, 0)">
+      <rect x="0" y="0" width="130" height="35" rx="17.5" fill="none" stroke="#7b2cbf" stroke-width="1.5">
+        <animate attributeName="stroke-opacity" values="1;0.5;1" dur="2.5s" repeatCount="indefinite"/>
+      </rect>
+      <text x="65" y="23" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="#7b2cbf" text-anchor="middle">Zero Trust</text>
+    </g>
+    
+    <!-- Badge 3: QUIC Protocol -->
+    <g transform="translate(330, 0)">
+      <rect x="0" y="0" width="130" height="35" rx="17.5" fill="none" stroke="#e040fb" stroke-width="1.5">
+        <animate attributeName="stroke-opacity" values="1;0.5;1" dur="3s" repeatCount="indefinite"/>
+      </rect>
+      <text x="65" y="23" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="#e040fb" text-anchor="middle">QUIC Protocol</text>
+    </g>
+    
+    <!-- Badge 4: Open Source -->
+    <g transform="translate(480, 0)">
+      <rect x="0" y="0" width="120" height="35" rx="17.5" fill="none" stroke="#4ade80" stroke-width="1.5">
+        <animate attributeName="stroke-opacity" values="1;0.5;1" dur="2.2s" repeatCount="indefinite"/>
+      </rect>
+      <text x="60" y="23" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="#4ade80" text-anchor="middle">Open Source</text>
+    </g>
+  </g>
+  
+  <!-- Version Badge -->
+  <g transform="translate(900, 50)">
+    <rect x="0" y="0" width="100" height="30" rx="5" fill="#1a1a2e" stroke="url(#accentGradient)" stroke-width="1"/>
+    <text x="50" y="20" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="#ffffff" text-anchor="middle">v1.1.0</text>
+  </g>
+  
+  <!-- Animated Particles -->
+  <g opacity="0.6">
+    <circle cx="800" cy="100" r="2" fill="#00d4ff">
+      <animate attributeName="cy" values="100;80;100" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="900" cy="150" r="1.5" fill="#7b2cbf">
+      <animate attributeName="cy" values="150;130;150" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.6;1;0.6" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="1000" cy="200" r="2" fill="#e040fb">
+      <animate attributeName="cy" values="200;180;200" dur="2.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.6;1;0.6" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="750" cy="300" r="1.5" fill="#00d4ff">
+      <animate attributeName="cy" values="300;280;300" dur="3.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.6;1;0.6" dur="3.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Bottom Accent Line -->
+  <line x1="0" y1="395" x2="1200" y2="395" stroke="url(#accentGradient)" stroke-width="2">
+    <animate attributeName="x2" values="0;1200;0" dur="5s" repeatCount="indefinite"/>
+  </line>
+</svg>

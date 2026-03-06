@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "VantisVPN"
+version: 2.0.0
+doi: 10.5281/zenodo.0000000
+date-released: 2024-03-01
+url: "https://github.com/vantisCorp/VantisVPN"
+abstract: "Next-Generation Quantum-Resistant Secure VPN System with Zero Trust Architecture. VantisVPN provides military-grade security with post-quantum cryptography, QUIC protocol support, and comprehensive privacy features."
+authors:
+  - family-names: "VANTISVPN"
+    given-names: "Team"
+    email: "dev@vantisvpn.com"
+    affiliation: "VantisVPN Inc."
+keywords:
+  - vpn
+  - security
+  - cryptography
+  - privacy
+  - network
+  - quantum-resistant
+  - post-quantum
+  - wireguard
+  - quic
+  - rust
+license: AGPL-3.0
+repository-code: "https://github.com/vantisCorp/VantisVPN"
+repository-artifact: "https://github.com/vantisCorp/VantisVPN/releases"
