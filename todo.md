@@ -28,11 +28,19 @@
 - **Benefits**: Zero cost, community engagement, unlimited workflow runs
 - **Documentation**: docs/PUBLIC_VISIBILITY_PLAN.md, docs/GITHUB_ACTIONS_RESOLUTION_PLAN.md
 
+### Issue #2: RESOLVED (March 6, 2026) 🔧
+- **Status**: ✅ FIXED - PENDING PUSH
+- **Resolution**: Removed target-specific dependencies from workspace root Cargo.toml
+- **Problem**: "this virtual manifest specifies a target section, which is not allowed"
+- **Solution**: Moved platform-specific dependencies to src/core/Cargo.toml with explicit versions
+- **Impact**: CI/CD pipeline will build successfully on all platforms
+- **Commit**: b6f2d17 - "fix: remove target-specific dependencies from workspace root"
+
 ### Repository Status
 - **Visibility**: PUBLIC ✅
 - **GitHub Actions**: ✅ UNLIMITED FREE MINUTES
-- **CI/CD Pipeline**: ✅ FULLY FUNCTIONAL
-- **Workflows**: ✅ EXECUTING SUCCESSFULLY
+- **CI/CD Pipeline**: ✅ CONFIGURATION FIXED, PENDING DEPLOYMENT
+- **Workflows**: ⏳ READY TO RUN AFTER PUSH
   - Use alternative CI platforms
 
 ---
@@ -176,3 +184,13 @@
 The repository has been comprehensively updated with modern dependencies, 
 documentation, CI/CD workflows, and enhanced README features. The project 
 is now ready for active development and community contributions.
+
+---
+
+## 🔄 IMMEDIATE ACTION REQUIRED
+
+### Push CI/CD Fix to GitHub
+- [ ] Push commit b6f2d17 to GitHub (network connectivity issues in current environment)
+- [ ] Verify GitHub Actions workflows run successfully
+- [ ] Confirm all three platforms (Linux, macOS, Windows) build correctly
+- [ ] Update documentation with successful CI/CD status
