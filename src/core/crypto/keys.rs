@@ -4,7 +4,7 @@
 //! All keys are temporary and automatically zeroized when dropped.
 
 use rand::random;
-use rand_core::RngCore;
+use rand_core::RngCore as _;
 use rand_core::SeedableRng;
 use rand_chacha::ChaCha20Rng;
 use crate::error::VantisError;
