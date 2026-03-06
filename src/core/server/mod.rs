@@ -18,7 +18,7 @@ pub use starlink_fec::{FecConfig, FecManager, FecEncoder, FecDecoder, FecBlock, 
 pub use wifi7_mlo::{MloConfig, MloManager, WifiLink, WifiBand, MloStats};
 pub use ftth_jumbo::{JumboFrameConfig, JumboFrameManager, NetworkPath, JumboFrameStats, FrameType};
 pub use smart_routing::{SmartRoutingConfig, SmartRoutingManager, NetworkPath as RoutingPath, RoutingDecision, RoutingStats, RoutingMetric};
-pub use colocated::{ColocatedConfig, ColocatedInfrastructureManager, VpnServer, ServerLocation, ServerStatus, InfrastructureStats, LoadBalancingStrategy};
+pub use colocated::{ColocatedConfig, ColocatedInfrastructureManager, VpnServer, ServerLocation, ServerStatus, InfrastructureStats, LoadBalancingStrategy, ServerCapabilities};
 
 #[cfg(test)]
 mod comprehensive_tests;

@@ -168,7 +168,8 @@ impl std::fmt::Display for Endpoint {
     }
 }
 
-pub use protocol::MessageType;
+pub use protocol::{MessageType, Protocol, ProtocolConfig, ProtocolState};
+pub use wireguard::VirtualIpPool;
 pub use wireguard_full::{
     WireGuardDevice, InterfaceConfig, PeerConfig, PeerState, PeerStats,
     HandshakeInitiation, HandshakeResponse, CookieReply, TransportData,

@@ -8,6 +8,8 @@ use tokio::sync::RwLock;
 pub mod state;
 pub mod manager;
 
+pub use state::{TunnelState, StateTransition};
+
 /// Tunnel statistics and performance metrics
 ///
 /// Tracks real-time statistics for a VPN tunnel including
