@@ -6,6 +6,7 @@
 
 use super::*;
 use crate::error::{VantisError, Result};
+use crate::server::secure_boot::{ComponentType, IntegrityStatus};
 use std::time::Duration;
 
 #[cfg(test)]
