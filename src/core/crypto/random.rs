@@ -2,10 +2,10 @@
 //! 
 //! Uses ChaCha20-based CSPRNG for all cryptographic operations.
 
-use rand::Rng;
+use rand::{Rng, random};
 use rand_core::RngCore;
 use rand_core::SeedableRng;
-use getrandom;
+use crate::error::VantisError;
 use rand_chacha::ChaCha20Rng;
 use std::sync::Mutex;
 
@@ -24,7 +24,7 @@ impl SecureRandom {
     /// Create a new SecureRandom instance
     pub fn new() -> crate::Result<Self> {
         let mut seed = [0u8; 32];
-        getrandom::getrandom(&mut seed).map_err(|_| VantisError::CryptoError("Failed to get random seed".to_string()))?;
+        seed.copy_from_slice(&random::<[u8; 32]>());
         Ok(Self {
             rng: Mutex::new(ChaCha20Rng::from_seed(seed)),
         })
@@ -69,7 +69,7 @@ impl SecureRandom {
 pub fn init() {
     let mut rng = CSPRNG.lock().unwrap();
     let mut seed = [0u8; 32];
-    getrandom::getrandom(&mut seed).expect("Failed to get random seed");
+    seed.copy_from_slice(&random::<[u8; 32]>());
     *rng = Some(ChaCha20Rng::from_seed(seed));
     tracing::debug!("CSPRNG initialized");
 }

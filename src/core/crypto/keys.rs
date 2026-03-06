@@ -3,10 +3,11 @@
 //! Ephemeral key management with secure memory handling.
 //! All keys are temporary and automatically zeroized when dropped.
 
+use rand::random;
 use rand_core::RngCore;
 use rand_core::SeedableRng;
 use rand_chacha::ChaCha20Rng;
-use getrandom;
+use crate::error::VantisError;
 use chacha20poly1305::{
     aead::{Aead, KeyInit},
     ChaCha20Poly1305,
@@ -50,13 +51,13 @@ impl EphemeralKeyPair {
         super::ensure_initialized()?;
         
         let mut seed = [0u8; 32];
-        getrandom::getrandom(&mut seed).map_err(|e| VantisError::CryptoError(format!("Failed to generate random seed: {}", e)))?;
+        seed.copy_from_slice(&random::<[u8; 32]>());
         let mut rng = ChaCha20Rng::from_seed(seed);
         let mut private_bytes = [0u8; PRIVATE_KEY_SIZE];
         let mut public_bytes = [0u8; PUBLIC_KEY_SIZE];
         
-        RngCore::fill_bytes(&mut rng, &mut private_bytes);
-        RngCore::fill_bytes(&mut rng, &mut public_bytes);
+        rng.fill_bytes(&mut private_bytes);
+        rng.fill_bytes(&mut public_bytes);
         
         Ok(Self {
             private_key: Some(PrivateKey::new(private_bytes)),
