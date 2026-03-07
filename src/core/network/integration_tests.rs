@@ -20,10 +20,10 @@ mod protocol_integration_tests {
     #[test]
     fn test_full_handshake_workflow() {
         let mut initiator = Protocol::new(ProtocolConfig::default());
-        let mut responder = Protocol::new(ProtocolConfig::default());
+        let _responder = Protocol::new(ProtocolConfig::default());
 
         // Initiator sends handshake
-        let init_msg = initiator
+        let _init_msg = initiator
             .initiate_handshake()
             .expect("Failed to initiate handshake");
         assert_eq!(initiator.state(), ProtocolState::Handshaking);
@@ -46,11 +46,18 @@ mod protocol_integration_tests {
     }
 
     #[test]
-    fn test_transport_data_exchange() {
+    fn test_transport_data_exchange_via_handshake() {
+        // This test uses proper handshake flow instead of directly setting private fields
         let mut protocol = Protocol::new(ProtocolConfig::default());
-        protocol.state = ProtocolState::Connected;
-        protocol.handshake_complete = true;
-        protocol.remote_index = 123;
+        
+        // Complete handshake first
+        let _init = protocol.initiate_handshake().expect("Failed to initiate handshake");
+        let response = HandshakeResponse {
+            ephemeral_public: vec![1u8; 32],
+            pqc_ciphertext: vec![2u8; 32],
+            encrypted: vec![3u8; 32],
+        };
+        protocol.process_handshake_response(response).expect("Failed to process response");
 
         // Send data
         let data = b"VPN packet data".to_vec();
@@ -58,7 +65,6 @@ mod protocol_integration_tests {
             .create_transport_message(&data)
             .expect("Failed to create message");
 
-        assert_eq!(msg.receiver, 123);
         assert!(!msg.data.is_empty());
 
         // Receive and process data
@@ -166,7 +172,7 @@ mod wireguard_integration_tests {
     #[test]
     fn test_device_lifecycle() {
         let config = InterfaceConfig::default();
-        let mut device = WireGuardDevice::new(config);
+        let device = WireGuardDevice::new(config);
 
         assert!(!device.is_up());
 
@@ -376,10 +382,10 @@ mod end_to_end_tests {
 
         // 1. Initialize protocol
         let mut client_protocol = Protocol::new(ProtocolConfig::default());
-        let mut server_protocol = Protocol::new(ProtocolConfig::default());
+        let server_protocol = Protocol::new(ProtocolConfig::default());
 
         // 2. Client initiates handshake
-        let handshake = client_protocol
+        let _handshake = client_protocol
             .initiate_handshake()
             .expect("Failed to initiate");
         assert_eq!(client_protocol.state(), ProtocolState::Handshaking);
@@ -535,7 +541,10 @@ mod error_handling_tests {
 #[cfg(test)]
 mod performance_integration_tests {
     use super::*;
+    use crate::network::wireguard::{WireGuardDevice, InterfaceConfig, PeerConfig, VirtualIpPool};
+    use crate::network::protocol::{Protocol, ProtocolConfig, HandshakeResponse};
     use std::time::Instant;
+    use std::net::Ipv4Addr;
 
     #[test]
     fn test_protocol_handshake_performance() {
