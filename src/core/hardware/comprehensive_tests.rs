@@ -767,7 +767,8 @@ mod integration_tests {
         assert!(!config.firewall_rules.is_empty());
         assert_eq!(config.firewall_rules[0].destination_port, Some(1194));
     }
-}
+
+    #[test]
     fn test_yubikey_with_security_integration() {
         let yubikey_config = YubiKeyConfig {
             enabled: true,
