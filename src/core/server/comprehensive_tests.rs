@@ -219,7 +219,7 @@ mod tee_tests {
     fn test_tee_config_default() {
         let config = TeeConfig::default();
         
-        assert!(config.enable_secure_enclave);
+        assert!(config.enable_attestation);
         assert!(config.enable_memory_encryption);
         assert_eq!(config.attestation_timeout_secs, 30);
     }
@@ -230,7 +230,7 @@ mod tee_tests {
         let json = serde_json::to_string(&config).unwrap();
         let deserialized: TeeConfig = serde_json::from_str(&json).unwrap();
         
-        assert_eq!(config.enable_secure_enclave, deserialized.enable_secure_enclave);
+        assert_eq!(config.enable_attestation, deserialized.enable_attestation);
     }
 }
 
@@ -314,9 +314,10 @@ mod wifi7_mlo_tests {
     #[test]
     fn test_wifi_band_variants() {
         // Test that all band variants can be created
-        let _band_24 = WifiBand::Band2_4Ghz;
-        let _band_5 = WifiBand::Band5Ghz;
-        let _band_6 = WifiBand::Band6Ghz;
+        let _band_24 = WifiBand::Band24GHz;
+        let _band_5 = WifiBand::Band5GHz;
+        let _band_6 = WifiBand::Band6GHz;
+        let _band_60 = WifiBand::Band60GHz;
     }
 
     #[test]
@@ -377,7 +378,7 @@ mod smart_routing_tests {
     fn test_routing_metric_variants() {
         // Test that all metric variants can be created
         let _latency = RoutingMetric::Latency;
-        let _bandwidth = RoutingMetric::Bandwidth;
+        let _throughput = RoutingMetric::Throughput;
         let _cost = RoutingMetric::Cost;
         let _reliability = RoutingMetric::Reliability;
         let _balanced = RoutingMetric::Balanced;

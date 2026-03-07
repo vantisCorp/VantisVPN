@@ -356,12 +356,16 @@ mod family_shield_tests {
 
     #[test]
     fn test_shield_rule_creation() {
+        use chrono::Utc;
+        
         let rule = ShieldRule {
             rule_id: "rule-001".to_string(),
             domain_pattern: "*.example.com".to_string(),
             category: ShieldCategory::Adult,
             action: ShieldAction::Block,
+            priority: 100,
             enabled: true,
+            created_at: Utc::now(),
         };
 
         assert_eq!(rule.rule_id, "rule-001");

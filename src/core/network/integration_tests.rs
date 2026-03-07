@@ -499,6 +499,25 @@ mod error_handling_tests {
         let result = protocol.process_handshake_response(response);
         assert!(result.is_err());
     }
+    
+    #[test]
+    fn test_wireguard_full_handshake_response() {
+        // Test wireguard_full::HandshakeResponse with correct field types
+        use crate::network::wireguard_full::HandshakeResponse as WgHandshakeResponse;
+        
+        let response = WgHandshakeResponse {
+            message_type: 2,
+            sender_index: 12345,
+            receiver_index: 67890,
+            ephemeral_public: [1u8; 32],
+            empty_enc: [0u8; 16],
+            mac1: [0u8; 16],
+            mac2: [0u8; 16],
+        };
+        
+        assert_eq!(response.message_type, 2);
+        assert_eq!(response.sender_index, 12345);
+    }
 
     #[test]
     fn test_invalid_network_address() {
