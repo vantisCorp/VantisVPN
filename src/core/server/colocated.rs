@@ -522,8 +522,7 @@ impl ColocatedInfrastructureManager {
     /// Weighted selection
     fn select_weighted(&self, servers: Vec<VpnServer>) -> VpnServer {
         let total_capacity: f64 = servers.iter().map(|s| s.capacity_score()).sum();
-        let mut rng = rand::thread_rng();
-        let mut threshold: f64 = rng.gen::<f64>() * total_capacity;
+        let mut threshold: f64 = rand::random::<f64>() * total_capacity;
 
         for server in &servers {
             threshold -= server.capacity_score();
@@ -537,8 +536,8 @@ impl ColocatedInfrastructureManager {
 
     /// Random selection
     fn select_random(&self, servers: Vec<VpnServer>) -> VpnServer {
-        let mut rng = rand::thread_rng();
-        servers[rand::Rng::gen_range(&mut rng, 0..servers.len())].clone()
+        let random_index = (rand::random::<u32>() as usize) % servers.len();
+        servers[random_index].clone()
     }
 
     /// Update server status

@@ -111,7 +111,19 @@ impl NetworkAddress {
     pub fn from_str(s: &str) -> crate::Result<Self> {
         // Parse IPv4 or IPv6 address
         if s.contains(':') && !s.contains('.') {
-            // IPv6
+            // IPv6 validation
+            // Check for invalid patterns like ::: (more than 2 consecutive colons)
+            if s.contains(":::") {
+                return Err(crate::VantisError::InvalidAddress);
+            }
+            
+            // Check for invalid characters
+            for c in s.chars() {
+                if !c.is_ascii_hexdigit() && c != ':' {
+                    return Err(crate::VantisError::InvalidAddress);
+                }
+            }
+            
             let mut addr = [0u8; 16];
             // Simplified parsing - production would use proper IP parsing
             let parts: Vec<&str> = s.split(':').collect();
@@ -119,8 +131,12 @@ impl NetworkAddress {
                 if i >= 8 {
                     break;
                 }
+                // Skip empty parts (from :: compression)
+                if part.is_empty() {
+                    continue;
+                }
                 let val = u16::from_str_radix(part, 16)
-                    .unwrap_or(0);
+                    .map_err(|_| crate::VantisError::InvalidAddress)?;
                 addr[i * 2] = (val >> 8) as u8;
                 addr[i * 2 + 1] = val as u8;
             }
@@ -168,7 +184,8 @@ impl std::fmt::Display for Endpoint {
     }
 }
 
-pub use protocol::MessageType;
+pub use protocol::{MessageType, Protocol, ProtocolConfig, ProtocolState};
+pub use wireguard::VirtualIpPool;
 pub use wireguard_full::{
     WireGuardDevice, InterfaceConfig, PeerConfig, PeerState, PeerStats,
     HandshakeInitiation, HandshakeResponse, CookieReply, TransportData,

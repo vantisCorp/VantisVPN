@@ -231,11 +231,13 @@ impl RamOnlyServer {
 
     /// Terminate a session
     pub async fn terminate_session(&self, session_id: &str) -> Result<()> {
-        let mut sessions = self.sessions.write().await;
-        sessions
-            .remove(session_id)
-            .ok_or_else(|| VantisError::InvalidPeer(format!("Session not found: {}", session_id)))?;
-        
+        {
+            let mut sessions = self.sessions.write().await;
+            sessions
+                .remove(session_id)
+                .ok_or_else(|| VantisError::InvalidPeer(format!("Session not found: {}", session_id)))?;
+        }
+        // Release the write lock before calling update_stats to avoid deadlock
         self.update_stats().await;
         Ok(())
     }
@@ -247,12 +249,15 @@ impl RamOnlyServer {
 
     /// Clean up expired sessions
     pub async fn cleanup_expired_sessions(&self) -> usize {
-        let mut sessions = self.sessions.write().await;
-        let initial_count = sessions.len();
-        
-        sessions.retain(|_, session| !session.is_expired(self.config.session_timeout_secs));
-        
-        let removed = initial_count - sessions.len();
+        let removed = {
+            let mut sessions = self.sessions.write().await;
+            let initial_count = sessions.len();
+            
+            sessions.retain(|_, session| !session.is_expired(self.config.session_timeout_secs));
+            
+            initial_count - sessions.len()
+        };
+        // Release the write lock before calling update_stats to avoid deadlock
         if removed > 0 {
             self.update_stats().await;
         }

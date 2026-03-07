@@ -218,3 +218,10 @@ helm
 # ============== CI/CD ==============
 .github/workflows/*.local.yml
 .gitlab-ci.local.yml
+# Ninja agent temporary files
+test_output.txt
+_superninja_startup.conf
+*.agent_session
+test_results.txt
+summarized_conversations/
+outputs/

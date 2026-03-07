@@ -311,9 +311,16 @@ impl HybridKeyExchange {
         // Classical exchange (X25519) - placeholder
         let classical_shared = rng.generate_bytes(32)?;
         
+        // Extract PQC public key from combined key (skip first 32 bytes of classical key)
+        let pqc_public_key = if peer_public_key.len() > 32 {
+            &peer_public_key[32..]
+        } else {
+            peer_public_key
+        };
+        
         // Post-quantum exchange (ML-KEM)
         let pqc_keypair = self.pqc_keypair.as_ref().unwrap();
-        let (_pqc_ciphertext, pqc_shared) = pqc_keypair.encapsulate(peer_public_key)?;
+        let (_pqc_ciphertext, pqc_shared) = pqc_keypair.encapsulate(pqc_public_key)?;
         
         // Combine shared secrets using HKDF
         let mut combined = Vec::new();
@@ -509,9 +516,14 @@ impl Default for PqcManager {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn ensure_crypto_initialized() {
+        super::super::init().expect("Failed to initialize crypto subsystem");
+    }
     
     #[test]
     fn test_ml_kem_keypair_generation() {
+        ensure_crypto_initialized();
         let keypair = MlKemKeyPair::generate(MlKemSecurityLevel::MlKem512)
             .expect("Failed to generate keypair");
         
@@ -521,6 +533,7 @@ mod tests {
     
     #[test]
     fn test_ml_kem_encapsulation() {
+        ensure_crypto_initialized();
         let keypair = MlKemKeyPair::generate(MlKemSecurityLevel::MlKem512)
             .expect("Failed to generate keypair");
         
@@ -533,6 +546,7 @@ mod tests {
     
     #[test]
     fn test_ml_dsa_keypair_generation() {
+        ensure_crypto_initialized();
         let keypair = MlDsaKeyPair::generate(MlDsaSecurityLevel::MlDsa44)
             .expect("Failed to generate keypair");
         
@@ -542,6 +556,7 @@ mod tests {
     
     #[test]
     fn test_ml_dsa_signing() {
+        ensure_crypto_initialized();
         let keypair = MlDsaKeyPair::generate(MlDsaSecurityLevel::MlDsa44)
             .expect("Failed to generate keypair");
         
@@ -559,6 +574,7 @@ mod tests {
     
     #[test]
     fn test_hybrid_key_exchange() {
+        ensure_crypto_initialized();
         let mut exchange = HybridKeyExchange::new()
             .expect("Failed to create exchange");
         
@@ -576,6 +592,7 @@ mod tests {
     
     #[test]
     fn test_pqc_manager() {
+        ensure_crypto_initialized();
         let manager = PqcManager::new()
             .expect("Failed to create manager");
         

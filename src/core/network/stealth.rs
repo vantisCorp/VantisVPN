@@ -437,16 +437,16 @@ impl StealthHandler {
             return Err(VantisError::CryptoError("Invalid MAC".into()));
         }
         
-        // Remove TLS 1.3 mimicry
-        let mut packet = if self.config.enable_tls_mimicry {
-            self.remove_tls_mimicry(packet).await?
+        // Remove HTTP/2 obfuscation first (it's the outermost layer)
+        let mut packet = if self.config.enable_http2_obfuscation {
+            self.remove_http2_obfuscation(packet).await?
         } else {
             packet
         };
         
-        // Remove HTTP/2 obfuscation
-        if self.config.enable_http2_obfuscation {
-            packet = self.remove_http2_obfuscation(packet).await?;
+        // Remove TLS 1.3 mimicry (it's the inner layer)
+        if self.config.enable_tls_mimicry {
+            packet = self.remove_tls_mimicry(packet).await?;
         }
         
         debug!("Deobfuscated packet: {} bytes -> {} bytes", data.len(), packet.payload.len());
@@ -668,6 +668,7 @@ mod tests {
     
     #[tokio::test]
     async fn test_obfuscate_deobfuscate() {
+        crate::crypto::init().expect("Crypto init failed");
         let handler = StealthHandler::new(StealthConfig::default()).unwrap();
         let original = b"secret data".to_vec();
         

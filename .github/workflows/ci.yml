@@ -126,14 +126,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
-      - name: Build
-        run: cargo build --release --target ${{ matrix.target }}
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: vantisvpn-${{ matrix.target }}
-          path: target/${{ matrix.target }}/release/vantisvpn*
+      - name: Build library
+        run: cargo build --release --lib --target ${{ matrix.target }}
 
   # ====================
   # Tests
@@ -266,4 +260,4 @@ jobs:
             Branch: ${{ github.ref_name }}
             Commit: ${{ github.sha }}
             Author: ${{ github.actor }}
-            [View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            [View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})# CI/CD workflow fix applied

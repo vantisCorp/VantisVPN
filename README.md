@@ -117,7 +117,7 @@
 # 🔴⬛ VANTISVPN ⬛🔴
 ## Next-Generation Quantum-Resistant Secure VPN System with Zero Trust Architecture
 
-![Version](https://img.shields.io/badge/version-2.0.0-red?style=for-the-badge&logo=none)
+![Version](https://img.shields.io/badge/version-1.1.0-red?style=for-the-badge&logo=none)
 ![License](https://img.shields.io/badge/license-AGPL_v3_Commercial-black?style=for-the-badge&logo=none)
 ![Status](https://img.shields.io/badge/status-Production_Ready-brightgreen?style=for-the-badge&logo=none)
 ![Rust](https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=red)
@@ -1175,7 +1175,9 @@ VantisVPN is available under a dual license model:
 ## 🏛️ Legal Information
 
 ### 📄 Full License Text
-See [LICENSE](LICENSE) file for the complete text.
+- **Open Source:** See [LICENSE](LICENSE) for AGPL v3 license text
+- **Commercial:** See [LICENSES/COMMERCIAL_LICENSE.md](LICENSES/COMMERCIAL_LICENSE.md) for commercial licensing
+- **License Choice:** See [LICENSES/LICENSE_CHOICE.md](LICENSES/LICENSE_CHOICE.md) for guidance on choosing the right license
 
 ### 📓 CITATION
 If you use VantisVPN in your research, please cite:
@@ -1461,9 +1463,12 @@ Made with ❤️ by the VANTISVPN Team
 
 ## 📝 License
 
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-red.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![License: Commercial](https://img.shields.io/badge/License-Commercial-green.svg)](LICENSES/COMMERCIAL_LICENSE.md)
 
-This project is licensed under the AGPL v3 License - see the [LICENSE](LICENSE) file for details.
+This project is dual-licensed:
+- **AGPL v3** for open source use - see [LICENSE](LICENSE) file
+- **Commercial License** for proprietary use - see [LICENSES/COMMERCIAL_LICENSE.md](LICENSES/COMMERCIAL_LICENSE.md)
 
 ---
 

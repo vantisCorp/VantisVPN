@@ -5,6 +5,7 @@ use std::net::{IpAddr, Ipv4Addr};
 use std::time::{Duration, SystemTime};
 use serde::{Serialize, Deserialize};
 use crate::error::VantisError;
+use super::vantis_os::WanConnectionType;
 
 /// Router configuration
 /// 
@@ -206,7 +207,7 @@ pub struct WanConfig {
     /// Connection type
     /// 
     /// Type of WAN connection (DHCP, PPPoE, or Static).
-    pub connection_type: String,
+    pub connection_type: WanConnectionType,
     /// IP address
     /// 
     /// Static IP address (for static connections).
@@ -370,19 +371,50 @@ pub struct FirewallRule {
     pub log: bool,
 }
 
+/// Firewall protocol
+/// 
+/// Network protocols for firewall rules.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum FirewallProtocol {
+    /// TCP
+    /// 
+    /// Transmission Control Protocol.
+    Tcp,
+    /// UDP
+    /// 
+    /// User Datagram Protocol.
+    Udp,
+    /// ICMP
+    /// 
+    /// Internet Control Message Protocol.
+    Icmp,
+    /// Any
+    /// 
+    /// Any protocol.
+    Any,
+}
+
 /// Firewall action
 /// 
 /// Actions that can be taken on matching firewall rules.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum FirewallAction {
     /// Accept
     /// 
     /// Allow the packet to pass through.
     Accept,
+    /// Allow
+    /// 
+    /// Allow the packet to pass through (alias for Accept).
+    Allow,
     /// Drop
     /// 
     /// Silently drop the packet.
     Drop,
+    /// Deny
+    /// 
+    /// Deny the packet (alias for Drop).
+    Deny,
     /// Reject
     /// 
     /// Reject the packet and send a rejection response.
@@ -463,7 +495,7 @@ pub struct QosPolicy {
     /// Priority
     /// 
     /// Traffic priority (0-7, where 7 is highest).
-    pub priority: u8,
+    pub priority: QosPriority,
     /// Bandwidth limit
     /// 
     /// Maximum bandwidth limit in kbps.
@@ -797,7 +829,7 @@ impl Default for LanConfig {
 impl Default for WanConfig {
     fn default() -> Self {
         Self {
-            connection_type: "DHCP".to_string(),
+            connection_type: WanConnectionType::Dhcp,
             ip_address: None,
             subnet_mask: None,
             gateway: None,
@@ -886,5 +918,49 @@ impl RouterFirmwareBuilder {
 impl Default for RouterFirmwareBuilder {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+/// QoS priority levels
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum QosPriority {
+    Low,
+    Medium,
+    High,
+    Critical,
+}
+
+impl std::fmt::Display for FirewallProtocol {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Tcp => write!(f, "TCP"),
+            Self::Udp => write!(f, "UDP"),
+            Self::Icmp => write!(f, "ICMP"),
+            Self::Any => write!(f, "Any"),
+        }
+    }
+}
+
+impl std::fmt::Display for FirewallAction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Accept => write!(f, "Accept"),
+            Self::Allow => write!(f, "Allow"),
+            Self::Drop => write!(f, "Drop"),
+            Self::Deny => write!(f, "Deny"),
+            Self::Reject => write!(f, "Reject"),
+            Self::Log => write!(f, "Log"),
+        }
+    }
+}
+
+impl std::fmt::Display for QosPriority {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Low => write!(f, "Low"),
+            Self::Medium => write!(f, "Medium"),
+            Self::High => write!(f, "High"),
+            Self::Critical => write!(f, "Critical"),
+        }
     }
 }

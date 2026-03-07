@@ -95,7 +95,7 @@ pub struct BootConfig {
 /// Boot mode
 /// 
 /// Available boot modes for Vantis OS.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum BootMode {
     /// Live mode
     /// 
@@ -114,7 +114,7 @@ pub enum BootMode {
 /// Boot option
 /// 
 /// Available boot options for the bootloader menu.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum BootOption {
     /// Live mode
     /// 
@@ -132,12 +132,16 @@ pub enum BootOption {
     /// 
     /// Boot in diagnostic/recovery mode.
     DiagnosticMode,
+    /// Standard
+    /// 
+    /// Boot in standard mode.
+    Standard,
 }
 
 /// Bootloader
 /// 
 /// Supported bootloaders for Vantis OS.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum Bootloader {
     /// GRUB bootloader
     /// 
@@ -530,9 +534,9 @@ impl Default for BootConfig {
     fn default() -> Self {
         Self {
             boot_mode: BootMode::Live,
-            secure_boot: true,
+            secure_boot: false, // Disabled by default for flexibility with live media
             boot_timeout: Duration::from_secs(5),
-            default_boot_option: BootOption::LiveMode,
+            default_boot_option: BootOption::Standard,
             kernel_parameters: vec![
                 "quiet".to_string(),
                 "splash".to_string(),
@@ -632,5 +636,39 @@ impl Default for VpnOsConfig {
 impl Default for VantisOsBuilder {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+/// WAN connection types
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum WanConnectionType {
+    Dhcp,
+    Static,
+    Pppoe,
+    Pptp,
+    L2tp,
+}
+
+impl std::fmt::Display for BootOption {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::LiveMode => write!(f, "LiveMode"),
+            Self::PersistentMode => write!(f, "PersistentMode"),
+            Self::EncryptedMode => write!(f, "EncryptedMode"),
+            Self::DiagnosticMode => write!(f, "DiagnosticMode"),
+            Self::Standard => write!(f, "Standard"),
+        }
+    }
+}
+
+impl std::fmt::Display for WanConnectionType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Dhcp => write!(f, "DHCP"),
+            Self::Static => write!(f, "Static"),
+            Self::Pppoe => write!(f, "PPPoE"),
+            Self::Pptp => write!(f, "PPTP"),
+            Self::L2tp => write!(f, "L2TP"),
+        }
     }
 }

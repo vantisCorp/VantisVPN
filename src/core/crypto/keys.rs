@@ -3,9 +3,11 @@
 //! Ephemeral key management with secure memory handling.
 //! All keys are temporary and automatically zeroized when dropped.
 
-use rand::RngCore;
-use rand::SeedableRng;
+use rand::Rng;
+use rand::random;
+use rand_core::SeedableRng;
 use rand_chacha::ChaCha20Rng;
+use crate::error::VantisError;
 use chacha20poly1305::{
     aead::{Aead, KeyInit},
     ChaCha20Poly1305,
@@ -15,6 +17,7 @@ use chacha20poly1305::{
 use serde::{Serialize, Deserialize};
 use std::fmt;
 use super::random::secure_random;
+use x25519_dalek::x25519;
 
 /// Size of ChaCha20 key (256 bits)
 pub const CHACHA20_KEY_SIZE: usize = 32;
@@ -32,7 +35,7 @@ pub const PUBLIC_KEY_SIZE: usize = 32;
 /// 
 /// Ephemeral key pair that is automatically zeroized when dropped.
 /// The private key is never serialized or transmitted.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct EphemeralKeyPair {
     /// Private key (never serialized/transmitted)
     #[serde(skip)]
@@ -48,12 +51,21 @@ impl EphemeralKeyPair {
     pub fn new() -> crate::Result<Self> {
         super::ensure_initialized()?;
         
-        let mut rng = ChaCha20Rng::from_entropy();
-        let mut private_bytes = [0u8; PRIVATE_KEY_SIZE];
-        let mut public_bytes = [0u8; PUBLIC_KEY_SIZE];
+        let mut seed = [0u8; 32];
+        seed.copy_from_slice(&random::<[u8; 32]>());
+        let mut rng = ChaCha20Rng::from_seed(seed);
         
+        // Generate random private key
+        let mut private_bytes = [0u8; PRIVATE_KEY_SIZE];
         rng.fill_bytes(&mut private_bytes);
-        rng.fill_bytes(&mut public_bytes);
+        
+        // Clamp the private key for X25519 (as per RFC7748)
+        private_bytes[0] &= 248;
+        private_bytes[31] &= 127;
+        private_bytes[31] |= 64;
+        
+        // Compute public key using x25519 with basepoint
+        let public_bytes = x25519(private_bytes, x25519_dalek::X25519_BASEPOINT_BYTES);
         
         Ok(Self {
             private_key: Some(PrivateKey::new(private_bytes)),
@@ -68,6 +80,12 @@ impl EphemeralKeyPair {
         self.private_key.as_ref()
     }
     
+    /// Get the private key bytes
+    pub fn private_key_bytes(&self) -> Option<&[u8; PRIVATE_KEY_SIZE]> {
+        // This method is less useful now, but kept for API compatibility
+        None
+    }
+    
     /// Get the public key
     pub fn public_key(&self) -> &PublicKey {
         &self.public_key
@@ -80,20 +98,35 @@ impl EphemeralKeyPair {
         self.private_key.take()
     }
     
-    /// Derive a shared secret using ECDH (simplified)
+    /// Derive a shared secret using X25519 ECDH
     /// 
-    /// In production, this would use Curve25519 or similar.
+    /// Uses proper Curve25519 key exchange via x25519-dalek.
     pub fn derive_shared_secret(&self, other_public: &PublicKey) -> crate::Result<[u8; 32]> {
-        let private = self.private_key()
+        let private = self.private_key
+            .as_ref()
             .ok_or_else(|| crate::VantisError::KeyConsumed)?;
         
-        // Simplified X25519-like operation (production would use proper curve)
-        let mut shared = [0u8; 32];
-        for i in 0..32 {
-            shared[i] = private.as_ref()[i] ^ other_public.as_ref()[i];
-        }
+        // Get private key bytes as a fixed-size array
+        let mut private_bytes = [0u8; 32];
+        private_bytes.copy_from_slice(private.as_bytes());
         
-        Ok(shared)
+        // Convert other public key to fixed-size array
+        let mut other_public_bytes = [0u8; 32];
+        other_public_bytes.copy_from_slice(other_public.as_bytes());
+        
+        // Perform X25519 key exchange
+        let shared_secret = x25519(private_bytes, other_public_bytes);
+        
+        Ok(shared_secret)
+    }
+}
+
+impl Clone for EphemeralKeyPair {
+    fn clone(&self) -> Self {
+        Self {
+            private_key: self.private_key.clone(),
+            public_key: self.public_key.clone(),
+        }
     }
 }
 
@@ -268,8 +301,13 @@ impl Cipher {
 mod tests {
     use super::*;
 
+    fn ensure_crypto_initialized() {
+        super::super::init().expect("Failed to initialize crypto subsystem");
+    }
+
     #[test]
     fn test_key_pair_generation() {
+        ensure_crypto_initialized();
         let pair = EphemeralKeyPair::new().expect("Failed to generate key pair");
         assert!(pair.private_key().is_some());
         assert!(pair.public_key().as_bytes().len() == PUBLIC_KEY_SIZE);
@@ -277,6 +315,7 @@ mod tests {
 
     #[test]
     fn test_key_zeroization() {
+        ensure_crypto_initialized();
         let pair = EphemeralKeyPair::new().expect("Failed to generate key pair");
         drop(pair);
         // Key should be zeroized
@@ -284,6 +323,7 @@ mod tests {
 
     #[test]
     fn test_cipher_encrypt_decrypt() {
+        ensure_crypto_initialized();
         let key = [0u8; CHACHA20_KEY_SIZE];
         let cipher = Cipher::new(&key, CipherSuite::default()).expect("Failed to create cipher");
         
@@ -298,6 +338,7 @@ mod tests {
 
     #[test]
     fn test_shared_secret() {
+        ensure_crypto_initialized();
         let pair1 = EphemeralKeyPair::new().expect("Failed to generate pair1");
         let pair2 = EphemeralKeyPair::new().expect("Failed to generate pair2");
         

@@ -6,9 +6,10 @@ pub mod yubikey;
 pub mod vantis_os;
 
 pub use router_os::{
-    RouterConfig, RouterFirmware, RouterState, RouterStats,
+    RouterConfig, VpnRouterConfig, RouterFirmware, RouterState, RouterStats,
     FirewallRule, PortForwarding, QosPolicy, NetworkInterface,
-    RouterFirmwareBuilder
+    RouterFirmwareBuilder, InterfaceType, FirewallAction, FirewallProtocol, QosPriority,
+    LanConfig, WanConfig, FirewallDirection
 };
 
 pub use yubikey::{
@@ -18,7 +19,9 @@ pub use yubikey::{
 
 pub use vantis_os::{
     VantisOsConfig, VantisOsBuilder, VantisOsImage, BootConfig,
-    PersistenceConfig, SecurityConfig, NetworkConfig
+    PersistenceConfig, SecurityConfig, NetworkConfig,
+    BootMode, BootOption, Bootloader, WanConnectionType,
+    TorConfig, VpnOsConfig, NetworkManager, ProxyConfig
 };
 
 #[cfg(test)]

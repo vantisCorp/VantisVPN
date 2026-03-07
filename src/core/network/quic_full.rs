@@ -221,23 +221,29 @@ impl QuicPacketHeader {
         buf.extend_from_slice(&self.source_connection_id);
         
         // Token (for Initial packets)
-        if let Some(token) = &self.token {
-            buf.extend_from_slice(&(token.len() as u16).to_be_bytes());
-            buf.extend_from_slice(token);
+        if self.packet_type == QuicPacketType::Initial {
+            if let Some(token) = &self.token {
+                buf.extend_from_slice(&(token.len() as u16).to_be_bytes());
+                buf.extend_from_slice(token);
+            } else {
+                // Write zero-length token for Initial packets without token
+                buf.extend_from_slice(&0u16.to_be_bytes());
+            }
         }
         
-        // Packet number (variable length)
+        // Packet number (variable length with length prefix)
         let pn = self.packet_number;
         if pn < 0x100 {
+            buf.push(0); // 1 byte follows
             buf.push(pn as u8);
         } else if pn < 0x10000 {
-            buf.push(1);
+            buf.push(1); // 2 bytes follow
             buf.extend_from_slice(&(pn as u16).to_be_bytes());
         } else if pn < 0x100000000 {
-            buf.push(2);
+            buf.push(2); // 4 bytes follow
             buf.extend_from_slice(&(pn as u32).to_be_bytes());
         } else {
-            buf.push(3);
+            buf.push(3); // 8 bytes follow
             buf.extend_from_slice(&pn.to_be_bytes());
         }
         
@@ -298,7 +304,8 @@ impl QuicPacketHeader {
             }
             let token_data = data[offset..offset + token_len].to_vec();
             offset += token_len;
-            Some(token_data)
+            // Return None for empty tokens, Some for non-empty
+            if token_data.is_empty() { None } else { Some(token_data) }
         } else {
             None
         };
@@ -673,8 +680,16 @@ impl Bbrv3State {
         let now = Instant::now();
         let elapsed = now.duration_since(self.last_update);
         
+        // Calculate bandwidth: use elapsed time if available, otherwise use RTT sample
         if elapsed.as_secs() > 0 {
             self.bandwidth = bytes_acked / elapsed.as_secs();
+        } else if rtt_sample.as_micros() > 0 {
+            // For sub-second intervals, use RTT sample to estimate bandwidth
+            // Bandwidth = bytes_acked / rtt (in seconds)
+            let rtt_secs = rtt_sample.as_secs_f64();
+            if rtt_secs > 0.0 {
+                self.bandwidth = (bytes_acked as f64 / rtt_secs) as u64;
+            }
         }
         
         self.last_update = now;
@@ -684,7 +699,8 @@ impl Bbrv3State {
             BbrState::Startup => {
                 // Exponential growth
                 self.cwnd = self.cwnd.saturating_mul(2);
-                if self.cwnd > 100 * 1024 {
+                // Transition to Drain when cwnd exceeds threshold OR bandwidth is high enough
+                if self.cwnd > 100 * 1024 || self.bandwidth > 1_000_000 {
                     self.state = BbrState::Drain;
                 }
             }
