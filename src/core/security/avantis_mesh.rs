@@ -460,9 +460,15 @@ impl AvantisMesh {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::crypto;
+
+    fn init_crypto() {
+        crypto::init().expect("Crypto init failed");
+    }
 
     #[tokio::test]
     async fn test_mesh_creation() {
+        init_crypto();
         let config = MeshConfig::default();
         let mesh = AvantisMesh::new(config).await.unwrap();
         assert_eq!(mesh.list_nodes().await.len(), 0);
@@ -470,6 +476,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_add_node() {
+        init_crypto();
         let config = MeshConfig::default();
         let mesh = AvantisMesh::new(config).await.unwrap();
         
@@ -491,6 +498,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_node() {
+        init_crypto();
         let config = MeshConfig::default();
         let mesh = AvantisMesh::new(config).await.unwrap();
         
@@ -513,6 +521,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_remove_node() {
+        init_crypto();
         let config = MeshConfig::default();
         let mesh = AvantisMesh::new(config).await.unwrap();
         
@@ -535,6 +544,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_send_direct_message() {
+        init_crypto();
         let config = MeshConfig::default();
         let mesh = AvantisMesh::new(config).await.unwrap();
         
@@ -556,6 +566,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_handle_discovery() {
+        init_crypto();
         let config = MeshConfig::default();
         let mesh = AvantisMesh::new(config).await.unwrap();
         
@@ -571,6 +582,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_stats() {
+        init_crypto();
         let config = MeshConfig::default();
         let mesh = AvantisMesh::new(config).await.unwrap();
         

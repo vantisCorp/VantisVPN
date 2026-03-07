@@ -135,9 +135,15 @@ impl DecryptionContext {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::crypto;
+
+    fn init_crypto() {
+        crypto::init().expect("Crypto init failed");
+    }
 
     #[test]
     fn test_encryption_context() {
+        init_crypto();
         let key = [0u8; CHACHA20_KEY_SIZE];
         let mut ctx = EncryptionContext::new(&key, CipherSuite::default())
             .expect("Failed to create context");
@@ -151,6 +157,7 @@ mod tests {
 
     #[test]
     fn test_decryption_context() {
+        init_crypto();
         let key = [0u8; CHACHA20_KEY_SIZE];
         let mut encrypt_ctx = EncryptionContext::new(&key, CipherSuite::default())
             .expect("Failed to create encrypt context");
@@ -166,6 +173,7 @@ mod tests {
 
     #[test]
     fn test_sequence_numbers() {
+        init_crypto();
         let key = [0u8; CHACHA20_KEY_SIZE];
         let mut ctx = EncryptionContext::new(&key, CipherSuite::default())
             .expect("Failed to create context");

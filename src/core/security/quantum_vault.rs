@@ -434,9 +434,15 @@ impl QuantumVault {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::crypto;
+
+    fn init_crypto() {
+        crypto::init().expect("Crypto init failed");
+    }
 
     #[tokio::test]
     async fn test_vault_creation() {
+        init_crypto();
         let config = VaultConfig::default();
         let vault = QuantumVault::new(config).unwrap();
         assert_eq!(vault.state().await, VaultState::Locked);
@@ -444,6 +450,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_vault_unlock() {
+        init_crypto();
         let config = VaultConfig::default();
         let vault = QuantumVault::new(config).unwrap();
         vault.unlock("test_password").await.unwrap();
@@ -452,6 +459,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_vault_lock() {
+        init_crypto();
         let config = VaultConfig::default();
         let vault = QuantumVault::new(config).unwrap();
         vault.unlock("test_password").await.unwrap();
@@ -461,6 +469,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_add_entry() {
+        init_crypto();
         let config = VaultConfig::default();
         let vault = QuantumVault::new(config).unwrap();
         vault.unlock("test_password").await.unwrap();
@@ -479,6 +488,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_entry() {
+        init_crypto();
         let config = VaultConfig::default();
         let vault = QuantumVault::new(config).unwrap();
         vault.unlock("test_password").await.unwrap();
@@ -499,6 +509,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_decrypt_password() {
+        init_crypto();
         let config = VaultConfig::default();
         let vault = QuantumVault::new(config).unwrap();
         vault.unlock("test_password").await.unwrap();
@@ -519,6 +530,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_search_entries() {
+        init_crypto();
         let config = VaultConfig::default();
         let vault = QuantumVault::new(config).unwrap();
         vault.unlock("test_password").await.unwrap();
@@ -547,6 +559,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_stats() {
+        init_crypto();
         let config = VaultConfig::default();
         let vault = QuantumVault::new(config).unwrap();
         vault.unlock("test_password").await.unwrap();
