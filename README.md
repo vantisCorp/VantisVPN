@@ -117,7 +117,7 @@
 # 🔴⬛ VANTISVPN ⬛🔴
 ## Next-Generation Quantum-Resistant Secure VPN System with Zero Trust Architecture
 
-![Version](https://img.shields.io/badge/version-2.0.0-red?style=for-the-badge&logo=none)
+![Version](https://img.shields.io/badge/version-1.1.0-red?style=for-the-badge&logo=none)
 ![License](https://img.shields.io/badge/license-AGPL_v3_Commercial-black?style=for-the-badge&logo=none)
 ![Status](https://img.shields.io/badge/status-Production_Ready-brightgreen?style=for-the-badge&logo=none)
 ![Rust](https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=red)
