@@ -222,3 +222,4 @@ helm
 test_output.txt
 _superninja_startup.conf
 *.agent_session
+test_results.txt
