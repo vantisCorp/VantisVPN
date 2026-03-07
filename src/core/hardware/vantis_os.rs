@@ -95,7 +95,6 @@ pub struct BootConfig {
 /// Boot mode
 /// 
 /// Available boot modes for Vantis OS.
-#[derive(Debug, Clone, Serialize, Deserialize)]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum BootMode {
     /// Live mode
