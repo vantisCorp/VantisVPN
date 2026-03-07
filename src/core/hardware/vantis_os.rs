@@ -96,6 +96,7 @@ pub struct BootConfig {
 /// 
 /// Available boot modes for Vantis OS.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum BootMode {
     /// Live mode
     /// 
@@ -114,7 +115,7 @@ pub enum BootMode {
 /// Boot option
 /// 
 /// Available boot options for the bootloader menu.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum BootOption {
     /// Live mode
     /// 
@@ -141,7 +142,7 @@ pub enum BootOption {
 /// Bootloader
 /// 
 /// Supported bootloaders for Vantis OS.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum Bootloader {
     /// GRUB bootloader
     /// 

@@ -30,9 +30,13 @@ mod protocol_integration_tests {
 
         // Responder processes handshake (simplified - production would be more complex)
         let response = HandshakeResponse {
-            ephemeral_public: vec![1u8; 32],
-            pqc_ciphertext: vec![2u8; 32],
-            encrypted: vec![3u8; 32],
+            message_type: 2,
+            sender_index: 1,
+            receiver_index: 1,
+            ephemeral_public: [1u8; 32],
+            empty_enc: [0u8; 16],
+            mac1: [0u8; 16],
+            mac2: [0u8; 16],
         };
 
         // Both sides complete handshake
@@ -49,13 +53,17 @@ mod protocol_integration_tests {
     fn test_transport_data_exchange_via_handshake() {
         // This test uses proper handshake flow instead of directly setting private fields
         let mut protocol = Protocol::new(ProtocolConfig::default());
-        
+
         // Complete handshake first
         let _init = protocol.initiate_handshake().expect("Failed to initiate handshake");
         let response = HandshakeResponse {
-            ephemeral_public: vec![1u8; 32],
-            pqc_ciphertext: vec![2u8; 32],
-            encrypted: vec![3u8; 32],
+            message_type: 2,
+            sender_index: 1,
+            receiver_index: 1,
+            ephemeral_public: [1u8; 32],
+            empty_enc: [0u8; 16],
+            mac1: [0u8; 16],
+            mac2: [0u8; 16],
         };
         protocol.process_handshake_response(response).expect("Failed to process response");
 
@@ -81,9 +89,13 @@ mod protocol_integration_tests {
         // Complete a handshake to get to connected state
         let _init = protocol.initiate_handshake().expect("Failed to initiate handshake");
         let response = HandshakeResponse {
-            ephemeral_public: vec![1u8; 32],
-            pqc_ciphertext: vec![2u8; 32],
-            encrypted: vec![3u8; 32],
+            message_type: 2,
+            sender_index: 1,
+            receiver_index: 1,
+            ephemeral_public: [1u8; 32],
+            empty_enc: [0u8; 16],
+            mac1: [0u8; 16],
+            mac2: [0u8; 16],
         };
         protocol.process_handshake_response(response).expect("Failed to process response");
 
@@ -145,9 +157,13 @@ mod protocol_integration_tests {
 
         // Connected
         let response = HandshakeResponse {
-            ephemeral_public: vec![1u8; 32],
-            pqc_ciphertext: vec![2u8; 32],
-            encrypted: vec![3u8; 32],
+            message_type: 2,
+            sender_index: 1,
+            receiver_index: 1,
+            ephemeral_public: [1u8; 32],
+            empty_enc: [0u8; 16],
+            mac1: [0u8; 16],
+            mac2: [0u8; 16],
         };
         protocol.process_handshake_response(response).expect("Failed to process response");
         assert!(protocol.is_connected());
@@ -392,15 +408,19 @@ mod end_to_end_tests {
 
         // 3. Server responds
         let response = HandshakeResponse {
-            ephemeral_public: vec![1u8; 32],
-            pqc_ciphertext: vec![2u8; 32],
-            encrypted: vec![3u8; 32],
+            message_type: 2,
+            sender_index: 1,
+            receiver_index: 1,
+            ephemeral_public: [1u8; 32],
+            empty_enc: [0u8; 16],
+            mac1: [0u8; 16],
+            mac2: [0u8; 16],
         };
 
         client_protocol
             .process_handshake_response(response)
             .expect("Failed to process");
-        
+
         // Note: In production, server would process handshake and call process_handshake_response
         // For testing purposes, we verify the client is connected
         assert!(client_protocol.is_connected());
@@ -491,15 +511,19 @@ mod error_handling_tests {
 
         // Try to process response without initiating handshake
         let response = HandshakeResponse {
-            ephemeral_public: vec![1u8; 32],
-            pqc_ciphertext: vec![2u8; 32],
-            encrypted: vec![3u8; 32],
+            message_type: 2,
+            sender_index: 1,
+            receiver_index: 1,
+            ephemeral_public: [1u8; 32],
+            empty_enc: [0u8; 16],
+            mac1: [0u8; 16],
+            mac2: [0u8; 16],
         };
 
         let result = protocol.process_handshake_response(response);
         assert!(result.is_err());
     }
-    
+
     #[test]
     fn test_wireguard_full_handshake_response() {
         // Test wireguard_full::HandshakeResponse with correct field types
@@ -587,9 +611,13 @@ mod performance_integration_tests {
         // Complete a handshake to get to connected state
         let _init = protocol.initiate_handshake().expect("Failed to initiate handshake");
         let response = HandshakeResponse {
-            ephemeral_public: vec![1u8; 32],
-            pqc_ciphertext: vec![2u8; 32],
-            encrypted: vec![3u8; 32],
+            message_type: 2,
+            sender_index: 1,
+            receiver_index: 1,
+            ephemeral_public: [1u8; 32],
+            empty_enc: [0u8; 16],
+            mac1: [0u8; 16],
+            mac2: [0u8; 16],
         };
         protocol.process_handshake_response(response).expect("Failed to process response");
 

@@ -9,7 +9,7 @@ pub use router_os::{
     RouterConfig, VpnRouterConfig, RouterFirmware, RouterState, RouterStats,
     FirewallRule, PortForwarding, QosPolicy, NetworkInterface,
     RouterFirmwareBuilder, InterfaceType, FirewallAction, FirewallProtocol, QosPriority,
-    LanConfig, WanConfig
+    LanConfig, WanConfig, FirewallDirection
 };
 
 pub use yubikey::{
@@ -20,7 +20,8 @@ pub use yubikey::{
 pub use vantis_os::{
     VantisOsConfig, VantisOsBuilder, VantisOsImage, BootConfig,
     PersistenceConfig, SecurityConfig, NetworkConfig,
-    BootMode, BootOption, Bootloader, WanConnectionType
+    BootMode, BootOption, Bootloader, WanConnectionType,
+    TorConfig, VpnOsConfig, NetworkManager, ProxyConfig
 };
 
 #[cfg(test)]

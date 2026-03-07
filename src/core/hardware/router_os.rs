@@ -397,7 +397,7 @@ pub enum FirewallProtocol {
 /// Firewall action
 /// 
 /// Actions that can be taken on matching firewall rules.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum FirewallAction {
     /// Accept
     /// 
