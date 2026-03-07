@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Dual licensing with commercial license option (LICENSES/COMMERCIAL_LICENSE.md)
+- License choice guide (LICENSES/LICENSE_CHOICE.md)
 - Monorepo architecture with Turborepo structure
 - World's most advanced README with extensive features
 - GPG signing configuration support

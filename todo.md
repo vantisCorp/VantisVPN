@@ -1,14 +1,36 @@
-# TODO: Fix CI/CD Pipeline Test Failures
+# Repository Cleanup Tasks
 
-## Current Status
-- Compilation errors are fixed (only warnings remain)
-- Tests are failing with exit code 101
-- Need to identify and fix failing tests
+## 1. Push Uncommitted Changes
+- [x] Commit and push Cargo.lock changes
+- [x] Push the 1 commit ahead of origin
 
-## Tasks
-- [x] Check which tests are failing
-- [ ] Fix failing tests
-  - [ ] Fix comprehensive_tests.rs (hardware) - missing types
-  - [ ] Fix integration_tests.rs (network) - HandshakeResponse fields
-  - [ ] Fix remaining struct field mismatches
-- [ ] Push changes and verify CI/CD passes
+## 2. Clean Up Garbage Files
+- [x] Remove `test_output.txt` (garbage file)
+- [x] Remove `_superninja_startup.conf` (garbage file)
+- [x] Add to .gitignore if needed
+
+## 3. Documentation Review
+- [x] Check README.md for accuracy
+- [x] Check CHANGELOG.md is up to date
+- [x] Review docs/ folder for duplicates
+- [ ] Verify all links work
+- [ ] Check version consistency across files
+
+## 4. Pull Request Management
+- [ ] Check PR #24 status
+- [ ] Merge PR if ready
+
+## 5. Branch Cleanup
+- [ ] Review local branches for deletion
+- [ ] Review remote branches for deletion
+- [ ] Merge what's possible
+
+## 6. Dual License
+- [x] Add dual license (Open Source + Commercial)
+- [x] Update LICENSE file
+- [x] Update README with license info
+
+## 7. Final Verification
+- [ ] Run tests to verify everything works
+- [ ] Check for any warnings in build
+- [ ] Verify all changes are pushed
