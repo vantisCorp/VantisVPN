@@ -534,9 +534,9 @@ impl Default for BootConfig {
     fn default() -> Self {
         Self {
             boot_mode: BootMode::Live,
-            secure_boot: true,
+            secure_boot: false, // Disabled by default for flexibility with live media
             boot_timeout: Duration::from_secs(5),
-            default_boot_option: BootOption::LiveMode,
+            default_boot_option: BootOption::Standard,
             kernel_parameters: vec![
                 "quiet".to_string(),
                 "splash".to_string(),

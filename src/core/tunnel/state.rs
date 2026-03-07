@@ -66,6 +66,11 @@ pub struct StateTransition {
 }
 
 impl StateTransition {
+    /// Create a new state transition
+    pub fn new(from: TunnelState, to: TunnelState) -> Self {
+        Self { from, to }
+    }
+    
     /// Check if transition is valid
     pub fn is_valid(&self) -> bool {
         matches!(

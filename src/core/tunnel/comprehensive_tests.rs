@@ -191,7 +191,7 @@ mod state_transition_tests {
     use super::*;
 
     fn test_transition(from: TunnelState, to: TunnelState, expected_valid: bool) {
-        let transition = StateTransition { from, to };
+        let transition = StateTransition::new(from, to);
         assert_eq!(transition.is_valid(), expected_valid);
     }
 
@@ -305,10 +305,7 @@ mod state_transition_tests {
 
         for from in states.iter() {
             for to in states.iter() {
-                let transition = StateTransition {
-                    from: *from,
-                    to: *to,
-                };
+                let transition = StateTransition::new(*from, *to);
                 
                 // Just verify it doesn't panic
                 let _is_valid = transition.is_valid();

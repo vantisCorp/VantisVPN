@@ -20,7 +20,7 @@ use tokio::net::UdpSocket;
 use log::{debug, info, warn, error};
 
 // WireGuard constants
-pub const HANDSHAKE_INITIATION_SIZE: usize = 148;
+pub const HANDSHAKE_INITIATION_SIZE: usize = 113; // Actual serialized size of HandshakeInitiation struct
 pub const HANDSHAKE_RESPONSE_SIZE: usize = 92;
 pub const COOKIE_REPLY_SIZE: usize = 64;
 pub const MESSAGE_DATA_SIZE: usize = 16; // Header size

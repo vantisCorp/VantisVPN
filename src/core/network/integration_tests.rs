@@ -30,13 +30,9 @@ mod protocol_integration_tests {
 
         // Responder processes handshake (simplified - production would be more complex)
         let response = HandshakeResponse {
-            message_type: 2,
-            sender_index: 1,
-            receiver_index: 1,
-            ephemeral_public: [1u8; 32],
-            empty_enc: [0u8; 16],
-            mac1: [0u8; 16],
-            mac2: [0u8; 16],
+            ephemeral_public: vec![1u8; 32],
+            pqc_ciphertext: vec![2u8; 32],
+            encrypted: vec![3u8; 32],
         };
 
         // Both sides complete handshake
@@ -57,13 +53,9 @@ mod protocol_integration_tests {
         // Complete handshake first
         let _init = protocol.initiate_handshake().expect("Failed to initiate handshake");
         let response = HandshakeResponse {
-            message_type: 2,
-            sender_index: 1,
-            receiver_index: 1,
-            ephemeral_public: [1u8; 32],
-            empty_enc: [0u8; 16],
-            mac1: [0u8; 16],
-            mac2: [0u8; 16],
+            ephemeral_public: vec![1u8; 32],
+            pqc_ciphertext: vec![2u8; 32],
+            encrypted: vec![3u8; 32],
         };
         protocol.process_handshake_response(response).expect("Failed to process response");
 
@@ -89,13 +81,9 @@ mod protocol_integration_tests {
         // Complete a handshake to get to connected state
         let _init = protocol.initiate_handshake().expect("Failed to initiate handshake");
         let response = HandshakeResponse {
-            message_type: 2,
-            sender_index: 1,
-            receiver_index: 1,
-            ephemeral_public: [1u8; 32],
-            empty_enc: [0u8; 16],
-            mac1: [0u8; 16],
-            mac2: [0u8; 16],
+            ephemeral_public: vec![1u8; 32],
+            pqc_ciphertext: vec![2u8; 32],
+            encrypted: vec![3u8; 32],
         };
         protocol.process_handshake_response(response).expect("Failed to process response");
 
@@ -157,13 +145,9 @@ mod protocol_integration_tests {
 
         // Connected
         let response = HandshakeResponse {
-            message_type: 2,
-            sender_index: 1,
-            receiver_index: 1,
-            ephemeral_public: [1u8; 32],
-            empty_enc: [0u8; 16],
-            mac1: [0u8; 16],
-            mac2: [0u8; 16],
+            ephemeral_public: vec![1u8; 32],
+            pqc_ciphertext: vec![2u8; 32],
+            encrypted: vec![3u8; 32],
         };
         protocol.process_handshake_response(response).expect("Failed to process response");
         assert!(protocol.is_connected());
@@ -395,10 +379,13 @@ mod end_to_end_tests {
     #[test]
     fn test_complete_vpn_connection_simulation() {
         // Simulate a complete VPN connection setup
+        
+        // Initialize crypto subsystem
+        crate::crypto::init();
 
         // 1. Initialize protocol
         let mut client_protocol = Protocol::new(ProtocolConfig::default());
-        let server_protocol = Protocol::new(ProtocolConfig::default());
+        let mut server_protocol = Protocol::new(ProtocolConfig::default());
 
         // 2. Client initiates handshake
         let _handshake = client_protocol
@@ -408,13 +395,9 @@ mod end_to_end_tests {
 
         // 3. Server responds
         let response = HandshakeResponse {
-            message_type: 2,
-            sender_index: 1,
-            receiver_index: 1,
-            ephemeral_public: [1u8; 32],
-            empty_enc: [0u8; 16],
-            mac1: [0u8; 16],
-            mac2: [0u8; 16],
+            ephemeral_public: vec![1u8; 32],
+            pqc_ciphertext: vec![0u8; 32],
+            encrypted: vec![0u8; 48],
         };
 
         client_protocol
@@ -425,11 +408,30 @@ mod end_to_end_tests {
         // For testing purposes, we verify the client is connected
         assert!(client_protocol.is_connected());
 
-        // 4. Exchange data
+        // 4. Exchange data - client creates and processes its own message
         let data = b"Encrypted VPN traffic".to_vec();
         let msg = client_protocol
             .create_transport_message(&data)
             .expect("Failed to create");
+        
+        // Since server wasn't part of the handshake, we verify the message structure
+        // In a real scenario, both parties would complete the handshake
+        assert!(!msg.data.is_empty());
+        
+        // For bidirectional communication, server also needs to complete handshake
+        let _server_handshake = server_protocol
+            .initiate_handshake()
+            .expect("Failed to initiate server handshake");
+        let server_response = HandshakeResponse {
+            ephemeral_public: vec![2u8; 32],
+            pqc_ciphertext: vec![0u8; 32],
+            encrypted: vec![0u8; 48],
+        };
+        server_protocol
+            .process_handshake_response(server_response)
+            .expect("Failed to process server handshake");
+        
+        // Now server can process transport messages
         let received = server_protocol
             .process_transport_message(msg)
             .expect("Failed to process");
@@ -495,6 +497,7 @@ mod end_to_end_tests {
 #[cfg(test)]
 mod error_handling_tests {
     use super::*;
+    use crate::network::protocol::{Protocol, ProtocolConfig, HandshakeResponse};
 
     #[test]
     fn test_transport_without_connection() {
@@ -511,13 +514,9 @@ mod error_handling_tests {
 
         // Try to process response without initiating handshake
         let response = HandshakeResponse {
-            message_type: 2,
-            sender_index: 1,
-            receiver_index: 1,
-            ephemeral_public: [1u8; 32],
-            empty_enc: [0u8; 16],
-            mac1: [0u8; 16],
-            mac2: [0u8; 16],
+            ephemeral_public: vec![1u8; 32],
+            pqc_ciphertext: vec![0u8; 32],
+            encrypted: vec![0u8; 48],
         };
 
         let result = protocol.process_handshake_response(response);
@@ -611,13 +610,9 @@ mod performance_integration_tests {
         // Complete a handshake to get to connected state
         let _init = protocol.initiate_handshake().expect("Failed to initiate handshake");
         let response = HandshakeResponse {
-            message_type: 2,
-            sender_index: 1,
-            receiver_index: 1,
-            ephemeral_public: [1u8; 32],
-            empty_enc: [0u8; 16],
-            mac1: [0u8; 16],
-            mac2: [0u8; 16],
+            ephemeral_public: vec![1u8; 32],
+            pqc_ciphertext: vec![0u8; 32],
+            encrypted: vec![0u8; 48],
         };
         protocol.process_handshake_response(response).expect("Failed to process response");
 

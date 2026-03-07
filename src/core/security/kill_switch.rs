@@ -165,7 +165,9 @@ impl KillSwitchManager {
 
     /// Activate the kill switch (start blocking traffic)
     pub async fn activate(&self) -> Result<()> {
-        if !self.config.enabled {
+        // Check if the kill switch is in Enabled or Active state (allow re-activation when already active)
+        let state = self.state.read().await.clone();
+        if state != KillSwitchState::Enabled && state != KillSwitchState::Active {
             return Err(VantisError::InvalidPeer("Kill switch is not enabled".to_string()));
         }
 
