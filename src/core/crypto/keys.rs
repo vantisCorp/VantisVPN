@@ -300,12 +300,14 @@ impl Cipher {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
 
     fn ensure_crypto_initialized() {
         super::super::init().expect("Failed to initialize crypto subsystem");
     }
 
     #[test]
+    #[serial(crypto)]
     fn test_key_pair_generation() {
         ensure_crypto_initialized();
         let pair = EphemeralKeyPair::new().expect("Failed to generate key pair");
@@ -314,6 +316,7 @@ mod tests {
     }
 
     #[test]
+    #[serial(crypto)]
     fn test_key_zeroization() {
         ensure_crypto_initialized();
         let pair = EphemeralKeyPair::new().expect("Failed to generate key pair");
@@ -322,6 +325,7 @@ mod tests {
     }
 
     #[test]
+    #[serial(crypto)]
     fn test_cipher_encrypt_decrypt() {
         ensure_crypto_initialized();
         let key = [0u8; CHACHA20_KEY_SIZE];
@@ -337,6 +341,7 @@ mod tests {
     }
 
     #[test]
+    #[serial(crypto)]
     fn test_shared_secret() {
         ensure_crypto_initialized();
         let pair1 = EphemeralKeyPair::new().expect("Failed to generate pair1");

@@ -146,6 +146,7 @@ mod tests {
         assert_eq!(hex.len(), HASH_SIZE * 2);
         
         let hash2 = Hash::from_hex(&hex).expect("Failed to parse hex");
-        assert_eq!(hash_instance, hash2);
+        // Compare the computed hash bytes, not the zero-initialized instance
+        assert_eq!(hash_result.as_slice(), hash2.as_bytes());
     }
 }

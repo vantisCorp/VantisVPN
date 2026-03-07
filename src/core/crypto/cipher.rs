@@ -136,12 +136,14 @@ impl DecryptionContext {
 mod tests {
     use super::*;
     use crate::crypto;
+    use serial_test::serial;
 
     fn init_crypto() {
         crypto::init().expect("Crypto init failed");
     }
 
     #[test]
+    #[serial(crypto)]
     fn test_encryption_context() {
         init_crypto();
         let key = [0u8; CHACHA20_KEY_SIZE];
@@ -156,6 +158,7 @@ mod tests {
     }
 
     #[test]
+    #[serial(crypto)]
     fn test_decryption_context() {
         init_crypto();
         let key = [0u8; CHACHA20_KEY_SIZE];
@@ -172,6 +175,7 @@ mod tests {
     }
 
     #[test]
+    #[serial(crypto)]
     fn test_sequence_numbers() {
         init_crypto();
         let key = [0u8; CHACHA20_KEY_SIZE];

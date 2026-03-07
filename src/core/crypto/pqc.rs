@@ -219,15 +219,24 @@ impl HybridKeyExchange {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
+
+    fn init_crypto() {
+        crate::crypto::init().expect("Crypto init failed");
+    }
 
     #[test]
+    #[serial(crypto)]
     fn test_kyber_keypair() {
+        init_crypto();
         let (kem, public) = KyberKEM::generate_keypair().expect("Failed to generate");
         assert_eq!(public.len(), KYBER_PUBLIC_KEY_SIZE);
     }
 
     #[test]
+    #[serial(crypto)]
     fn test_kyber_encapsulate_decapsulate() {
+        init_crypto();
         let (kem, public) = KyberKEM::generate_keypair().expect("Failed to generate");
         let (ciphertext, shared1) = KyberKEM::encapsulate(&public).expect("Encapsulation failed");
         let shared2 = kem.decapsulate(&ciphertext).expect("Decapsulation failed");
@@ -238,7 +247,9 @@ mod tests {
     }
 
     #[test]
+    #[serial(crypto)]
     fn test_dilithium_sign_verify() {
+        init_crypto();
         let (public, secret) = DilithiumSignature::generate_keypair()
             .expect("Failed to generate keypair");
         
@@ -252,7 +263,9 @@ mod tests {
     }
 
     #[test]
+    #[serial(crypto)]
     fn test_hybrid_key_exchange() {
+        init_crypto();
         let (alice, alice_classical, alice_pqc) = HybridKeyExchange::generate()
             .expect("Failed to generate Alice's keys");
         let (bob, bob_classical, bob_pqc) = HybridKeyExchange::generate()

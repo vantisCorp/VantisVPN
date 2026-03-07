@@ -117,9 +117,16 @@ pub fn random_nonce(size: usize) -> crate::Result<Vec<u8>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
+
+    fn init_crypto() {
+        crate::crypto::init().expect("Crypto init failed");
+    }
 
     #[test]
+    #[serial(crypto)]
     fn test_random_bytes() {
+        init_crypto();
         let mut bytes = [0u8; 32];
         secure_random(&mut bytes).expect("Failed to generate random bytes");
         
@@ -130,7 +137,9 @@ mod tests {
     }
 
     #[test]
+    #[serial(crypto)]
     fn test_random_u64() {
+        init_crypto();
         let val1 = random_u64().expect("Failed to generate u64");
         let val2 = random_u64().expect("Failed to generate u64");
         
@@ -139,7 +148,9 @@ mod tests {
     }
 
     #[test]
+    #[serial(crypto)]
     fn test_random_nonce() {
+        init_crypto();
         let nonce1 = random_nonce(12).expect("Failed to generate nonce");
         let nonce2 = random_nonce(12).expect("Failed to generate nonce");
         
