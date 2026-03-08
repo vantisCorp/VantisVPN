@@ -696,9 +696,7 @@ mod vantis_os_tests {
         let _builder = VantisOsBuilder::new()
             .os_name("Vantis OS".to_string())
             .version("1.0.0".to_string());
-
         // Verify builder can be created
-        assert!(true);
     }
 }
 
