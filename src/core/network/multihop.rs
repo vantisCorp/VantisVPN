@@ -501,11 +501,7 @@ impl MultiHopManager {
                 let node = if self.config.enable_path_randomization {
                     (*candidates[self.rng.generate_u64()? as usize % candidates.len()]).clone()
                 } else if self.config.enable_latency_optimization {
-                    (**candidates
-                        .iter()
-                        .min_by_key(|n| n.latency)
-                        .unwrap())
-                    .clone()
+                    (**candidates.iter().min_by_key(|n| n.latency).unwrap()).clone()
                 } else {
                     (**candidates
                         .iter()
