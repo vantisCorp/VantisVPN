@@ -540,8 +540,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_create_session() {
-        let mut config = RbiConfig::default();
-        config.enabled = true;
+        let config = RbiConfig {
+            enabled: true,
+            ..Default::default()
+        };
         let manager = RbiManager::new(config);
 
         let session = manager
@@ -554,8 +556,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_terminate_session() {
-        let mut config = RbiConfig::default();
-        config.enabled = true;
+        let config = RbiConfig {
+            enabled: true,
+            ..Default::default()
+        };
         let manager = RbiManager::new(config);
 
         let session = manager
@@ -574,8 +578,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_process_event() {
-        let mut config = RbiConfig::default();
-        config.enabled = true;
+        let config = RbiConfig {
+            enabled: true,
+            ..Default::default()
+        };
         let manager = RbiManager::new(config);
 
         let session = manager
@@ -593,9 +599,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_session_expiration() {
-        let mut config = RbiConfig::default();
-        config.enabled = true;
-        config.max_session_duration_mins = 0; // Immediate expiration
+        let config = RbiConfig {
+            enabled: true,
+            max_session_duration_mins: 0, // Immediate expiration
+            ..Default::default()
+        };
         let manager = RbiManager::new(config);
 
         manager

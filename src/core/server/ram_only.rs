@@ -359,8 +359,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_session_expiration() {
-        let mut config = RamOnlyConfig::default();
-        config.session_timeout_secs = 1; // 1 second timeout
+        let config = RamOnlyConfig {
+            session_timeout_secs: 1, // 1 second timeout
+            ..Default::default()
+        };
 
         let server = RamOnlyServer::new(config);
         let _session_id = server.create_session("user123".to_string()).await.unwrap();
