@@ -5,7 +5,6 @@
 
 use super::*;
 use std::sync::Arc;
-use std::time::Duration;
 
 // =============================================================================
 // Tunnel Statistics Tests

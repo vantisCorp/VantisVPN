@@ -2,7 +2,6 @@
 //!
 //! Uses ChaCha20-based CSPRNG for all cryptographic operations.
 
-use crate::error::VantisError;
 use rand::{random, Rng};
 use rand_chacha::ChaCha20Rng;
 use rand_core::SeedableRng;

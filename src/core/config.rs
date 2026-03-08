@@ -9,6 +9,7 @@ use std::path::PathBuf;
 ///
 /// Main configuration structure for the VANTISVPN application.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Default)]
 pub struct Config {
     /// Application settings
     ///
@@ -194,16 +195,6 @@ impl Default for LoggingConfig {
     }
 }
 
-impl Default for Config {
-    fn default() -> Self {
-        Self {
-            app: AppConfig::default(),
-            network: NetworkConfig::default(),
-            security: SecurityConfig::default(),
-            logging: LoggingConfig::default(),
-        }
-    }
-}
 
 impl Config {
     /// Create a new default configuration
@@ -266,7 +257,7 @@ mod tests {
     fn test_config_serialization() {
         let config = Config::new();
         let json = serde_json::to_string(&config).expect("Failed to serialize");
-        assert!(json.len() > 0);
+        assert!(!json.is_empty());
     }
 
     #[test]

@@ -48,7 +48,7 @@ mod key_management_tests {
     fn test_key_pair_zeroization() {
         init_crypto();
         let pair = EphemeralKeyPair::new().expect("Failed to generate key pair");
-        let public_key_bytes = pair.public_key().as_bytes().to_vec();
+        let _public_key_bytes = pair.public_key().as_bytes().to_vec();
 
         // After dropping, private key should be zeroized
         drop(pair);
@@ -590,7 +590,7 @@ mod random_tests {
     #[serial(crypto)]
     fn test_random_u32() {
         init_crypto();
-        let val = random::random_u32().expect("Random failed");
+        let _val = random::random_u32().expect("Random failed");
         // Just ensure it works
         assert!(true);
     }
@@ -621,9 +621,9 @@ mod random_tests {
         let bytes = rng.generate_bytes(32).expect("Bytes generation failed");
         assert_eq!(bytes.len(), 32);
 
-        let val_u64 = rng.generate_u64().expect("u64 generation failed");
-        let val_u32 = rng.generate_u32().expect("u32 generation failed");
-        let val_bool = rng.generate_bool().expect("bool generation failed");
+        let _val_u64 = rng.generate_u64().expect("u64 generation failed");
+        let _val_u32 = rng.generate_u32().expect("u32 generation failed");
+        let _val_bool = rng.generate_bool().expect("bool generation failed");
 
         // Just ensure they work
         assert!(true);
@@ -705,7 +705,7 @@ mod integration_tests {
         init().expect("Init failed");
 
         // Generate key pair
-        let pair = EphemeralKeyPair::new().expect("Key pair failed");
+        let _pair = EphemeralKeyPair::new().expect("Key pair failed");
 
         // Create cipher with derived key
         let key = [0u8; 32]; // In reality, would derive from shared secret

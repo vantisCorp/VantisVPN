@@ -363,7 +363,7 @@ mod tests {
         config.session_timeout_secs = 1; // 1 second timeout
 
         let server = RamOnlyServer::new(config);
-        let session_id = server.create_session("user123".to_string()).await.unwrap();
+        let _session_id = server.create_session("user123".to_string()).await.unwrap();
 
         tokio::time::sleep(Duration::from_secs(2)).await;
 

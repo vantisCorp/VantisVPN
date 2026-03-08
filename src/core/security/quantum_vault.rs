@@ -324,7 +324,7 @@ impl QuantumVault {
                     || e.username.to_lowercase().contains(&query_lower)
                     || e.url
                         .as_ref()
-                        .map_or(false, |u| u.to_lowercase().contains(&query_lower))
+                        .is_some_and(|u| u.to_lowercase().contains(&query_lower))
                     || e.tags
                         .iter()
                         .any(|t| t.to_lowercase().contains(&query_lower))

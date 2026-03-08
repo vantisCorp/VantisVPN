@@ -4,7 +4,6 @@
 //! split tunneling, and network protection.
 
 use super::*;
-use crate::error::{Result, VantisError};
 
 // =============================================================================
 // Kill Switch State Tests
@@ -295,12 +294,12 @@ mod kill_switch_manager_tests {
             manager
                 .activate()
                 .await
-                .expect(&format!("Activation {} failed", i));
+                .unwrap_or_else(|_| panic!("Activation {} failed", i));
             assert!(manager.is_active().await);
             manager
                 .deactivate()
                 .await
-                .expect(&format!("Deactivation {} failed", i));
+                .unwrap_or_else(|_| panic!("Deactivation {} failed", i));
             assert!(!manager.is_active().await);
         }
 
@@ -612,7 +611,7 @@ mod performance_tests {
         let start = Instant::now();
         let mut handles = vec![];
 
-        for i in 0..50 {
+        for _i in 0..50 {
             let manager_clone = manager.clone();
             let handle = tokio::spawn(async move {
                 for j in 0..20 {

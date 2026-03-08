@@ -4,8 +4,7 @@
 //! family shield, biometric authentication, and theme manager.
 
 use super::*;
-use crate::error::{Result, VantisError};
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 #[cfg(test)]

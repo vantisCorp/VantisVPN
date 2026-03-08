@@ -661,7 +661,7 @@ impl MultiHopManager {
 
         let circuit = circuits
             .get(circuit_id)
-            .ok_or_else(|| VantisError::InvalidCircuit)?;
+            .ok_or(VantisError::InvalidCircuit)?;
 
         Ok(circuit.get_statistics().await)
     }

@@ -4,7 +4,6 @@
 //! YubiKey authentication, and Vantis OS firmware.
 
 use super::*;
-use crate::error::{Result, VantisError};
 use std::net::Ipv4Addr;
 use std::time::{Duration, SystemTime};
 
@@ -67,7 +66,7 @@ mod router_os_tests {
 
     #[test]
     fn test_network_interface_creation() {
-        use std::net::IpAddr;
+        
 
         let interface = NetworkInterface {
             name: "eth0".to_string(),
@@ -694,7 +693,7 @@ mod vantis_os_tests {
 
     #[test]
     fn test_vantis_os_builder() {
-        let builder = VantisOsBuilder::new()
+        let _builder = VantisOsBuilder::new()
             .os_name("Vantis OS".to_string())
             .version("1.0.0".to_string());
 
