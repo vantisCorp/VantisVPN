@@ -2,16 +2,16 @@
 // Implements support for jumbo frames (up to 9000 bytes) on fiber networks
 // Optimizes throughput for high-speed fiber connections
 
+use crate::error::{Result, VantisError};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
-use serde::{Serialize, Deserialize};
-use crate::error::{VantisError, Result};
 
 /// Jumbo Frame Configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// Jumbo frame configuration for FTTH
-/// 
+///
 /// Configuration settings for jumbo frame support in Fiber-to-the-Home
 /// networks, enabling larger packet sizes for improved throughput.
 pub struct JumboFrameConfig {
@@ -67,7 +67,7 @@ pub enum FrameType {
 }
 
 /// Network path for MTU tracking
-/// 
+///
 /// Represents a network path with its MTU size and jumbo frame support,
 /// used for Path MTU Discovery and caching.
 #[derive(Debug, Clone)]
@@ -101,7 +101,7 @@ impl NetworkPath {
 }
 
 /// Jumbo frame fragment
-/// 
+///
 /// Represents a fragment of a jumbo frame that has been split for
 /// transmission over a path with smaller MTU.
 #[derive(Debug, Clone)]
@@ -131,7 +131,7 @@ impl FrameFragment {
 }
 
 /// Jumbo frame statistics
-/// 
+///
 /// Contains statistics about jumbo frame operations, including frame counts,
 /// fragmentation metrics, and throughput measurements.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -224,7 +224,8 @@ impl JumboFrameManager {
             self.send_single_frame(destination, data).await?;
         } else if self.config.enable_fragmentation {
             // Fragment the frame
-            self.send_fragmented_frame(destination, data, path_mtu).await?;
+            self.send_fragmented_frame(destination, data, path_mtu)
+                .await?;
         } else {
             return Err(VantisError::InvalidPeer(
                 "Frame too large and fragmentation disabled".to_string(),
@@ -389,7 +390,9 @@ impl JumboFrameManager {
 
         let total_size: usize = frames.iter().map(|f| f.len()).sum();
         if total_size > self.config.mtu {
-            return Err(VantisError::InvalidPeer("Aggregated frame too large".to_string()));
+            return Err(VantisError::InvalidPeer(
+                "Aggregated frame too large".to_string(),
+            ));
         }
 
         // Aggregate frames
@@ -422,9 +425,7 @@ impl JumboFrameManager {
         let mut buffer = self.fragment_buffer.lock().await;
         let timeout = std::time::Duration::from_secs(60); // 1 minute timeout
 
-        buffer.retain(|_, fragments| {
-            fragments.iter().any(|f| f.timestamp.elapsed() < timeout)
-        });
+        buffer.retain(|_, fragments| fragments.iter().any(|f| f.timestamp.elapsed() < timeout));
     }
 }
 
@@ -436,7 +437,7 @@ mod tests {
     async fn test_jumbo_frame_initialization() {
         let config = JumboFrameConfig::default();
         let manager = JumboFrameManager::new(config);
-        
+
         let stats = manager.get_stats().await;
         assert_eq!(stats.total_frames_sent, 0);
     }
@@ -445,7 +446,7 @@ mod tests {
     async fn test_frame_type_determination() {
         let config = JumboFrameConfig::default();
         let manager = JumboFrameManager::new(config);
-        
+
         assert_eq!(manager.determine_frame_type(1000), FrameType::Standard);
         assert_eq!(manager.determine_frame_type(2000), FrameType::Jumbo);
         assert_eq!(manager.determine_frame_type(10000), FrameType::SuperJumbo);
@@ -455,10 +456,13 @@ mod tests {
     async fn test_send_single_frame() {
         let config = JumboFrameConfig::default();
         let manager = JumboFrameManager::new(config);
-        
+
         let data = vec![1u8; 1000];
-        manager.send_frame("192.168.1.1".to_string(), data).await.unwrap();
-        
+        manager
+            .send_frame("192.168.1.1".to_string(), data)
+            .await
+            .unwrap();
+
         let stats = manager.get_stats().await;
         assert_eq!(stats.total_frames_sent, 1);
         assert_eq!(stats.standard_frames_sent, 1);
@@ -468,10 +472,13 @@ mod tests {
     async fn test_send_jumbo_frame() {
         let config = JumboFrameConfig::default();
         let manager = JumboFrameManager::new(config);
-        
+
         let data = vec![1u8; 5000];
-        manager.send_frame("192.168.1.1".to_string(), data).await.unwrap();
-        
+        manager
+            .send_frame("192.168.1.1".to_string(), data)
+            .await
+            .unwrap();
+
         let stats = manager.get_stats().await;
         assert_eq!(stats.total_frames_sent, 1);
         assert_eq!(stats.jumbo_frames_sent, 1);
@@ -481,16 +488,12 @@ mod tests {
     async fn test_frame_aggregation() {
         let config = JumboFrameConfig::default();
         let manager = JumboFrameManager::new(config);
-        
-        let frames = vec![
-            vec![1u8; 1000],
-            vec![2u8; 1000],
-            vec![3u8; 1000],
-        ];
-        
+
+        let frames = vec![vec![1u8; 1000], vec![2u8; 1000], vec![3u8; 1000]];
+
         let aggregated = manager.aggregate_frames(frames).await.unwrap();
         assert_eq!(aggregated.len(), 3000);
-        
+
         let stats = manager.get_stats().await;
         assert_eq!(stats.aggregated_frames, 1);
     }

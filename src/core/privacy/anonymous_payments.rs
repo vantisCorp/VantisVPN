@@ -2,262 +2,262 @@
 // Phase 5: Privacy & Identity Management
 // Implements anonymous payment methods: Monero, Lightning Network, Cash
 
-use crate::error::VantisError;
 use crate::crypto::hash::Hash;
 use crate::crypto::random::SecureRandom;
+use crate::error::VantisError;
+use chrono::{DateTime, Duration, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use serde::{Serialize, Deserialize};
-use chrono::{DateTime, Utc, Duration};
 
 /// Payment method type
-/// 
+///
 /// Anonymous payment methods supported by the system.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PaymentMethod {
     /// Monero (XMR) - privacy-focused cryptocurrency
-    /// 
+    ///
     /// Monero is a privacy-focused cryptocurrency that provides
     /// untraceable transactions through ring signatures and stealth addresses.
     Monero,
     /// Lightning Network - instant Bitcoin payments
-    /// 
+    ///
     /// Lightning Network provides instant, low-fee Bitcoin payments
     /// through payment channels.
     Lightning,
     /// Cash - physical cash payments
-    /// 
+    ///
     /// Physical cash payments made at designated locations.
     Cash,
 }
 
 /// Payment status
-/// 
+///
 /// Status of a payment transaction.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PaymentStatus {
     /// Payment pending
-    /// 
+    ///
     /// Payment is awaiting confirmation or verification.
     Pending,
     /// Payment confirmed
-    /// 
+    ///
     /// Payment has been successfully confirmed.
     Confirmed,
     /// Payment failed
-    /// 
+    ///
     /// Payment failed to process.
     Failed,
     /// Payment refunded
-    /// 
+    ///
     /// Payment has been refunded.
     Refunded,
     /// Payment expired
-    /// 
+    ///
     /// Payment has expired without confirmation.
     Expired,
 }
 
 /// Monero payment details
-/// 
+///
 /// Represents a Monero cryptocurrency payment.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MoneroPayment {
     /// Payment ID
-    /// 
+    ///
     /// Unique identifier for this payment.
     pub payment_id: String,
     /// Monero address
-    /// 
+    ///
     /// Monero address to receive payment.
     pub address: String,
     /// Amount in XMR
-    /// 
+    ///
     /// Payment amount in Monero (XMR).
     pub amount: f64,
     /// Transaction ID
-    /// 
+    ///
     /// Monero transaction ID (when confirmed).
     pub tx_id: Option<String>,
     /// Number of confirmations
-    /// 
+    ///
     /// Current number of blockchain confirmations.
     pub confirmations: u32,
     /// Required confirmations
-    /// 
+    ///
     /// Number of confirmations required for payment completion.
     pub required_confirmations: u32,
     /// Payment status
-    /// 
+    ///
     /// Current status of the payment.
     pub status: PaymentStatus,
     /// Created at
-    /// 
+    ///
     /// When the payment was created.
     pub created_at: DateTime<Utc>,
     /// Confirmed at
-    /// 
+    ///
     /// When the payment was confirmed.
     pub confirmed_at: Option<DateTime<Utc>>,
 }
 
 /// Lightning Network payment details
-/// 
+///
 /// Represents a Lightning Network payment.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LightningPayment {
     /// Payment ID
-    /// 
+    ///
     /// Unique identifier for this payment.
     pub payment_id: String,
     /// Lightning invoice
-    /// 
+    ///
     /// Lightning Network invoice for payment.
     pub invoice: String,
     /// Amount in satoshis
-    /// 
+    ///
     /// Payment amount in satoshis.
     pub amount_sat: u64,
     /// Payment hash
-    /// 
+    ///
     /// Lightning payment hash (when confirmed).
     pub payment_hash: Option<String>,
     /// Payment preimage
-    /// 
+    ///
     /// Lightning payment preimage (when confirmed).
     pub preimage: Option<String>,
     /// Payment status
-    /// 
+    ///
     /// Current status of the payment.
     pub status: PaymentStatus,
     /// Created at
-    /// 
+    ///
     /// When the payment was created.
     pub created_at: DateTime<Utc>,
     /// Confirmed at
-    /// 
+    ///
     /// When the payment was confirmed.
     pub confirmed_at: Option<DateTime<Utc>>,
     /// Expires at
-    /// 
+    ///
     /// When the invoice expires.
     pub expires_at: DateTime<Utc>,
 }
 
 /// Cash payment details
-/// 
+///
 /// Represents a physical cash payment.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CashPayment {
     /// Payment ID
-    /// 
+    ///
     /// Unique identifier for this payment.
     pub payment_id: String,
     /// Reference code
-    /// 
+    ///
     /// Reference code for the payment.
     pub reference_code: String,
     /// Amount in local currency
-    /// 
+    ///
     /// Payment amount in local currency.
     pub amount: f64,
     /// Currency code
-    /// 
+    ///
     /// Currency code (e.g., USD, EUR).
     pub currency: String,
     /// Payment location
-    /// 
+    ///
     /// Location where payment was made.
     pub location: String,
     /// Verification code
-    /// 
+    ///
     /// Code used to verify the payment.
     pub verification_code: String,
     /// Payment status
-    /// 
+    ///
     /// Current status of the payment.
     pub status: PaymentStatus,
     /// Created at
-    /// 
+    ///
     /// When the payment was created.
     pub created_at: DateTime<Utc>,
     /// Verified at
-    /// 
+    ///
     /// When the payment was verified.
     pub verified_at: Option<DateTime<Utc>>,
 }
 
 /// Payment transaction
-/// 
+///
 /// Represents a payment transaction record.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PaymentTransaction {
     /// Transaction ID
-    /// 
+    ///
     /// Unique identifier for this transaction.
     pub transaction_id: String,
     /// Payment method
-    /// 
+    ///
     /// Payment method used for this transaction.
     pub method: PaymentMethod,
     /// Amount
-    /// 
+    ///
     /// Transaction amount.
     pub amount: f64,
     /// Currency
-    /// 
+    ///
     /// Currency code for the amount.
     pub currency: String,
     /// Status
-    /// 
+    ///
     /// Current status of the transaction.
     pub status: PaymentStatus,
     /// Created at
-    /// 
+    ///
     /// When the transaction was created.
     pub created_at: DateTime<Utc>,
     /// Updated at
-    /// 
+    ///
     /// When the transaction was last updated.
     pub updated_at: DateTime<Utc>,
 }
 
 /// Anonymous Payment Manager configuration
-/// 
+///
 /// Configuration settings for the anonymous payment system.
 #[derive(Debug, Clone)]
 pub struct PaymentConfig {
     /// Enable Monero payments
-    /// 
+    ///
     /// Whether Monero payments are enabled.
     pub enable_monero: bool,
     /// Enable Lightning payments
-    /// 
+    ///
     /// Whether Lightning Network payments are enabled.
     pub enable_lightning: bool,
     /// Enable cash payments
-    /// 
+    ///
     /// Whether cash payments are enabled.
     pub enable_cash: bool,
     /// Monero required confirmations
-    /// 
+    ///
     /// Number of blockchain confirmations required for Monero payments.
     pub monero_confirmations: u32,
     /// Lightning invoice expiry in seconds
-    /// 
+    ///
     /// Expiry time for Lightning invoices in seconds.
     pub lightning_expiry: u64,
     /// Cash verification expiry in seconds
-    /// 
+    ///
     /// Expiry time for cash payment verification in seconds.
     pub cash_expiry: u64,
     /// Maximum payment amount
-    /// 
+    ///
     /// Maximum allowed payment amount.
     pub max_amount: f64,
     /// Minimum payment amount
-    /// 
+    ///
     /// Minimum allowed payment amount.
     pub min_amount: f64,
 }
@@ -270,7 +270,7 @@ impl Default for PaymentConfig {
             enable_cash: true,
             monero_confirmations: 10,
             lightning_expiry: 3600, // 1 hour
-            cash_expiry: 86400, // 24 hours
+            cash_expiry: 86400,     // 24 hours
             max_amount: 10000.0,
             min_amount: 1.0,
         }
@@ -278,7 +278,7 @@ impl Default for PaymentConfig {
 }
 
 /// Anonymous Payment Manager
-/// 
+///
 /// Manages anonymous payment processing using cryptocurrency methods that
 /// preserve user privacy, including Monero transactions, Lightning Network
 /// payments, and cash payment options.
@@ -309,7 +309,11 @@ impl AnonymousPaymentManager {
     }
 
     /// Create Monero payment
-    pub async fn create_monero_payment(&self, address: String, amount: f64) -> Result<String, VantisError> {
+    pub async fn create_monero_payment(
+        &self,
+        address: String,
+        amount: f64,
+    ) -> Result<String, VantisError> {
         if !self.config.enable_monero {
             return Err(VantisError::InvalidState);
         }
@@ -338,15 +342,21 @@ impl AnonymousPaymentManager {
         payments.insert(payment_id.clone(), payment);
 
         // Create transaction record
-        self.create_transaction_record(payment_id.clone(), PaymentMethod::Monero, amount, "XMR").await?;
+        self.create_transaction_record(payment_id.clone(), PaymentMethod::Monero, amount, "XMR")
+            .await?;
 
         Ok(payment_id)
     }
 
     /// Confirm Monero payment
-    pub async fn confirm_monero_payment(&self, payment_id: &str, tx_id: String) -> Result<(), VantisError> {
+    pub async fn confirm_monero_payment(
+        &self,
+        payment_id: &str,
+        tx_id: String,
+    ) -> Result<(), VantisError> {
         let mut payments = self.monero_payments.lock().await;
-        let payment = payments.get_mut(payment_id)
+        let payment = payments
+            .get_mut(payment_id)
             .ok_or_else(|| VantisError::NotFound(format!("Payment {} not found", payment_id)))?;
 
         payment.tx_id = Some(tx_id);
@@ -355,7 +365,8 @@ impl AnonymousPaymentManager {
         payment.confirmed_at = Some(Utc::now());
 
         // Update transaction record
-        self.update_transaction_status(payment_id, PaymentStatus::Confirmed).await?;
+        self.update_transaction_status(payment_id, PaymentStatus::Confirmed)
+            .await?;
 
         Ok(())
     }
@@ -395,15 +406,22 @@ impl AnonymousPaymentManager {
         payments.insert(payment_id.clone(), payment);
 
         // Create transaction record
-        self.create_transaction_record(payment_id.clone(), PaymentMethod::Lightning, amount, "BTC").await?;
+        self.create_transaction_record(payment_id.clone(), PaymentMethod::Lightning, amount, "BTC")
+            .await?;
 
         Ok(payment_id)
     }
 
     /// Confirm Lightning payment
-    pub async fn confirm_lightning_payment(&self, payment_id: &str, payment_hash: String, preimage: String) -> Result<(), VantisError> {
+    pub async fn confirm_lightning_payment(
+        &self,
+        payment_id: &str,
+        payment_hash: String,
+        preimage: String,
+    ) -> Result<(), VantisError> {
         let mut payments = self.lightning_payments.lock().await;
-        let payment = payments.get_mut(payment_id)
+        let payment = payments
+            .get_mut(payment_id)
             .ok_or_else(|| VantisError::NotFound(format!("Payment {} not found", payment_id)))?;
 
         payment.payment_hash = Some(payment_hash);
@@ -412,13 +430,19 @@ impl AnonymousPaymentManager {
         payment.confirmed_at = Some(Utc::now());
 
         // Update transaction record
-        self.update_transaction_status(payment_id, PaymentStatus::Confirmed).await?;
+        self.update_transaction_status(payment_id, PaymentStatus::Confirmed)
+            .await?;
 
         Ok(())
     }
 
     /// Create cash payment
-    pub async fn create_cash_payment(&self, amount: f64, currency: String, location: String) -> Result<String, VantisError> {
+    pub async fn create_cash_payment(
+        &self,
+        amount: f64,
+        currency: String,
+        location: String,
+    ) -> Result<String, VantisError> {
         if !self.config.enable_cash {
             return Err(VantisError::InvalidState);
         }
@@ -449,44 +473,62 @@ impl AnonymousPaymentManager {
         payments.insert(payment_id.clone(), payment);
 
         // Create transaction record
-        self.create_transaction_record(payment_id.clone(), PaymentMethod::Cash, amount, &currency).await?;
+        self.create_transaction_record(payment_id.clone(), PaymentMethod::Cash, amount, &currency)
+            .await?;
 
         Ok(payment_id)
     }
 
     /// Verify cash payment
-    pub async fn verify_cash_payment(&self, payment_id: &str, verification_code: String) -> Result<(), VantisError> {
+    pub async fn verify_cash_payment(
+        &self,
+        payment_id: &str,
+        verification_code: String,
+    ) -> Result<(), VantisError> {
         let mut payments = self.cash_payments.lock().await;
-        let payment = payments.get_mut(payment_id)
+        let payment = payments
+            .get_mut(payment_id)
             .ok_or_else(|| VantisError::NotFound(format!("Payment {} not found", payment_id)))?;
 
         if payment.verification_code != verification_code {
-            return Err(VantisError::AuthenticationFailed("Invalid verification code".to_string()));
+            return Err(VantisError::AuthenticationFailed(
+                "Invalid verification code".to_string(),
+            ));
         }
 
         payment.status = PaymentStatus::Confirmed;
         payment.verified_at = Some(Utc::now());
 
         // Update transaction record
-        self.update_transaction_status(payment_id, PaymentStatus::Confirmed).await?;
+        self.update_transaction_status(payment_id, PaymentStatus::Confirmed)
+            .await?;
 
         Ok(())
     }
 
     /// Get Monero payment
-    pub async fn get_monero_payment(&self, payment_id: &str) -> Result<Option<MoneroPayment>, VantisError> {
+    pub async fn get_monero_payment(
+        &self,
+        payment_id: &str,
+    ) -> Result<Option<MoneroPayment>, VantisError> {
         let payments = self.monero_payments.lock().await;
         Ok(payments.get(payment_id).cloned())
     }
 
     /// Get Lightning payment
-    pub async fn get_lightning_payment(&self, payment_id: &str) -> Result<Option<LightningPayment>, VantisError> {
+    pub async fn get_lightning_payment(
+        &self,
+        payment_id: &str,
+    ) -> Result<Option<LightningPayment>, VantisError> {
         let payments = self.lightning_payments.lock().await;
         Ok(payments.get(payment_id).cloned())
     }
 
     /// Get cash payment
-    pub async fn get_cash_payment(&self, payment_id: &str) -> Result<Option<CashPayment>, VantisError> {
+    pub async fn get_cash_payment(
+        &self,
+        payment_id: &str,
+    ) -> Result<Option<CashPayment>, VantisError> {
         let payments = self.cash_payments.lock().await;
         Ok(payments.get(payment_id).cloned())
     }
@@ -498,7 +540,13 @@ impl AnonymousPaymentManager {
     }
 
     /// Create transaction record
-    async fn create_transaction_record(&self, payment_id: String, method: PaymentMethod, amount: f64, currency: &str) -> Result<(), VantisError> {
+    async fn create_transaction_record(
+        &self,
+        payment_id: String,
+        method: PaymentMethod,
+        amount: f64,
+        currency: &str,
+    ) -> Result<(), VantisError> {
         let transaction = PaymentTransaction {
             transaction_id: payment_id.clone(),
             method,
@@ -516,7 +564,11 @@ impl AnonymousPaymentManager {
     }
 
     /// Update transaction status
-    async fn update_transaction_status(&self, payment_id: &str, status: PaymentStatus) -> Result<(), VantisError> {
+    async fn update_transaction_status(
+        &self,
+        payment_id: &str,
+        status: PaymentStatus,
+    ) -> Result<(), VantisError> {
         let mut transactions = self.transactions.lock().await;
         if let Some(transaction) = transactions.get_mut(payment_id) {
             transaction.status = status;

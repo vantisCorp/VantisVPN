@@ -2,20 +2,20 @@
 // Phase 4: User Security & Protection
 // Implements quantum-resistant password storage and management
 
-use crate::error::VantisError;
 use crate::crypto::cipher::{Cipher, CipherSuite};
 use crate::crypto::hash::Hash;
 use crate::crypto::random::SecureRandom;
+use crate::error::VantisError;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use serde::{Serialize, Deserialize};
-use chrono::{DateTime, Utc};
 
 /// Vault entry for storing credentials
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// Password vault entry
-/// 
+///
 /// Represents a single password entry in the Quantum Vault, containing
 /// encrypted credentials and metadata for secure password management.
 pub struct VaultEntry {
@@ -46,7 +46,7 @@ pub struct VaultEntry {
 }
 
 /// Quantum Vault configuration
-/// 
+///
 /// Configuration settings for the password vault, including security
 /// parameters, auto-lock settings, and clipboard management.
 #[derive(Debug, Clone)]
@@ -124,7 +124,7 @@ impl QuantumVault {
     pub fn new(config: VaultConfig) -> Result<Self, VantisError> {
         let rng = SecureRandom::new()?;
         let cipher = Cipher::new(&[0u8; 32], CipherSuite::ChaCha20Poly1305)?;
-        
+
         Ok(Self {
             config,
             state: Arc::new(Mutex::new(VaultState::Locked)),
@@ -144,14 +144,16 @@ impl QuantumVault {
         let lockout = self.lockout_until.lock().await;
         if let Some(until) = *lockout {
             if Utc::now() < until {
-                return Err(VantisError::AuthenticationFailed("Vault is locked out".to_string()));
+                return Err(VantisError::AuthenticationFailed(
+                    "Vault is locked out".to_string(),
+                ));
             }
         }
         drop(lockout);
 
         // Derive master key from password
         let master_key = self.derive_master_key(master_password)?;
-        
+
         // Store master key
         let mut key = self.master_key.lock().await;
         *key = Some(master_key);
@@ -160,7 +162,7 @@ impl QuantumVault {
         // Update state
         let mut state = self.state.lock().await;
         *state = VaultState::Unlocked;
-        
+
         // Reset failed attempts
         let mut attempts = self.failed_attempts.lock().await;
         *attempts = 0;
@@ -225,7 +227,8 @@ impl QuantumVault {
         self.check_unlocked().await?;
 
         let entries = self.entries.lock().await;
-        let _entry = entries.get(id)
+        let _entry = entries
+            .get(id)
             .ok_or_else(|| VantisError::NotFound(format!("Entry not found: {}", id)))?;
 
         // Update last accessed
@@ -264,7 +267,8 @@ impl QuantumVault {
         self.check_unlocked().await?;
 
         let mut entries = self.entries.lock().await;
-        let entry = entries.get_mut(id)
+        let entry = entries
+            .get_mut(id)
             .ok_or_else(|| VantisError::NotFound(format!("Entry not found: {}", id)))?;
 
         if let Some(s) = service {
@@ -299,7 +303,8 @@ impl QuantumVault {
         self.check_unlocked().await?;
 
         let mut entries = self.entries.lock().await;
-        entries.remove(id)
+        entries
+            .remove(id)
             .ok_or_else(|| VantisError::NotFound(format!("Entry not found: {}", id)))?;
 
         Ok(())
@@ -311,13 +316,18 @@ impl QuantumVault {
 
         let entries = self.entries.lock().await;
         let query_lower = query.to_lowercase();
-        
-        let results: Vec<VaultEntry> = entries.values()
+
+        let results: Vec<VaultEntry> = entries
+            .values()
             .filter(|e| {
                 e.service.to_lowercase().contains(&query_lower)
                     || e.username.to_lowercase().contains(&query_lower)
-                    || e.url.as_ref().map_or(false, |u| u.to_lowercase().contains(&query_lower))
-                    || e.tags.iter().any(|t| t.to_lowercase().contains(&query_lower))
+                    || e.url
+                        .as_ref()
+                        .map_or(false, |u| u.to_lowercase().contains(&query_lower))
+                    || e.tags
+                        .iter()
+                        .any(|t| t.to_lowercase().contains(&query_lower))
             })
             .cloned()
             .collect();
@@ -331,10 +341,8 @@ impl QuantumVault {
 
         let entries = self.entries.lock().await;
         let total_entries = entries.len();
-        
-        let weak_passwords = entries.values()
-            .filter(|e| e.strength_score < 50)
-            .count();
+
+        let weak_passwords = entries.values().filter(|e| e.strength_score < 50).count();
 
         // Check for duplicate passwords (simplified check)
         let mut password_hashes: HashMap<Vec<u8>, u32> = HashMap::new();
@@ -364,8 +372,12 @@ impl QuantumVault {
         let state = self.state.lock().await;
         match *state {
             VaultState::Unlocked => Ok(()),
-            VaultState::Locked => Err(VantisError::AuthenticationFailed("Vault is locked".to_string())),
-            VaultState::LockedOut => Err(VantisError::AuthenticationFailed("Vault is locked out".to_string())),
+            VaultState::Locked => Err(VantisError::AuthenticationFailed(
+                "Vault is locked".to_string(),
+            )),
+            VaultState::LockedOut => Err(VantisError::AuthenticationFailed(
+                "Vault is locked out".to_string(),
+            )),
         }
     }
 
@@ -375,7 +387,7 @@ impl QuantumVault {
         let mut key = vec![0u8; 32];
         let password_bytes = password.as_bytes();
         let hash_instance = Hash::new()?;
-        
+
         for _i in 0..self.config.key_iterations {
             let hash = hash_instance.compute_keyed(password_bytes, &key)?;
             key.copy_from_slice(&hash[..32.min(hash.len())]);
@@ -411,19 +423,41 @@ impl QuantumVault {
         let mut score = 0u8;
 
         // Length
-        if password.len() >= 8 { score += 20; }
-        if password.len() >= 12 { score += 10; }
-        if password.len() >= 16 { score += 10; }
+        if password.len() >= 8 {
+            score += 20;
+        }
+        if password.len() >= 12 {
+            score += 10;
+        }
+        if password.len() >= 16 {
+            score += 10;
+        }
 
         // Character variety
-        if password.chars().any(|c| c.is_lowercase()) { score += 10; }
-        if password.chars().any(|c| c.is_uppercase()) { score += 10; }
-        if password.chars().any(|c| c.is_ascii_digit()) { score += 10; }
-        if password.chars().any(|c| !c.is_alphanumeric()) { score += 15; }
+        if password.chars().any(|c| c.is_lowercase()) {
+            score += 10;
+        }
+        if password.chars().any(|c| c.is_uppercase()) {
+            score += 10;
+        }
+        if password.chars().any(|c| c.is_ascii_digit()) {
+            score += 10;
+        }
+        if password.chars().any(|c| !c.is_alphanumeric()) {
+            score += 15;
+        }
 
         // Complexity
-        if password.len() > 20 { score += 5; }
-        if password.chars().collect::<std::collections::HashSet<_>>().len() as f64 / password.len() as f64 > 0.7 {
+        if password.len() > 20 {
+            score += 5;
+        }
+        if password
+            .chars()
+            .collect::<std::collections::HashSet<_>>()
+            .len() as f64
+            / password.len() as f64
+            > 0.7
+        {
             score += 10;
         }
 
@@ -434,9 +468,15 @@ impl QuantumVault {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::crypto;
+
+    fn init_crypto() {
+        crypto::init().expect("Crypto init failed");
+    }
 
     #[tokio::test]
     async fn test_vault_creation() {
+        init_crypto();
         let config = VaultConfig::default();
         let vault = QuantumVault::new(config).unwrap();
         assert_eq!(vault.state().await, VaultState::Locked);
@@ -444,6 +484,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_vault_unlock() {
+        init_crypto();
         let config = VaultConfig::default();
         let vault = QuantumVault::new(config).unwrap();
         vault.unlock("test_password").await.unwrap();
@@ -452,6 +493,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_vault_lock() {
+        init_crypto();
         let config = VaultConfig::default();
         let vault = QuantumVault::new(config).unwrap();
         vault.unlock("test_password").await.unwrap();
@@ -461,36 +503,44 @@ mod tests {
 
     #[tokio::test]
     async fn test_add_entry() {
+        init_crypto();
         let config = VaultConfig::default();
         let vault = QuantumVault::new(config).unwrap();
         vault.unlock("test_password").await.unwrap();
-        
-        let id = vault.add_entry(
-            "Test Service".to_string(),
-            "user@example.com".to_string(),
-            "SecurePassword123!".to_string(),
-            Some("https://example.com".to_string()),
-            Some("Test notes".to_string()),
-            vec!["test".to_string()],
-        ).await.unwrap();
+
+        let id = vault
+            .add_entry(
+                "Test Service".to_string(),
+                "user@example.com".to_string(),
+                "SecurePassword123!".to_string(),
+                Some("https://example.com".to_string()),
+                Some("Test notes".to_string()),
+                vec!["test".to_string()],
+            )
+            .await
+            .unwrap();
 
         assert!(!id.is_empty());
     }
 
     #[tokio::test]
     async fn test_get_entry() {
+        init_crypto();
         let config = VaultConfig::default();
         let vault = QuantumVault::new(config).unwrap();
         vault.unlock("test_password").await.unwrap();
-        
-        let id = vault.add_entry(
-            "Test Service".to_string(),
-            "user@example.com".to_string(),
-            "SecurePassword123!".to_string(),
-            None,
-            None,
-            vec![],
-        ).await.unwrap();
+
+        let id = vault
+            .add_entry(
+                "Test Service".to_string(),
+                "user@example.com".to_string(),
+                "SecurePassword123!".to_string(),
+                None,
+                None,
+                vec![],
+            )
+            .await
+            .unwrap();
 
         let entry = vault.get_entry(&id).await.unwrap();
         assert_eq!(entry.service, "Test Service");
@@ -499,18 +549,22 @@ mod tests {
 
     #[tokio::test]
     async fn test_decrypt_password() {
+        init_crypto();
         let config = VaultConfig::default();
         let vault = QuantumVault::new(config).unwrap();
         vault.unlock("test_password").await.unwrap();
-        
-        let id = vault.add_entry(
-            "Test Service".to_string(),
-            "user@example.com".to_string(),
-            "SecurePassword123!".to_string(),
-            None,
-            None,
-            vec![],
-        ).await.unwrap();
+
+        let id = vault
+            .add_entry(
+                "Test Service".to_string(),
+                "user@example.com".to_string(),
+                "SecurePassword123!".to_string(),
+                None,
+                None,
+                vec![],
+            )
+            .await
+            .unwrap();
 
         let entry = vault.get_entry(&id).await.unwrap();
         let password = vault.decrypt_password(&entry).await.unwrap();
@@ -519,27 +573,34 @@ mod tests {
 
     #[tokio::test]
     async fn test_search_entries() {
+        init_crypto();
         let config = VaultConfig::default();
         let vault = QuantumVault::new(config).unwrap();
         vault.unlock("test_password").await.unwrap();
-        
-        vault.add_entry(
-            "GitHub".to_string(),
-            "user@github.com".to_string(),
-            "password1".to_string(),
-            None,
-            None,
-            vec!["dev".to_string()],
-        ).await.unwrap();
 
-        vault.add_entry(
-            "GitLab".to_string(),
-            "user@gitlab.com".to_string(),
-            "password2".to_string(),
-            None,
-            None,
-            vec!["dev".to_string()],
-        ).await.unwrap();
+        vault
+            .add_entry(
+                "GitHub".to_string(),
+                "user@github.com".to_string(),
+                "password1".to_string(),
+                None,
+                None,
+                vec!["dev".to_string()],
+            )
+            .await
+            .unwrap();
+
+        vault
+            .add_entry(
+                "GitLab".to_string(),
+                "user@gitlab.com".to_string(),
+                "password2".to_string(),
+                None,
+                None,
+                vec!["dev".to_string()],
+            )
+            .await
+            .unwrap();
 
         let results = vault.search_entries("git").await.unwrap();
         assert_eq!(results.len(), 2);
@@ -547,18 +608,22 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_stats() {
+        init_crypto();
         let config = VaultConfig::default();
         let vault = QuantumVault::new(config).unwrap();
         vault.unlock("test_password").await.unwrap();
-        
-        vault.add_entry(
-            "Test Service".to_string(),
-            "user@example.com".to_string(),
-            "SecurePassword123!".to_string(),
-            None,
-            None,
-            vec![],
-        ).await.unwrap();
+
+        vault
+            .add_entry(
+                "Test Service".to_string(),
+                "user@example.com".to_string(),
+                "SecurePassword123!".to_string(),
+                None,
+                None,
+                vec![],
+            )
+            .await
+            .unwrap();
 
         let stats = vault.get_stats().await.unwrap();
         assert_eq!(stats.total_entries, 1);

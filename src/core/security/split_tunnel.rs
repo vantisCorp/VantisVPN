@@ -2,89 +2,89 @@
 // Allows selective routing of traffic through VPN
 // Supports application-based, domain-based, and IP-based split tunneling
 
+use crate::error::{Result, VantisError};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
-use serde::{Serialize, Deserialize};
-use crate::error::{VantisError, Result};
 
 /// Split Tunneling Mode
-/// 
+///
 /// Defines the split tunneling mode for selective traffic routing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SplitTunnelMode {
     /// Route all traffic through VPN
-    /// 
+    ///
     /// All network traffic is routed through the VPN tunnel.
     AllTraffic,
     /// Route only specified traffic through VPN
-    /// 
+    ///
     /// Only traffic matching specified rules is routed through the VPN.
     Include,
     /// Route all traffic except specified through VPN
-    /// 
+    ///
     /// All traffic except that matching specified rules is routed through the VPN.
     Exclude,
     /// Smart split tunneling based on application
-    /// 
+    ///
     /// Automatically routes traffic based on application intelligence.
     Smart,
 }
 
 /// Rule Type
-/// 
+///
 /// Defines the type of split tunneling rule.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RuleType {
     /// Application-based rule
-    /// 
+    ///
     /// Rule based on the application generating the traffic.
     Application,
     /// Domain-based rule
-    /// 
+    ///
     /// Rule based on the destination domain name.
     Domain,
     /// IP-based rule
-    /// 
+    ///
     /// Rule based on the destination IP address or CIDR range.
     Ip,
     /// Port-based rule
-    /// 
+    ///
     /// Rule based on the destination port number.
     Port,
     /// Protocol-based rule
-    /// 
+    ///
     /// Rule based on the network protocol (TCP/UDP).
     Protocol,
 }
 
 /// Split Tunneling Rule
-/// 
+///
 /// Defines a rule for selective traffic routing in split tunneling.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SplitTunnelRule {
     /// Unique rule identifier
-    /// 
+    ///
     /// Unique identifier for this rule.
     pub rule_id: String,
     /// Rule type
-    /// 
+    ///
     /// The type of this rule (application, domain, IP, port, or protocol).
     pub rule_type: RuleType,
     /// Rule value
-    /// 
+    ///
     /// The value to match against (domain name, IP address, port, etc.).
     pub value: String,
     /// Enabled status
-    /// 
+    ///
     /// Whether this rule is currently active.
     pub enabled: bool,
     /// Priority
-    /// 
+    ///
     /// Rule priority (higher values are evaluated first).
     pub priority: u32,
     /// Description
-    /// 
+    ///
     /// Human-readable description of this rule.
     pub description: String,
 }
@@ -103,32 +103,32 @@ impl SplitTunnelRule {
 }
 
 /// Split Tunneling Configuration
-/// 
+///
 /// Configuration settings for the split tunneling system.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SplitTunnelConfig {
     /// Enable split tunneling
-    /// 
+    ///
     /// Whether split tunneling is enabled.
     pub enabled: bool,
     /// Split tunneling mode
-    /// 
+    ///
     /// The mode of split tunneling to use.
     pub mode: SplitTunnelMode,
     /// Default action for unmatched traffic
-    /// 
+    ///
     /// Whether to route unmatched traffic through the VPN by default.
     pub default_route_vpn: bool,
     /// Enable DNS leak protection
-    /// 
+    ///
     /// Whether to protect against DNS leaks when using split tunneling.
     pub enable_dns_leak_protection: bool,
     /// Enable IPv6 leak protection
-    /// 
+    ///
     /// Whether to protect against IPv6 leaks when using split tunneling.
     pub enable_ipv6_leak_protection: bool,
     /// Enable logging
-    /// 
+    ///
     /// Whether to log split tunneling decisions and statistics.
     pub enable_logging: bool,
 }
@@ -147,65 +147,65 @@ impl Default for SplitTunnelConfig {
 }
 
 /// Routing Decision
-/// 
+///
 /// Represents a routing decision made by the split tunneling system.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SplitTunnelRoutingDecision {
     /// Route through VPN
-    /// 
+    ///
     /// Whether the traffic should be routed through the VPN.
     pub route_through_vpn: bool,
     /// Matched rule
-    /// 
+    ///
     /// ID of the rule that matched, if any.
     pub matched_rule: Option<String>,
     /// Confidence
-    /// 
+    ///
     /// Confidence level of this routing decision (0.0 to 1.0).
     pub confidence: f64,
 }
 
 /// Split Tunneling Statistics
-/// 
+///
 /// Contains statistics about split tunneling operations.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SplitTunnelStats {
     /// Total rules
-    /// 
+    ///
     /// Total number of split tunneling rules configured.
     pub total_rules: usize,
     /// Active rules
-    /// 
+    ///
     /// Number of currently active rules.
     pub active_rules: usize,
     /// VPN routed packets
-    /// 
+    ///
     /// Number of packets routed through the VPN.
     pub vpn_routed_packets: u64,
     /// Direct routed packets
-    /// 
+    ///
     /// Number of packets routed directly (bypassing VPN).
     pub direct_routed_packets: u64,
     /// VPN routed bytes
-    /// 
+    ///
     /// Total bytes routed through the VPN.
     pub vpn_routed_bytes: u64,
     /// Direct routed bytes
-    /// 
+    ///
     /// Total bytes routed directly (bypassing VPN).
     pub direct_routed_bytes: u64,
     /// DNS queries routed through VPN
-    /// 
+    ///
     /// Number of DNS queries routed through the VPN.
     pub dns_queries_routed_vpn: u64,
     /// DNS queries routed directly
-    /// 
+    ///
     /// Number of DNS queries routed directly.
     pub dns_queries_routed_direct: u64,
 }
 
 /// Split Tunneling Manager
-/// 
+///
 /// Manages selective traffic routing, allowing specific applications or
 /// destinations to bypass the VPN tunnel while protecting all other traffic,
 /// with support for whitelist and blacklist rule management.
@@ -267,7 +267,10 @@ impl SplitTunnelManager {
             rule.enabled = true;
             Ok(())
         } else {
-            Err(VantisError::InvalidPeer(format!("Rule not found: {}", rule_id)))
+            Err(VantisError::InvalidPeer(format!(
+                "Rule not found: {}",
+                rule_id
+            )))
         }
     }
 
@@ -278,7 +281,10 @@ impl SplitTunnelManager {
             rule.enabled = false;
             Ok(())
         } else {
-            Err(VantisError::InvalidPeer(format!("Rule not found: {}", rule_id)))
+            Err(VantisError::InvalidPeer(format!(
+                "Rule not found: {}",
+                rule_id
+            )))
         }
     }
 
@@ -288,7 +294,12 @@ impl SplitTunnelManager {
     }
 
     /// Make routing decision for traffic
-    pub async fn route_traffic(&self, destination: String, port: u16, protocol: String) -> Result<SplitTunnelRoutingDecision> {
+    pub async fn route_traffic(
+        &self,
+        destination: String,
+        port: u16,
+        protocol: String,
+    ) -> Result<SplitTunnelRoutingDecision> {
         if !self.config.enabled {
             // Split tunneling disabled, route all through VPN
             return Ok(SplitTunnelRoutingDecision {
@@ -340,7 +351,9 @@ impl SplitTunnelManager {
         }
 
         // Make routing decision
-        let decision = self.route_traffic(domain.clone(), 53, "UDP".to_string()).await?;
+        let decision = self
+            .route_traffic(domain.clone(), 53, "UDP".to_string())
+            .await?;
 
         // Cache the decision
         {
@@ -352,20 +365,26 @@ impl SplitTunnelManager {
     }
 
     /// Check if traffic matches a rule
-    fn matches_rule(&self, rule: &SplitTunnelRule, destination: &str, port: u16, protocol: &str) -> bool {
+    fn matches_rule(
+        &self,
+        rule: &SplitTunnelRule,
+        destination: &str,
+        port: u16,
+        protocol: &str,
+    ) -> bool {
         match rule.rule_type {
             RuleType::Application => {
                 // In production, check if destination matches application
                 false // Placeholder
-            }
+            },
             RuleType::Domain => {
                 // Check if destination matches domain pattern
                 destination.contains(&rule.value) || destination == rule.value
-            }
+            },
             RuleType::Ip => {
                 // Check if destination matches IP/CIDR
                 destination == rule.value // Placeholder - should support CIDR
-            }
+            },
             RuleType::Port => {
                 // Check if port matches
                 if let Ok(rule_port) = rule.value.parse::<u16>() {
@@ -373,11 +392,11 @@ impl SplitTunnelManager {
                 } else {
                     false
                 }
-            }
+            },
             RuleType::Protocol => {
                 // Check if protocol matches
                 protocol.to_lowercase() == rule.value.to_lowercase()
-            }
+            },
         }
     }
 
@@ -491,7 +510,10 @@ mod tests {
 
         manager.add_rule(rule).await.unwrap();
 
-        let decision = manager.route_traffic("example.com".to_string(), 443, "TCP".to_string()).await.unwrap();
+        let decision = manager
+            .route_traffic("example.com".to_string(), 443, "TCP".to_string())
+            .await
+            .unwrap();
         assert!(decision.route_through_vpn);
         assert_eq!(decision.matched_rule, Some("rule1".to_string()));
     }
@@ -524,10 +546,10 @@ mod tests {
 
         // First query
         let decision1 = manager.route_dns("example.com".to_string()).await.unwrap();
-        
+
         // Second query should use cache
         let decision2 = manager.route_dns("example.com".to_string()).await.unwrap();
-        
+
         assert_eq!(decision1.route_through_vpn, decision2.route_through_vpn);
         assert_eq!(decision2.confidence, 1.0); // Cached decision has higher confidence
     }

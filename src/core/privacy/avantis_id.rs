@@ -2,13 +2,13 @@
 // Generates unique, anonymous digital identities
 // Zero-knowledge proof of identity without revealing real identity
 
+use crate::crypto::{Hash, SecureRandom};
+use crate::error::{Result, VantisError};
+use chrono::{DateTime, Duration, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
-use serde::{Serialize, Deserialize};
-use chrono::{DateTime, Utc, Duration};
-use crate::error::{VantisError, Result};
-use crate::crypto::{Hash, SecureRandom};
 
 /// Type of digital identity
 ///
@@ -29,7 +29,7 @@ pub enum IdentityType {
 /// Identity Proof
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// Zero-knowledge identity proof
-/// 
+///
 /// Represents a cryptographic proof of identity ownership without
 /// revealing the actual identity details.
 pub struct IdentityProof {
@@ -46,7 +46,7 @@ pub struct IdentityProof {
 }
 
 /// Digital identity for anonymous authentication
-/// 
+///
 /// Represents a user's digital identity with cryptographic keys for
 /// zero-knowledge authentication and privacy-preserving interactions.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -109,10 +109,13 @@ impl DigitalIdentity {
         let signature = self.private_key.clone(); // In production, use actual signing
 
         IdentityProof {
-            proof_id: format!("proof_{}", std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos()),
+            proof_id: format!(
+                "proof_{}",
+                std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_nanos()
+            ),
             identity_id: self.identity_id.clone(),
             commitment,
             timestamp: std::time::SystemTime::now()
@@ -125,7 +128,7 @@ impl DigitalIdentity {
 }
 
 /// Avantis ID configuration
-/// 
+///
 /// Configuration settings for the Avantis ID identity management system,
 /// including identity creation options and security features.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -158,7 +161,7 @@ impl Default for AvantisIdConfig {
 }
 
 /// Avantis ID statistics
-/// 
+///
 /// Contains statistics about the Avantis ID identity management system,
 /// including identity counts and proof generation metrics.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -217,7 +220,9 @@ impl AvantisIdManager {
         duration_days: Option<u32>,
     ) -> Result<DigitalIdentity> {
         if !self.config.enabled {
-            return Err(VantisError::InvalidPeer("Avantis ID is not enabled".to_string()));
+            return Err(VantisError::InvalidPeer(
+                "Avantis ID is not enabled".to_string(),
+            ));
         }
 
         // Generate key pair
@@ -227,7 +232,8 @@ impl AvantisIdManager {
         // Calculate expiration
         let expires_at = duration_days
             .map(|days| Utc::now() + Duration::seconds(days as i64 * 86400))
-            .or(Some(self.config.default_duration_days).map(|days| Utc::now() + Duration::seconds(days as i64 * 86400)));
+            .or(Some(self.config.default_duration_days)
+                .map(|days| Utc::now() + Duration::seconds(days as i64 * 86400)));
 
         // Generate identity ID
         let identity_id = self.generate_identity_id();
@@ -283,7 +289,9 @@ impl AvantisIdManager {
         let identity = self.get_identity(identity_id).await?;
 
         if !identity.is_active {
-            return Err(VantisError::InvalidPeer("Identity is not active".to_string()));
+            return Err(VantisError::InvalidPeer(
+                "Identity is not active".to_string(),
+            ));
         }
 
         let proof = identity.generate_proof();
@@ -335,7 +343,10 @@ impl AvantisIdManager {
     }
 
     /// Get identities by type
-    pub async fn get_identities_by_type(&self, identity_type: IdentityType) -> Vec<DigitalIdentity> {
+    pub async fn get_identities_by_type(
+        &self,
+        identity_type: IdentityType,
+    ) -> Vec<DigitalIdentity> {
         let identities = self.identities.read().await;
         identities
             .values()
@@ -359,16 +370,16 @@ impl AvantisIdManager {
     pub async fn cleanup_expired_identities(&self) -> usize {
         let mut identities = self.identities.write().await;
         let initial_count = identities.len();
-        
+
         identities.retain(|_, id| id.is_active && !id.is_expired());
-        
+
         let removed = initial_count - identities.len();
-        
+
         if removed > 0 {
             let mut stats = self.stats.lock().await;
             stats.active_identities = identities.len();
         }
-        
+
         removed
     }
 
@@ -379,11 +390,11 @@ impl AvantisIdManager {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        
+
         let random_bytes = self.rng.generate_bytes(16).unwrap();
         let hash = Hash::new().unwrap();
         let hash_bytes = hash.compute(&random_bytes).unwrap();
-        
+
         format!("avantis_{}", hex::encode(hash_bytes))
     }
 
@@ -396,7 +407,7 @@ impl AvantisIdManager {
             let mut timer = tokio::time::interval(interval);
             loop {
                 timer.tick().await;
-                
+
                 let mut identities = identities.write().await;
                 identities.retain(|_, id| id.is_active && !id.is_expired());
             }
@@ -446,7 +457,10 @@ mod tests {
             .await
             .unwrap();
 
-        let proof = manager.generate_identity_proof(&identity.identity_id).await.unwrap();
+        let proof = manager
+            .generate_identity_proof(&identity.identity_id)
+            .await
+            .unwrap();
         assert_eq!(proof.identity_id, identity.identity_id);
 
         let verified = manager.verify_identity_proof(&proof).await.unwrap();

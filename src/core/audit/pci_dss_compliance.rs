@@ -3,11 +3,11 @@
 // Provides framework for PCI DSS compliance and requirement tracking
 
 use crate::error::VantisError;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use serde::{Serialize, Deserialize};
-use chrono::{DateTime, Utc};
 
 /// Status of PCI DSS compliance requirement
 ///
@@ -26,7 +26,7 @@ pub enum PciRequirementStatus {
 }
 
 /// PCI DSS requirement
-/// 
+///
 /// Represents a single PCI DSS requirement with its compliance status,
 /// evidence, and review schedule.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -52,7 +52,7 @@ pub struct PciRequirement {
 }
 
 /// PCI DSS compliance report
-/// 
+///
 /// Contains a comprehensive assessment of PCI DSS compliance status,
 /// including all requirements, findings, and recommendations.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -84,7 +84,7 @@ pub struct PciReport {
 }
 
 /// PCI DSS compliance configuration
-/// 
+///
 /// Configuration settings for PCI DSS compliance monitoring and reporting,
 /// including automatic checking intervals and notification settings.
 #[derive(Debug, Clone)]
@@ -117,7 +117,7 @@ impl Default for PciConfig {
 }
 
 /// PCI DSS Compliance Manager
-/// 
+///
 /// Manages PCI DSS compliance monitoring, reporting, and requirement tracking
 /// for the VPN system to ensure compliance with Payment Card Industry standards.
 pub struct PciDssCompliance {
@@ -140,7 +140,10 @@ impl PciDssCompliance {
     }
 
     /// Add requirement
-    pub async fn add_requirement(&self, requirement: PciRequirement) -> Result<String, VantisError> {
+    pub async fn add_requirement(
+        &self,
+        requirement: PciRequirement,
+    ) -> Result<String, VantisError> {
         let req_id = requirement.requirement_id.clone();
 
         let mut requirements = self.requirements.lock().await;
@@ -150,7 +153,13 @@ impl PciDssCompliance {
     }
 
     /// Update requirement status
-    pub async fn update_requirement_status(&self, req_id: &str, status: PciRequirementStatus, evidence: Vec<String>, notes: String) -> Result<(), VantisError> {
+    pub async fn update_requirement_status(
+        &self,
+        req_id: &str,
+        status: PciRequirementStatus,
+        evidence: Vec<String>,
+        notes: String,
+    ) -> Result<(), VantisError> {
         let mut requirements = self.requirements.lock().await;
         if let Some(req) = requirements.get_mut(req_id) {
             req.status = status;
@@ -160,7 +169,10 @@ impl PciDssCompliance {
             req.next_review = Some(Utc::now() + chrono::Duration::days(90));
             Ok(())
         } else {
-            Err(VantisError::NotFound(format!("Requirement {} not found", req_id)))
+            Err(VantisError::NotFound(format!(
+                "Requirement {} not found",
+                req_id
+            )))
         }
     }
 
@@ -171,9 +183,15 @@ impl PciDssCompliance {
         let requirements = self.requirements.lock().await;
         let req_list: Vec<_> = requirements.values().cloned().collect();
 
-        let overall_status = if req_list.iter().all(|r| r.status == PciRequirementStatus::Compliant) {
+        let overall_status = if req_list
+            .iter()
+            .all(|r| r.status == PciRequirementStatus::Compliant)
+        {
             PciRequirementStatus::Compliant
-        } else if req_list.iter().any(|r| r.status == PciRequirementStatus::NotCompliant) {
+        } else if req_list
+            .iter()
+            .any(|r| r.status == PciRequirementStatus::NotCompliant)
+        {
             PciRequirementStatus::NotCompliant
         } else {
             PciRequirementStatus::PartiallyCompliant
@@ -182,7 +200,10 @@ impl PciDssCompliance {
         let compliance_score = if req_list.is_empty() {
             0
         } else {
-            let compliant_count = req_list.iter().filter(|r| r.status == PciRequirementStatus::Compliant).count();
+            let compliant_count = req_list
+                .iter()
+                .filter(|r| r.status == PciRequirementStatus::Compliant)
+                .count();
             ((compliant_count as f64) / (req_list.len() as f64) * 100.0) as u8
         };
 
@@ -208,7 +229,10 @@ impl PciDssCompliance {
     }
 
     /// Get requirement
-    pub async fn get_requirement(&self, req_id: &str) -> Result<Option<PciRequirement>, VantisError> {
+    pub async fn get_requirement(
+        &self,
+        req_id: &str,
+    ) -> Result<Option<PciRequirement>, VantisError> {
         let requirements = self.requirements.lock().await;
         Ok(requirements.get(req_id).cloned())
     }
@@ -240,7 +264,10 @@ impl PciDssCompliance {
             return Ok(0);
         }
 
-        let compliant_count = req_list.iter().filter(|r| r.status == PciRequirementStatus::Compliant).count();
+        let compliant_count = req_list
+            .iter()
+            .filter(|r| r.status == PciRequirementStatus::Compliant)
+            .count();
         let score = ((compliant_count as f64) / (req_list.len() as f64) * 100.0) as u8;
 
         Ok(score)

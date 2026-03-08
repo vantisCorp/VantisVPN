@@ -2,37 +2,37 @@
 // Ensures no data persists to disk - all operations in memory only
 // Compliant with strict no-logs policies and GDPR right to be forgotten
 
+use crate::error::{Result, VantisError};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::sync::{Mutex, RwLock};
-use serde::{Serialize, Deserialize};
-use crate::error::{VantisError, Result};
 
 /// Configuration for RAM-only server
-/// 
+///
 /// Configuration settings for the RAM-only server architecture that ensures
 /// no data persists to disk, complying with strict no-logs policies.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RamOnlyConfig {
     /// Maximum memory usage in MB
-    /// 
+    ///
     /// Maximum amount of memory the server can use in megabytes.
     pub max_memory_mb: u64,
     /// Session timeout in seconds
-    /// 
+    ///
     /// Timeout for inactive sessions in seconds.
     pub session_timeout_secs: u64,
     /// Enable memory pressure monitoring
-    /// 
+    ///
     /// Whether to monitor memory usage and pressure.
     pub enable_memory_monitoring: bool,
     /// Enable automatic cleanup of expired sessions
-    /// 
+    ///
     /// Whether to automatically clean up expired sessions.
     pub enable_auto_cleanup: bool,
     /// Cleanup interval in seconds
-    /// 
+    ///
     /// Interval between cleanup cycles in seconds.
     pub cleanup_interval_secs: u64,
 }
@@ -40,7 +40,7 @@ pub struct RamOnlyConfig {
 impl Default for RamOnlyConfig {
     fn default() -> Self {
         Self {
-            max_memory_mb: 8192, // 8GB default
+            max_memory_mb: 8192,        // 8GB default
             session_timeout_secs: 3600, // 1 hour
             enable_memory_monitoring: true,
             enable_auto_cleanup: true,
@@ -50,36 +50,36 @@ impl Default for RamOnlyConfig {
 }
 
 /// In-memory session data
-/// 
+///
 /// Represents a user session stored entirely in memory with no disk persistence.
 #[derive(Debug, Clone)]
 pub struct SessionData {
     /// Unique session identifier
-    /// 
+    ///
     /// Unique identifier for this session.
     pub session_id: String,
     /// User identifier
-    /// 
+    ///
     /// Identifier of the user associated with this session.
     pub user_id: String,
     /// Session creation timestamp
-    /// 
+    ///
     /// When this session was created.
     pub created_at: Instant,
     /// Last activity timestamp
-    /// 
+    ///
     /// When the last activity occurred in this session.
     pub last_activity: Instant,
     /// Total bytes sent in this session
-    /// 
+    ///
     /// Total bytes sent during this session.
     pub bytes_sent: u64,
     /// Total bytes received in this session
-    /// 
+    ///
     /// Total bytes received during this session.
     pub bytes_received: u64,
     /// Additional session metadata
-    /// 
+    ///
     /// Additional metadata associated with the session.
     pub metadata: HashMap<String, String>,
 }
@@ -116,38 +116,38 @@ impl SessionData {
 }
 
 /// Memory usage statistics
-/// 
+///
 /// Statistics about memory usage in the RAM-only server.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MemoryStats {
     /// Total memory available in MB
-    /// 
+    ///
     /// Total memory available to the server in megabytes.
     pub total_memory_mb: u64,
     /// Memory currently used in MB
-    /// 
+    ///
     /// Memory currently in use in megabytes.
     pub used_memory_mb: u64,
     /// Available memory in MB
-    /// 
+    ///
     /// Available memory in megabytes.
     pub available_memory_mb: u64,
     /// Number of active sessions
-    /// 
+    ///
     /// Number of currently active sessions.
     pub session_count: usize,
     /// Total bytes sent across all sessions
-    /// 
+    ///
     /// Total bytes sent across all sessions.
     pub total_bytes_sent: u64,
     /// Total bytes received across all sessions
-    /// 
+    ///
     /// Total bytes received across all sessions.
     pub total_bytes_received: u64,
 }
 
 /// RAM-Only Server Manager
-/// 
+///
 /// Manages RAM-only server operations ensuring no data persists to disk.
 pub struct RamOnlyServer {
     config: RamOnlyConfig,
@@ -203,7 +203,10 @@ impl RamOnlyServer {
             session.update_activity();
             Ok(())
         } else {
-            Err(VantisError::InvalidPeer(format!("Session not found: {}", session_id)))
+            Err(VantisError::InvalidPeer(format!(
+                "Session not found: {}",
+                session_id
+            )))
         }
     }
 
@@ -214,7 +217,10 @@ impl RamOnlyServer {
             session.add_bytes_sent(bytes);
             Ok(())
         } else {
-            Err(VantisError::InvalidPeer(format!("Session not found: {}", session_id)))
+            Err(VantisError::InvalidPeer(format!(
+                "Session not found: {}",
+                session_id
+            )))
         }
     }
 
@@ -225,7 +231,10 @@ impl RamOnlyServer {
             session.add_bytes_received(bytes);
             Ok(())
         } else {
-            Err(VantisError::InvalidPeer(format!("Session not found: {}", session_id)))
+            Err(VantisError::InvalidPeer(format!(
+                "Session not found: {}",
+                session_id
+            )))
         }
     }
 
@@ -233,9 +242,9 @@ impl RamOnlyServer {
     pub async fn terminate_session(&self, session_id: &str) -> Result<()> {
         {
             let mut sessions = self.sessions.write().await;
-            sessions
-                .remove(session_id)
-                .ok_or_else(|| VantisError::InvalidPeer(format!("Session not found: {}", session_id)))?;
+            sessions.remove(session_id).ok_or_else(|| {
+                VantisError::InvalidPeer(format!("Session not found: {}", session_id))
+            })?;
         }
         // Release the write lock before calling update_stats to avoid deadlock
         self.update_stats().await;
@@ -252,16 +261,16 @@ impl RamOnlyServer {
         let removed = {
             let mut sessions = self.sessions.write().await;
             let initial_count = sessions.len();
-            
+
             sessions.retain(|_, session| !session.is_expired(self.config.session_timeout_secs));
-            
+
             initial_count - sessions.len()
         };
         // Release the write lock before calling update_stats to avoid deadlock
         if removed > 0 {
             self.update_stats().await;
         }
-        
+
         removed
     }
 
@@ -288,7 +297,7 @@ impl RamOnlyServer {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        
+
         format!("session_{}", timestamp)
     }
 
@@ -296,11 +305,11 @@ impl RamOnlyServer {
     async fn update_stats(&self) {
         let sessions = self.sessions.read().await;
         let mut stats = self.memory_stats.lock().await;
-        
+
         stats.session_count = sessions.len();
         stats.total_bytes_sent = sessions.values().map(|s| s.bytes_sent).sum();
         stats.total_bytes_received = sessions.values().map(|s| s.bytes_received).sum();
-        
+
         // Estimate memory usage (rough approximation)
         let estimated_mb = (stats.session_count * 1024) as u64; // ~1KB per session
         stats.used_memory_mb = estimated_mb;
@@ -312,14 +321,14 @@ impl RamOnlyServer {
         let mut sessions = self.sessions.write().await;
         let count = sessions.len();
         sessions.clear();
-        
+
         let mut stats = self.memory_stats.lock().await;
         stats.session_count = 0;
         stats.used_memory_mb = 0;
         stats.available_memory_mb = self.config.max_memory_mb;
         stats.total_bytes_sent = 0;
         stats.total_bytes_received = 0;
-        
+
         count
     }
 }
@@ -332,7 +341,7 @@ mod tests {
     async fn test_session_creation() {
         let config = RamOnlyConfig::default();
         let server = RamOnlyServer::new(config);
-        
+
         let session_id = server.create_session("user123".to_string()).await.unwrap();
         assert!(session_id.starts_with("session_"));
     }
@@ -341,10 +350,10 @@ mod tests {
     async fn test_session_retrieval() {
         let config = RamOnlyConfig::default();
         let server = RamOnlyServer::new(config);
-        
+
         let session_id = server.create_session("user123".to_string()).await.unwrap();
         let session = server.get_session(&session_id).await.unwrap();
-        
+
         assert_eq!(session.user_id, "user123");
     }
 
@@ -352,12 +361,12 @@ mod tests {
     async fn test_session_expiration() {
         let mut config = RamOnlyConfig::default();
         config.session_timeout_secs = 1; // 1 second timeout
-        
+
         let server = RamOnlyServer::new(config);
         let session_id = server.create_session("user123".to_string()).await.unwrap();
-        
+
         tokio::time::sleep(Duration::from_secs(2)).await;
-        
+
         let removed = server.cleanup_expired_sessions().await;
         assert_eq!(removed, 1);
     }
@@ -366,14 +375,14 @@ mod tests {
     async fn test_emergency_wipe() {
         let config = RamOnlyConfig::default();
         let server = RamOnlyServer::new(config);
-        
+
         server.create_session("user1".to_string()).await.unwrap();
         server.create_session("user2".to_string()).await.unwrap();
         server.create_session("user3".to_string()).await.unwrap();
-        
+
         let wiped = server.emergency_wipe().await;
         assert_eq!(wiped, 3);
-        
+
         let stats = server.get_memory_stats().await;
         assert_eq!(stats.session_count, 0);
     }

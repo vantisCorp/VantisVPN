@@ -4,7 +4,7 @@
 //! YubiKey authentication, and Vantis OS firmware.
 
 use super::*;
-use crate::error::{VantisError, Result};
+use crate::error::{Result, VantisError};
 use std::net::Ipv4Addr;
 use std::time::{Duration, SystemTime};
 
@@ -68,7 +68,7 @@ mod router_os_tests {
     #[test]
     fn test_network_interface_creation() {
         use std::net::IpAddr;
-        
+
         let interface = NetworkInterface {
             name: "eth0".to_string(),
             interface_type: InterfaceType::Ethernet,
@@ -158,7 +158,7 @@ mod router_os_tests {
             uptime: Duration::from_secs(3600),
             reboot_count: 2,
         };
-        
+
         assert_eq!(stats.connection_count, 50);
         assert_eq!(stats.blocked_connections, 5);
     }
@@ -234,7 +234,8 @@ mod router_os_tests {
                 port: 1194,
                 cipher_suite: "chacha20-poly1305".to_string(),
                 keepalive_interval: 25,
-                dns_servers: vec![], kill_switch: true,
+                dns_servers: vec![],
+                kill_switch: true,
                 split_tunneling: false,
                 allowed_ips: vec![],
                 protocol: "udp".to_string(),
@@ -265,7 +266,7 @@ mod router_os_tests {
 
         let json = serde_json::to_string(&config).unwrap();
         let deserialized: RouterConfig = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(config.router_id, deserialized.router_id);
         assert_eq!(config.hostname, deserialized.hostname);
     }
@@ -311,11 +312,15 @@ mod yubikey_tests {
         };
 
         match auth {
-            YubiKeyAuth::ChallengeResponse { slot, challenge, response } => {
+            YubiKeyAuth::ChallengeResponse {
+                slot,
+                challenge,
+                response,
+            } => {
                 assert_eq!(slot, YubiKeySlot::Slot1);
                 assert_eq!(challenge.len(), 4);
                 assert_eq!(response.len(), 4);
-            }
+            },
             _ => panic!("Expected ChallengeResponse"),
         }
     }
@@ -333,7 +338,7 @@ mod yubikey_tests {
                 assert_eq!(slot, YubiKeySlot::Slot2);
                 assert_eq!(data.len(), 3);
                 assert_eq!(hmac.len(), 3);
-            }
+            },
             _ => panic!("Expected Hmac"),
         }
     }
@@ -348,7 +353,7 @@ mod yubikey_tests {
         match auth {
             YubiKeyAuth::Otp { otp } => {
                 assert_eq!(otp, "123456");
-            }
+            },
             _ => panic!("Expected Otp"),
         }
     }
@@ -356,11 +361,11 @@ mod yubikey_tests {
     #[test]
     fn test_yubikey_slot_hash() {
         use std::collections::HashSet;
-        
+
         let mut set = HashSet::new();
         set.insert(YubiKeySlot::Slot1);
         set.insert(YubiKeySlot::Slot2);
-        
+
         assert_eq!(set.len(), 2);
         assert!(set.contains(&YubiKeySlot::Slot1));
         assert!(set.contains(&YubiKeySlot::Slot2));
@@ -390,7 +395,7 @@ mod yubikey_tests {
 
         let json = serde_json::to_string(&config).unwrap();
         let deserialized: YubiKeyConfig = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(config.enabled, deserialized.enabled);
         assert_eq!(config.max_attempts, deserialized.max_attempts);
     }
@@ -403,11 +408,11 @@ mod yubikey_tests {
 
         let json = serde_json::to_string(&auth).unwrap();
         let deserialized: YubiKeyAuth = serde_json::from_str(&json).unwrap();
-        
+
         match deserialized {
             YubiKeyAuth::Otp { otp } => {
                 assert_eq!(otp, "123456");
-            }
+            },
             _ => panic!("Expected Otp"),
         }
     }
@@ -527,7 +532,7 @@ mod vantis_os_tests {
     #[test]
     fn test_boot_config_default() {
         let config = BootConfig::default();
-        
+
         assert_eq!(config.boot_mode, BootMode::Live);
         assert!(!config.secure_boot);
         assert_eq!(config.default_boot_option, BootOption::Standard);
@@ -682,7 +687,7 @@ mod vantis_os_tests {
 
         let json = serde_json::to_string(&config).unwrap();
         let deserialized: VantisOsConfig = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(config.os_name, deserialized.os_name);
         assert_eq!(config.version, deserialized.version);
     }
@@ -711,22 +716,20 @@ mod integration_tests {
             firmware_version: "1.0.0".to_string(),
             hardware_model: "VantisRouter-1".to_string(),
             interfaces: vec![],
-            firewall_rules: vec![
-                FirewallRule {
-                    id: "rule-001".to_string(),
-                    name: "allow-vpn".to_string(),
-                    action: FirewallAction::Allow,
-                    direction: FirewallDirection::Outbound,
-                    protocol: Some("udp".to_string()),
-                    source_ip: None,
-                    source_port: None,
-                    destination_ip: None,
-                    destination_port: Some(1194),
-                    enabled: true,
-                    priority: 100,
-                    log: false,
-                }
-            ],
+            firewall_rules: vec![FirewallRule {
+                id: "rule-001".to_string(),
+                name: "allow-vpn".to_string(),
+                action: FirewallAction::Allow,
+                direction: FirewallDirection::Outbound,
+                protocol: Some("udp".to_string()),
+                source_ip: None,
+                source_port: None,
+                destination_ip: None,
+                destination_port: Some(1194),
+                enabled: true,
+                priority: 100,
+                log: false,
+            }],
             port_forwarding: vec![],
             qos_policies: vec![],
             vpn_config: VpnRouterConfig {
@@ -735,7 +738,8 @@ mod integration_tests {
                 port: 1194,
                 cipher_suite: "chacha20-poly1305".to_string(),
                 keepalive_interval: 25,
-                dns_servers: vec![], kill_switch: true,
+                dns_servers: vec![],
+                kill_switch: true,
                 split_tunneling: false,
                 allowed_ips: vec![],
                 protocol: "udp".to_string(),
@@ -893,7 +897,8 @@ mod performance_tests {
                 port: 1194,
                 cipher_suite: "chacha20-poly1305".to_string(),
                 keepalive_interval: 25,
-                dns_servers: vec![], kill_switch: true,
+                dns_servers: vec![],
+                kill_switch: true,
                 split_tunneling: false,
                 allowed_ips: vec![],
                 protocol: "udp".to_string(),
@@ -927,7 +932,7 @@ mod performance_tests {
             let _ = serde_json::to_string(&config).unwrap();
         }
         let duration = start.elapsed();
-        
+
         // Should serialize 1000 configs in less than 100ms
         assert!(duration.as_millis() < 100);
     }
@@ -935,15 +940,19 @@ mod performance_tests {
     #[test]
     fn test_yubikey_slot_hash_performance() {
         use std::collections::HashSet;
-        
+
         let start = std::time::Instant::now();
         let mut set = HashSet::new();
         for i in 0..10000 {
-            let slot = if i % 2 == 0 { YubiKeySlot::Slot1 } else { YubiKeySlot::Slot2 };
+            let slot = if i % 2 == 0 {
+                YubiKeySlot::Slot1
+            } else {
+                YubiKeySlot::Slot2
+            };
             set.insert(slot);
         }
         let duration = start.elapsed();
-        
+
         // Should handle 10000 insertions in less than 10ms
         assert!(duration.as_millis() < 10);
         assert_eq!(set.len(), 2);

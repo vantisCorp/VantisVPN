@@ -2,12 +2,12 @@
 // Implements intelligent routing decisions using machine learning
 // Optimizes for latency, throughput, reliability, and cost
 
+use crate::error::{Result, VantisError};
+use rand::Rng;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
-use serde::{Serialize, Deserialize};
-use rand::Rng;
-use crate::error::{VantisError, Result};
 
 /// Metric used to evaluate network paths for routing decisions
 ///
@@ -85,25 +85,28 @@ impl NetworkPath {
             RoutingMetric::Latency => {
                 // Lower latency is better
                 (1000.0 / (self.latency_ms + 1.0)).min(1.0)
-            }
+            },
             RoutingMetric::Throughput => {
                 // Higher throughput is better
                 (self.throughput_mbps / 10000.0).min(1.0)
-            }
+            },
             RoutingMetric::Reliability => {
                 // Higher reliability is better
                 self.reliability_score
-            }
+            },
             RoutingMetric::Cost => {
                 // Lower cost is better (cost_score is inverted)
                 self.cost_score
-            }
+            },
             RoutingMetric::Balanced => {
                 // Weighted average of all metrics
                 let latency_score = (1000.0 / (self.latency_ms + 1.0)).min(1.0);
                 let throughput_score = (self.throughput_mbps / 10000.0).min(1.0);
-                latency_score * 0.3 + throughput_score * 0.3 + self.reliability_score * 0.2 + self.cost_score * 0.2
-            }
+                latency_score * 0.3
+                    + throughput_score * 0.3
+                    + self.reliability_score * 0.2
+                    + self.cost_score * 0.2
+            },
         }
     }
 }
@@ -211,7 +214,7 @@ impl Default for MlWeights {
 }
 
 /// Smart Routing Manager
-/// 
+///
 /// Manages AI-powered intelligent routing for VPN traffic, using machine
 /// learning to select optimal network paths based on real-time metrics.
 pub struct SmartRoutingManager {
@@ -259,7 +262,8 @@ impl SmartRoutingManager {
     pub async fn remove_path(&self, path_id: &str) -> Result<()> {
         {
             let mut paths = self.paths.write().await;
-            paths.remove(path_id)
+            paths
+                .remove(path_id)
                 .ok_or_else(|| VantisError::InvalidPeer(format!("Path not found: {}", path_id)))?;
         }
         Ok(())
@@ -281,7 +285,10 @@ impl SmartRoutingManager {
             path.last_updated = std::time::Instant::now();
             Ok(())
         } else {
-            Err(VantisError::InvalidPeer(format!("Path not found: {}", path_id)))
+            Err(VantisError::InvalidPeer(format!(
+                "Path not found: {}",
+                path_id
+            )))
         }
     }
 
@@ -309,7 +316,8 @@ impl SmartRoutingManager {
 
         // Cache the decision
         if self.config.enable_caching {
-            self.cache_decision(destination.clone(), decision.clone()).await;
+            self.cache_decision(destination.clone(), decision.clone())
+                .await;
         }
 
         // Update statistics
@@ -433,7 +441,10 @@ impl SmartRoutingManager {
         // Record sample for ML training
         {
             let mut samples = self.path_samples.lock().await;
-            samples.entry(path_id.clone()).or_insert_with(Vec::new).push(actual_latency);
+            samples
+                .entry(path_id.clone())
+                .or_insert_with(Vec::new)
+                .push(actual_latency);
         }
 
         // Update statistics
@@ -497,9 +508,7 @@ impl SmartRoutingManager {
             .unwrap()
             .as_secs();
 
-        cache.retain(|_, decision| {
-            now.saturating_sub(decision.timestamp) < ttl.as_secs()
-        });
+        cache.retain(|_, decision| now.saturating_sub(decision.timestamp) < ttl.as_secs());
     }
 
     /// Update ML weights manually
@@ -522,7 +531,7 @@ mod tests {
     async fn test_smart_routing_initialization() {
         let config = SmartRoutingConfig::default();
         let manager = SmartRoutingManager::new(config);
-        
+
         let stats = manager.get_stats().await;
         assert_eq!(stats.total_decisions, 0);
     }
@@ -531,13 +540,13 @@ mod tests {
     async fn test_path_addition() {
         let config = SmartRoutingConfig::default();
         let manager = SmartRoutingManager::new(config);
-        
+
         let path = NetworkPath::new(
             "path1".to_string(),
             "10.0.0.1".to_string(),
             "10.0.0.2".to_string(),
         );
-        
+
         manager.add_path(path).await.unwrap();
     }
 
@@ -545,7 +554,7 @@ mod tests {
     async fn test_routing_decision() {
         let config = SmartRoutingConfig::default();
         let manager = SmartRoutingManager::new(config);
-        
+
         let mut path = NetworkPath::new(
             "path1".to_string(),
             "10.0.0.1".to_string(),
@@ -555,10 +564,13 @@ mod tests {
         path.throughput_mbps = 1000.0;
         path.reliability_score = 0.95;
         path.cost_score = 0.8;
-        
+
         manager.add_path(path).await.unwrap();
-        
-        let decision = manager.make_routing_decision("10.0.0.2".to_string()).await.unwrap();
+
+        let decision = manager
+            .make_routing_decision("10.0.0.2".to_string())
+            .await
+            .unwrap();
         assert_eq!(decision.path_id, "path1");
     }
 
@@ -573,10 +585,10 @@ mod tests {
         path.throughput_mbps = 1000.0;
         path.reliability_score = 0.95;
         path.cost_score = 0.8;
-        
+
         let latency_score = path.calculate_score(RoutingMetric::Latency);
         let throughput_score = path.calculate_score(RoutingMetric::Throughput);
-        
+
         assert!(latency_score > 0.0);
         assert!(throughput_score > 0.0);
     }

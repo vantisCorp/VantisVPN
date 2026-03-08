@@ -5,7 +5,7 @@
 //! FTTH jumbo frames, smart routing, and colocated infrastructure.
 
 use super::*;
-use crate::error::{VantisError, Result};
+use crate::error::{Result, VantisError};
 use crate::server::secure_boot::{ComponentType, IntegrityStatus};
 use std::time::Duration;
 
@@ -23,16 +23,16 @@ mod server_status_tests {
     #[test]
     fn test_server_status_transitions() {
         let mut status = ServerStatus::Offline;
-        
+
         status = ServerStatus::Starting;
         assert_eq!(status, ServerStatus::Starting);
-        
+
         status = ServerStatus::Online;
         assert_eq!(status, ServerStatus::Online);
-        
+
         status = ServerStatus::Maintenance;
         assert_eq!(status, ServerStatus::Maintenance);
-        
+
         status = ServerStatus::Degraded;
         assert_eq!(status, ServerStatus::Degraded);
     }
@@ -149,7 +149,7 @@ mod load_balancing_tests {
         let _geo = LoadBalancingStrategy::Geographic;
         let _w = LoadBalancingStrategy::Weighted;
         let _r = LoadBalancingStrategy::Random;
-        
+
         // Note: LoadBalancingStrategy doesn't implement Display
         // This test verifies all variants are accessible
     }
@@ -170,7 +170,7 @@ mod ram_only_tests {
     #[test]
     fn test_ram_only_config_default() {
         let config = RamOnlyConfig::default();
-        
+
         assert_eq!(config.max_memory_mb, 8192);
         assert_eq!(config.session_timeout_secs, 3600);
         assert!(config.enable_memory_monitoring);
@@ -205,9 +205,12 @@ mod ram_only_tests {
 
         let json = serde_json::to_string(&config).unwrap();
         let deserialized: RamOnlyConfig = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(config.max_memory_mb, deserialized.max_memory_mb);
-        assert_eq!(config.session_timeout_secs, deserialized.session_timeout_secs);
+        assert_eq!(
+            config.session_timeout_secs,
+            deserialized.session_timeout_secs
+        );
     }
 }
 
@@ -218,7 +221,7 @@ mod tee_tests {
     #[test]
     fn test_tee_config_default() {
         let config = TeeConfig::default();
-        
+
         assert!(config.enable_attestation);
         assert!(config.enable_memory_encryption);
         assert_eq!(config.attestation_timeout_secs, 30);
@@ -229,7 +232,7 @@ mod tee_tests {
         let config = TeeConfig::default();
         let json = serde_json::to_string(&config).unwrap();
         let deserialized: TeeConfig = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(config.enable_attestation, deserialized.enable_attestation);
     }
 }
@@ -276,7 +279,7 @@ mod fec_tests {
     #[test]
     fn test_fec_config_default() {
         let config = FecConfig::default();
-        
+
         assert_eq!(config.algorithm, FecAlgorithm::Hybrid);
         assert_eq!(config.block_size, 1400);
         assert_eq!(config.parity_symbols, 4);
@@ -305,7 +308,7 @@ mod wifi7_mlo_tests {
     #[test]
     fn test_mlo_config_default() {
         let config = MloConfig::default();
-        
+
         assert!(config.enabled);
         assert_eq!(config.max_links, 3);
         assert!(config.enable_failover);
@@ -325,7 +328,7 @@ mod wifi7_mlo_tests {
         let config = MloConfig::default();
         let json = serde_json::to_string(&config).unwrap();
         let deserialized: MloConfig = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(config.enabled, deserialized.enabled);
         assert_eq!(config.max_links, deserialized.max_links);
     }
@@ -338,7 +341,7 @@ mod ftth_jumbo_tests {
     #[test]
     fn test_jumbo_frame_config_default() {
         let config = JumboFrameConfig::default();
-        
+
         assert!(config.enabled);
         assert_eq!(config.mtu, 9000);
     }
@@ -356,7 +359,7 @@ mod ftth_jumbo_tests {
         let config = JumboFrameConfig::default();
         let json = serde_json::to_string(&config).unwrap();
         let deserialized: JumboFrameConfig = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(config.enabled, deserialized.enabled);
         assert_eq!(config.mtu, deserialized.mtu);
     }
@@ -369,7 +372,7 @@ mod smart_routing_tests {
     #[test]
     fn test_smart_routing_config_default() {
         let config = SmartRoutingConfig::default();
-        
+
         assert!(config.enable_ml);
         assert_eq!(config.primary_metric, RoutingMetric::Balanced);
     }
@@ -403,7 +406,7 @@ mod smart_routing_tests {
         let config = SmartRoutingConfig::default();
         let json = serde_json::to_string(&config).unwrap();
         let deserialized: SmartRoutingConfig = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(config.enable_ml, deserialized.enable_ml);
     }
 }
@@ -415,7 +418,7 @@ mod colocated_tests {
     #[test]
     fn test_colocated_config_default() {
         let config = ColocatedConfig::default();
-        
+
         assert!(config.enable_failover);
         assert!(config.enable_geographic_routing);
     }
@@ -425,7 +428,7 @@ mod colocated_tests {
         let config = ColocatedConfig::default();
         let json = serde_json::to_string(&config).unwrap();
         let deserialized: ColocatedConfig = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(config.enable_failover, deserialized.enable_failover);
     }
 }
@@ -437,7 +440,7 @@ mod server_capabilities_tests {
     #[test]
     fn test_server_capabilities_default() {
         let caps = ServerCapabilities::default();
-        
+
         // Verify default capabilities are reasonable
         assert!(caps.max_connections > 0);
     }
@@ -447,7 +450,7 @@ mod server_capabilities_tests {
         let caps = ServerCapabilities::default();
         let json = serde_json::to_string(&caps).unwrap();
         let deserialized: ServerCapabilities = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(caps.max_connections, deserialized.max_connections);
     }
 }

@@ -4,7 +4,7 @@
 //! split tunneling, and network protection.
 
 use super::*;
-use crate::error::{VantisError, Result};
+use crate::error::{Result, VantisError};
 
 // =============================================================================
 // Kill Switch State Tests
@@ -52,7 +52,8 @@ mod kill_switch_state_tests {
 
         for state in &states {
             let json = serde_json::to_string(state).expect("Serialization failed");
-            let decoded: KillSwitchState = serde_json::from_str(&json).expect("Deserialization failed");
+            let decoded: KillSwitchState =
+                serde_json::from_str(&json).expect("Deserialization failed");
             assert_eq!(*state, decoded);
         }
     }
@@ -98,7 +99,8 @@ mod kill_switch_mode_tests {
 
         for mode in &modes {
             let json = serde_json::to_string(mode).expect("Serialization failed");
-            let decoded: KillSwitchMode = serde_json::from_str(&json).expect("Deserialization failed");
+            let decoded: KillSwitchMode =
+                serde_json::from_str(&json).expect("Deserialization failed");
             assert_eq!(*mode, decoded);
         }
     }
@@ -162,7 +164,8 @@ mod kill_switch_config_tests {
     fn test_config_serialization() {
         let config = KillSwitchConfig::default();
         let json = serde_json::to_string(&config).expect("Serialization failed");
-        let decoded: KillSwitchConfig = serde_json::from_str(&json).expect("Deserialization failed");
+        let decoded: KillSwitchConfig =
+            serde_json::from_str(&json).expect("Deserialization failed");
         assert_eq!(config.enabled, decoded.enabled);
         assert_eq!(config.mode, decoded.mode);
     }
@@ -289,9 +292,15 @@ mod kill_switch_manager_tests {
         manager.enable().await.expect("Enable failed");
 
         for i in 0..5 {
-            manager.activate().await.expect(&format!("Activation {} failed", i));
+            manager
+                .activate()
+                .await
+                .expect(&format!("Activation {} failed", i));
             assert!(manager.is_active().await);
-            manager.deactivate().await.expect(&format!("Deactivation {} failed", i));
+            manager
+                .deactivate()
+                .await
+                .expect(&format!("Deactivation {} failed", i));
             assert!(!manager.is_active().await);
         }
 
@@ -353,7 +362,10 @@ mod kill_switch_manager_tests {
             ..config
         };
 
-        manager.update_config(new_config).await.expect("Config update failed");
+        manager
+            .update_config(new_config)
+            .await
+            .expect("Config update failed");
     }
 
     #[tokio::test]
@@ -370,7 +382,10 @@ mod kill_switch_manager_tests {
             ..config
         };
 
-        manager.update_config(new_config).await.expect("Config update failed");
+        manager
+            .update_config(new_config)
+            .await
+            .expect("Config update failed");
         // Should be reactivated with new config
         assert!(manager.is_active().await);
     }

@@ -2,12 +2,12 @@
 // Implements secure boot process with integrity verification
 // Follows CIS Controls v8 and NIST SP 800-193 guidelines
 
+use crate::crypto::{Hash, SecureRandom};
+use crate::error::{Result, VantisError};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
-use serde::{Serialize, Deserialize};
-use crate::error::{VantisError, Result};
-use crate::crypto::{Hash, SecureRandom};
 
 /// State of the secure boot system
 ///
@@ -65,7 +65,7 @@ pub enum IntegrityStatus {
 /// Boot Component
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// Boot component for secure boot verification
-/// 
+///
 /// Represents a system component that is verified during the secure boot
 /// process, including its hash, signature, and integrity status.
 pub struct BootComponent {
@@ -113,7 +113,7 @@ impl BootComponent {
 }
 
 /// Secure boot configuration
-/// 
+///
 /// Configuration settings for secure boot verification, including
 /// component verification requirements and recovery options.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -149,7 +149,7 @@ impl Default for SecureBootConfig {
 }
 
 /// Boot event for secure boot logging
-/// 
+///
 /// Represents an event that occurred during the secure boot process,
 /// including timestamp, event type, and severity information.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -209,7 +209,13 @@ impl SecureBootManager {
             *state = SecureBootState::InProgress;
         }
 
-        self.log_event("BOOT_START", "system", "Secure boot process started", "info").await;
+        self.log_event(
+            "BOOT_START",
+            "system",
+            "Secure boot process started",
+            "info",
+        )
+        .await;
 
         // Get components sorted by load order
         let components = self.get_sorted_components().await?;
@@ -228,8 +234,9 @@ impl SecureBootManager {
                         &component.component_id,
                         &format!("{} verified successfully", component.component_id),
                         "info",
-                    ).await;
-                }
+                    )
+                    .await;
+                },
                 Err(e) => {
                     failed_count += 1;
                     let warning = format!("{} verification failed: {}", component.component_id, e);
@@ -239,8 +246,9 @@ impl SecureBootManager {
                         &component.component_id,
                         &warning,
                         "error",
-                    ).await;
-                }
+                    )
+                    .await;
+                },
             }
         }
 
@@ -272,10 +280,17 @@ impl SecureBootManager {
         };
 
         if boot_success {
-            self.log_event("BOOT_SUCCESS", "system", "Secure boot completed successfully", "info").await;
+            self.log_event(
+                "BOOT_SUCCESS",
+                "system",
+                "Secure boot completed successfully",
+                "info",
+            )
+            .await;
         } else {
-            self.log_event("BOOT_FAILED", "system", "Secure boot failed", "error").await;
-            
+            self.log_event("BOOT_FAILED", "system", "Secure boot failed", "error")
+                .await;
+
             if self.config.enable_auto_recovery {
                 self.initiate_recovery().await?;
             }
@@ -331,10 +346,9 @@ impl SecureBootManager {
     /// Get component status
     pub async fn get_component_status(&self, component_id: &str) -> Result<BootComponent> {
         let components = self.components.read().await;
-        components
-            .get(component_id)
-            .cloned()
-            .ok_or_else(|| VantisError::InvalidPeer(format!("Component not found: {}", component_id)))
+        components.get(component_id).cloned().ok_or_else(|| {
+            VantisError::InvalidPeer(format!("Component not found: {}", component_id))
+        })
     }
 
     /// Get all components
@@ -350,7 +364,8 @@ impl SecureBootManager {
             "system",
             "Recovery mode initiated",
             "warning",
-        ).await;
+        )
+        .await;
 
         // In production, this would:
         // 1. Load recovery image
@@ -440,7 +455,7 @@ impl SecureBootManager {
 /// Boot Result
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// Secure boot result
-/// 
+///
 /// Contains the result of a secure boot verification process, including
 /// component verification counts and any warnings encountered.
 pub struct BootResult {
@@ -457,7 +472,7 @@ pub struct BootResult {
 }
 
 /// Secure boot integrity report
-/// 
+///
 /// Contains a comprehensive report of the secure boot verification process,
 /// including component status and event log.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -484,7 +499,7 @@ mod tests {
     async fn test_secure_boot_initialization() {
         let config = SecureBootConfig::default();
         let manager = SecureBootManager::new(config).unwrap();
-        
+
         let state = manager.get_boot_state().await;
         assert_eq!(state, SecureBootState::NotStarted);
     }
@@ -493,7 +508,7 @@ mod tests {
     async fn test_component_registration() {
         let config = SecureBootConfig::default();
         let manager = SecureBootManager::new(config).unwrap();
-        
+
         let component = BootComponent::new(
             "test_component".to_string(),
             ComponentType::Kernel,
@@ -501,10 +516,13 @@ mod tests {
             vec![1, 2, 3, 4],
             1,
         );
-        
+
         manager.register_component(component).await.unwrap();
-        let retrieved = manager.get_component_status("test_component").await.unwrap();
-        
+        let retrieved = manager
+            .get_component_status("test_component")
+            .await
+            .unwrap();
+
         assert_eq!(retrieved.component_id, "test_component");
     }
 
@@ -512,11 +530,11 @@ mod tests {
     async fn test_boot_process() {
         let config = SecureBootConfig::default();
         let manager = SecureBootManager::new(config).unwrap();
-        
+
         // Register a component
         let hash = Hash::new().unwrap();
         let expected_hash = hash.compute(b"/boot/vmlinuz").unwrap();
-        
+
         let component = BootComponent::new(
             "kernel".to_string(),
             ComponentType::Kernel,
@@ -524,12 +542,12 @@ mod tests {
             expected_hash,
             1,
         );
-        
+
         manager.register_component(component).await.unwrap();
-        
+
         // Start boot
         let result = manager.start_boot().await.unwrap();
-        
+
         assert!(result.success);
         assert_eq!(result.verified_count, 1);
         assert_eq!(result.failed_count, 0);
@@ -539,9 +557,9 @@ mod tests {
     async fn test_integrity_report() {
         let config = SecureBootConfig::default();
         let manager = SecureBootManager::new(config).unwrap();
-        
+
         let report = manager.generate_integrity_report().await;
-        
+
         assert_eq!(report.total_components, 0);
         assert_eq!(report.verified_components, 0);
     }

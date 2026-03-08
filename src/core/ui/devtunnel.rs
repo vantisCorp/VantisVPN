@@ -2,14 +2,14 @@
 // Phase 6: UX/UI & Additional Features
 // Provides secure tunneling for development and testing
 
-use crate::error::VantisError;
 use crate::crypto::random::SecureRandom;
+use crate::error::VantisError;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::net::{IpAddr, SocketAddr};
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use serde::{Serialize, Deserialize};
-use chrono::{DateTime, Utc};
 
 /// Protocol types supported by developer tunnels
 ///
@@ -52,7 +52,7 @@ pub enum TunnelStatus {
 /// Tunnel configuration
 #[derive(Debug, Clone)]
 /// DevTunnel configuration
-/// 
+///
 /// Configuration settings for developer tunnels, including connection
 /// parameters, protocol selection, and reconnection behavior.
 pub struct TunnelConfig {
@@ -93,7 +93,7 @@ impl Default for TunnelConfig {
 }
 
 /// DevTunnel session
-/// 
+///
 /// Represents an active tunnel session with connection details,
 /// status, and usage statistics.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -117,7 +117,7 @@ pub struct TunnelSession {
 }
 
 /// DevTunnel statistics
-/// 
+///
 /// Contains statistics about developer tunnel operations, including
 /// tunnel counts, traffic metrics, and connection statistics.
 #[derive(Debug, Clone)]
@@ -179,9 +179,15 @@ impl DevTunnel {
         let tunnel_id = format!("tunnel_{}", hex::encode(rng.generate_bytes(16)?));
         drop(rng);
 
-        let local_address = SocketAddr::new(IpAddr::V4(std::net::Ipv4Addr::new(127, 0, 0, 1)), self.config.local_port);
+        let local_address = SocketAddr::new(
+            IpAddr::V4(std::net::Ipv4Addr::new(127, 0, 0, 1)),
+            self.config.local_port,
+        );
         let remote_address = SocketAddr::new(
-            self.config.remote_host.parse().unwrap_or_else(|_| IpAddr::V4(std::net::Ipv4Addr::new(127, 0, 0, 1))),
+            self.config
+                .remote_host
+                .parse()
+                .unwrap_or_else(|_| IpAddr::V4(std::net::Ipv4Addr::new(127, 0, 0, 1))),
             self.config.remote_port,
         );
 
@@ -213,7 +219,7 @@ impl DevTunnel {
         let mut sessions = self.sessions.lock().await;
         if let Some(session) = sessions.get_mut(tunnel_id) {
             session.status = TunnelStatus::Closed;
-            
+
             // Update stats
             let mut stats = self.stats.lock().await;
             stats.active_tunnels = stats.active_tunnels.saturating_sub(1);
@@ -249,7 +255,8 @@ impl DevTunnel {
     /// Get all active sessions
     pub async fn get_active_sessions(&self) -> Vec<TunnelSession> {
         let sessions = self.sessions.lock().await;
-        sessions.values()
+        sessions
+            .values()
             .filter(|s| s.status == TunnelStatus::Active)
             .cloned()
             .collect()

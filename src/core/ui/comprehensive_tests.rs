@@ -4,7 +4,7 @@
 //! family shield, biometric authentication, and theme manager.
 
 use super::*;
-use crate::error::{VantisError, Result};
+use crate::error::{Result, VantisError};
 use chrono::{DateTime, Utc};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
@@ -72,7 +72,7 @@ mod theme_manager_tests {
 
         let json = serde_json::to_string(&pattern).unwrap();
         let deserialized: HapticPattern = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(pattern.pattern_id, deserialized.pattern_id);
         assert_eq!(pattern.durations, deserialized.durations);
     }
@@ -141,7 +141,7 @@ mod biometric_auth_tests {
 
         let json = serde_json::to_string(&result).unwrap();
         let deserialized: AuthResult = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(result.success, deserialized.success);
         assert_eq!(result.confidence, deserialized.confidence);
     }
@@ -177,7 +177,7 @@ mod biometric_auth_tests {
 
         let json = serde_json::to_string(&template).unwrap();
         let deserialized: BiometricTemplate = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(template.template_id, deserialized.template_id);
         assert_eq!(template.user_id, deserialized.user_id);
     }
@@ -207,19 +207,19 @@ mod devtunnel_tests {
     #[test]
     fn test_tunnel_status_transitions() {
         let mut status = TunnelStatus::NotStarted;
-        
+
         status = TunnelStatus::Connecting;
         assert_eq!(status, TunnelStatus::Connecting);
-        
+
         status = TunnelStatus::Active;
         assert_eq!(status, TunnelStatus::Active);
-        
+
         status = TunnelStatus::Paused;
         assert_eq!(status, TunnelStatus::Paused);
-        
+
         status = TunnelStatus::Closed;
         assert_eq!(status, TunnelStatus::Closed);
-        
+
         status = TunnelStatus::Failed;
         assert_eq!(status, TunnelStatus::Failed);
     }
@@ -235,7 +235,7 @@ mod devtunnel_tests {
     #[test]
     fn test_tunnel_config_default() {
         let config = TunnelConfig::default();
-        
+
         assert_eq!(config.local_port, 8080);
         assert_eq!(config.remote_host, "localhost");
         assert_eq!(config.remote_port, 80);
@@ -270,8 +270,9 @@ mod devtunnel_tests {
     #[test]
     fn test_tunnel_session_creation() {
         let local_addr: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080);
-        let remote_addr: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)), 443);
-        
+        let remote_addr: SocketAddr =
+            SocketAddr::new(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)), 443);
+
         let session = TunnelSession {
             session_id: "session-001".to_string(),
             tunnel_id: "tunnel-001".to_string(),
@@ -292,7 +293,7 @@ mod devtunnel_tests {
     fn test_tunnel_session_serialization() {
         let local_addr: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 3000);
         let remote_addr: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1)), 443);
-        
+
         let session = TunnelSession {
             session_id: "session-002".to_string(),
             tunnel_id: "tunnel-002".to_string(),
@@ -306,7 +307,7 @@ mod devtunnel_tests {
 
         let json = serde_json::to_string(&session).unwrap();
         let deserialized: TunnelSession = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(session.session_id, deserialized.session_id);
         assert_eq!(session.tunnel_id, deserialized.tunnel_id);
     }
@@ -357,7 +358,7 @@ mod family_shield_tests {
     #[test]
     fn test_shield_rule_creation() {
         use chrono::Utc;
-        
+
         let rule = ShieldRule {
             rule_id: "rule-001".to_string(),
             domain_pattern: "*.example.com".to_string(),

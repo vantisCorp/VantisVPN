@@ -1,22 +1,22 @@
 //! # Network Layer
-//! 
+//!
 //! Provides networking primitives and protocol implementations for VANTISVPN.
-//! 
+//!
 //! ## Features
 //! - QUIC/HTTP3 transport
 //! - WireGuard-like protocol with enhancements
 //! - IPv6 native support
 //! - Kernel bypass (DPDK/eBPF) ready
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
+pub mod multihop;
 pub mod protocol;
 pub mod quic;
 pub mod quic_full;
+pub mod stealth;
 pub mod wireguard;
 pub mod wireguard_full;
-pub mod stealth;
-pub mod multihop;
 
 /// Supported IP protocol versions
 ///
@@ -51,7 +51,7 @@ impl NetworkAddress {
             _ => Err(crate::VantisError::InvalidAddress),
         }
     }
-    
+
     /// Get as bytes
     pub fn as_bytes(&self) -> &[u8] {
         match self {
@@ -59,7 +59,7 @@ impl NetworkAddress {
             Self::IPv6(addr) => addr,
         }
     }
-    
+
     /// Get IP version
     pub fn version(&self) -> IpVersion {
         match self {
@@ -67,7 +67,7 @@ impl NetworkAddress {
             Self::IPv6(_) => IpVersion::IPv6,
         }
     }
-    
+
     /// Check if it's an IPv6 address
     pub fn is_ipv6(&self) -> bool {
         matches!(self, Self::IPv6(_))
@@ -91,18 +91,19 @@ impl Endpoint {
     pub fn new(address: NetworkAddress, port: u16) -> Self {
         Self { address, port }
     }
-    
+
     /// Parse from "address:port" string
     pub fn from_str(s: &str) -> crate::Result<Self> {
         let parts: Vec<&str> = s.rsplitn(2, ':').collect();
         if parts.len() != 2 {
             return Err(crate::VantisError::InvalidEndpoint);
         }
-        
-        let port: u16 = parts[0].parse()
+
+        let port: u16 = parts[0]
+            .parse()
             .map_err(|_| crate::VantisError::InvalidEndpoint)?;
         let address = NetworkAddress::from_str(parts[1])?;
-        
+
         Ok(Self { address, port })
     }
 }
@@ -116,14 +117,14 @@ impl NetworkAddress {
             if s.contains(":::") {
                 return Err(crate::VantisError::InvalidAddress);
             }
-            
+
             // Check for invalid characters
             for c in s.chars() {
                 if !c.is_ascii_hexdigit() && c != ':' {
                     return Err(crate::VantisError::InvalidAddress);
                 }
             }
-            
+
             let mut addr = [0u8; 16];
             // Simplified parsing - production would use proper IP parsing
             let parts: Vec<&str> = s.split(':').collect();
@@ -149,7 +150,8 @@ impl NetworkAddress {
                 return Err(crate::VantisError::InvalidAddress);
             }
             for (i, part) in parts.iter().enumerate() {
-                addr[i] = part.parse()
+                addr[i] = part
+                    .parse()
                     .map_err(|_| crate::VantisError::InvalidAddress)?;
             }
             Ok(Self::IPv4(addr))
@@ -169,7 +171,7 @@ impl std::fmt::Display for NetworkAddress {
                     write!(f, "{:02x}{:02x}", addr[i], addr[i + 1])?;
                 }
                 Ok(())
-            }
+            },
         }
     }
 }
@@ -184,25 +186,23 @@ impl std::fmt::Display for Endpoint {
     }
 }
 
-pub use protocol::{MessageType, Protocol, ProtocolConfig, ProtocolState};
-pub use wireguard::VirtualIpPool;
-pub use wireguard_full::{
-    WireGuardDevice, InterfaceConfig, PeerConfig, PeerState, PeerStats,
-    HandshakeInitiation, HandshakeResponse, CookieReply, TransportData,
-    SessionKeys, ReplayWindow
+pub use multihop::{
+    Circuit, CircuitHop, CircuitState, CircuitStats, MultiHopConfig, MultiHopManager, OnionPacket,
+    VpnNode,
 };
+pub use protocol::{MessageType, Protocol, ProtocolConfig, ProtocolState};
 pub use quic_full::{
-    QuicEndpoint, QuicConnection, QuicStream, QuicConfig, QuicPacketHeader,
-    QuicPacketType, QuicFrame, StreamType, ConnectionState, StreamState,
-    Bbrv3State, BbrState, ConnectionStats
+    BbrState, Bbrv3State, ConnectionState, ConnectionStats, QuicConfig, QuicConnection,
+    QuicEndpoint, QuicFrame, QuicPacketHeader, QuicPacketType, QuicStream, StreamState, StreamType,
 };
 pub use stealth::{
-    StealthHandler, StealthConfig, StealthPacket, PaddingStrategy,
-    TlsRecordHeader, Http2FrameHeader
+    Http2FrameHeader, PaddingStrategy, StealthConfig, StealthHandler, StealthPacket,
+    TlsRecordHeader,
 };
-pub use multihop::{
-    MultiHopManager, MultiHopConfig, Circuit, CircuitHop, CircuitState,
-    VpnNode, OnionPacket, CircuitStats
+pub use wireguard::VirtualIpPool;
+pub use wireguard_full::{
+    CookieReply, HandshakeInitiation, HandshakeResponse, InterfaceConfig, PeerConfig, PeerState,
+    PeerStats, ReplayWindow, SessionKeys, TransportData, WireGuardDevice,
 };
 
 /// MTU (Maximum Transmission Unit) for network packets
@@ -218,10 +218,10 @@ pub struct Mtu {
 impl Mtu {
     /// Default MTU for VPN
     pub const DEFAULT_VPN: u16 = 1420;
-    
+
     /// Maximum MTU
     pub const MAX: u16 = 9000;
-    
+
     /// Create new MTU
     pub fn new(value: u16) -> crate::Result<Self> {
         if value > Self::MAX {
@@ -232,15 +232,17 @@ impl Mtu {
         }
         Ok(Self { value })
     }
-    
+
     /// Get value
     pub fn value(&self) -> u16 {
         self.value
     }
-    
+
     /// Default VPN MTU
     pub fn default_vpn() -> Self {
-        Self { value: Self::DEFAULT_VPN }
+        Self {
+            value: Self::DEFAULT_VPN,
+        }
     }
 }
 
@@ -256,7 +258,7 @@ mod tests {
     fn test_network_address_ipv4() {
         let addr = NetworkAddress::from_str("192.168.1.1").expect("Failed to parse");
         assert!(matches!(addr, NetworkAddress::IPv4(_)));
-        
+
         let display = format!("{}", addr);
         assert_eq!(display, "192.168.1.1");
     }
@@ -272,7 +274,7 @@ mod tests {
     fn test_endpoint() {
         let endpoint = Endpoint::from_str("192.168.1.1:443").expect("Failed to parse");
         assert_eq!(endpoint.port, 443);
-        
+
         let display = format!("{}", endpoint);
         assert_eq!(display, "192.168.1.1:443");
     }
@@ -281,7 +283,7 @@ mod tests {
     fn test_mtu() {
         let mtu = Mtu::new(1420).expect("Failed to create MTU");
         assert_eq!(mtu.value(), 1420);
-        
+
         assert!(Mtu::new(0).is_err());
         assert!(Mtu::new(10000).is_err());
     }

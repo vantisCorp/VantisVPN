@@ -3,11 +3,11 @@
 // Provides framework for NSA CSfC compliance and component certification
 
 use crate::error::VantisError;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use serde::{Serialize, Deserialize};
-use chrono::{DateTime, Utc};
 
 /// Type of NSA CSfC component
 ///
@@ -48,7 +48,7 @@ pub enum CsfcComponentStatus {
 /// CSfC component
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// CSfC component
-/// 
+///
 /// Represents a single Commercial Solutions for Classified (CSfC) component
 /// with its certification status and documentation.
 pub struct CsfcComponent {
@@ -79,7 +79,7 @@ pub struct CsfcComponent {
 }
 
 /// CSfC compliance report
-/// 
+///
 /// Contains a comprehensive assessment of Commercial Solutions for Classified (CSfC)
 /// compliance status, including all components, findings, and recommendations.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -105,7 +105,7 @@ pub struct CsfcReport {
 }
 
 /// CSfC compliance configuration
-/// 
+///
 /// Configuration settings for Commercial Solutions for Classified (CSfC)
 /// compliance monitoring and reporting.
 #[derive(Debug, Clone)]
@@ -135,7 +135,7 @@ impl Default for CsfcConfig {
 }
 
 /// CSfC Compliance Manager
-/// 
+///
 /// Manages Commercial Solutions for Classified (CSfC) compliance monitoring,
 /// reporting, and component tracking for the VPN system to ensure compliance
 /// with NSA CSfC requirements.
@@ -169,7 +169,12 @@ impl CsfcCompliance {
     }
 
     /// Update component status
-    pub async fn update_component_status(&self, component_id: &str, status: CsfcComponentStatus, certification_id: Option<String>) -> Result<(), VantisError> {
+    pub async fn update_component_status(
+        &self,
+        component_id: &str,
+        status: CsfcComponentStatus,
+        certification_id: Option<String>,
+    ) -> Result<(), VantisError> {
         let mut components = self.components.lock().await;
         if let Some(component) = components.get_mut(component_id) {
             component.status = status;
@@ -177,7 +182,10 @@ impl CsfcCompliance {
             component.updated_at = Utc::now();
             Ok(())
         } else {
-            Err(VantisError::NotFound(format!("Component {} not found", component_id)))
+            Err(VantisError::NotFound(format!(
+                "Component {} not found",
+                component_id
+            )))
         }
     }
 
@@ -188,9 +196,15 @@ impl CsfcCompliance {
         let components = self.components.lock().await;
         let component_list: Vec<_> = components.values().cloned().collect();
 
-        let overall_status = if component_list.iter().all(|c| c.status == CsfcComponentStatus::Approved) {
+        let overall_status = if component_list
+            .iter()
+            .all(|c| c.status == CsfcComponentStatus::Approved)
+        {
             CsfcComponentStatus::Approved
-        } else if component_list.iter().any(|c| c.status == CsfcComponentStatus::Rejected) {
+        } else if component_list
+            .iter()
+            .any(|c| c.status == CsfcComponentStatus::Rejected)
+        {
             CsfcComponentStatus::Rejected
         } else {
             CsfcComponentStatus::InEvaluation
@@ -199,7 +213,10 @@ impl CsfcCompliance {
         let compliance_score = if component_list.is_empty() {
             0
         } else {
-            let approved_count = component_list.iter().filter(|c| c.status == CsfcComponentStatus::Approved).count();
+            let approved_count = component_list
+                .iter()
+                .filter(|c| c.status == CsfcComponentStatus::Approved)
+                .count();
             ((approved_count as f64) / (component_list.len() as f64) * 100.0) as u8
         };
 
@@ -222,7 +239,10 @@ impl CsfcCompliance {
     }
 
     /// Get component
-    pub async fn get_component(&self, component_id: &str) -> Result<Option<CsfcComponent>, VantisError> {
+    pub async fn get_component(
+        &self,
+        component_id: &str,
+    ) -> Result<Option<CsfcComponent>, VantisError> {
         let components = self.components.lock().await;
         Ok(components.get(component_id).cloned())
     }
@@ -254,7 +274,10 @@ impl CsfcCompliance {
             return Ok(0);
         }
 
-        let approved_count = component_list.iter().filter(|c| c.status == CsfcComponentStatus::Approved).count();
+        let approved_count = component_list
+            .iter()
+            .filter(|c| c.status == CsfcComponentStatus::Approved)
+            .count();
         let score = ((approved_count as f64) / (component_list.len() as f64) * 100.0) as u8;
 
         Ok(score)

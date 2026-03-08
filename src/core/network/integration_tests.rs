@@ -14,8 +14,8 @@ use std::net::Ipv4Addr;
 #[cfg(test)]
 mod protocol_integration_tests {
     use super::*;
-    use crate::network::wireguard::{WireGuardDevice, InterfaceConfig, PeerConfig, VirtualIpPool};
-    use crate::network::protocol::{Protocol, ProtocolConfig, ProtocolState, HandshakeResponse};
+    use crate::network::protocol::{HandshakeResponse, Protocol, ProtocolConfig, ProtocolState};
+    use crate::network::wireguard::{InterfaceConfig, PeerConfig, VirtualIpPool, WireGuardDevice};
 
     #[test]
     fn test_full_handshake_workflow() {
@@ -51,13 +51,17 @@ mod protocol_integration_tests {
         let mut protocol = Protocol::new(ProtocolConfig::default());
 
         // Complete handshake first
-        let _init = protocol.initiate_handshake().expect("Failed to initiate handshake");
+        let _init = protocol
+            .initiate_handshake()
+            .expect("Failed to initiate handshake");
         let response = HandshakeResponse {
             ephemeral_public: vec![1u8; 32],
             pqc_ciphertext: vec![2u8; 32],
             encrypted: vec![3u8; 32],
         };
-        protocol.process_handshake_response(response).expect("Failed to process response");
+        protocol
+            .process_handshake_response(response)
+            .expect("Failed to process response");
 
         // Send data
         let data = b"VPN packet data".to_vec();
@@ -77,15 +81,19 @@ mod protocol_integration_tests {
     #[test]
     fn test_multiple_message_exchange() {
         let mut protocol = Protocol::new(ProtocolConfig::default());
-        
+
         // Complete a handshake to get to connected state
-        let _init = protocol.initiate_handshake().expect("Failed to initiate handshake");
+        let _init = protocol
+            .initiate_handshake()
+            .expect("Failed to initiate handshake");
         let response = HandshakeResponse {
             ephemeral_public: vec![1u8; 32],
             pqc_ciphertext: vec![2u8; 32],
             encrypted: vec![3u8; 32],
         };
-        protocol.process_handshake_response(response).expect("Failed to process response");
+        protocol
+            .process_handshake_response(response)
+            .expect("Failed to process response");
 
         // Exchange multiple messages
         for i in 0..10 {
@@ -149,7 +157,9 @@ mod protocol_integration_tests {
             pqc_ciphertext: vec![2u8; 32],
             encrypted: vec![3u8; 32],
         };
-        protocol.process_handshake_response(response).expect("Failed to process response");
+        protocol
+            .process_handshake_response(response)
+            .expect("Failed to process response");
         assert!(protocol.is_connected());
 
         // Closing
@@ -166,7 +176,7 @@ mod protocol_integration_tests {
 #[cfg(test)]
 mod wireguard_integration_tests {
     use super::*;
-    use crate::network::wireguard::{WireGuardDevice, InterfaceConfig, PeerConfig, VirtualIpPool};
+    use crate::network::wireguard::{InterfaceConfig, PeerConfig, VirtualIpPool, WireGuardDevice};
     use std::net::Ipv4Addr;
 
     #[test]
@@ -273,7 +283,8 @@ mod network_address_integration_tests {
 
     #[test]
     fn test_ipv6_address_operations() {
-        let addr = NetworkAddress::IPv6([0x20, 0x01, 0x0d, 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]);
+        let addr =
+            NetworkAddress::IPv6([0x20, 0x01, 0x0d, 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]);
 
         assert_eq!(addr.version(), IpVersion::IPv6);
         assert!(addr.is_ipv6());
@@ -372,14 +383,14 @@ mod mtu_integration_tests {
 #[cfg(test)]
 mod end_to_end_tests {
     use super::*;
-    use crate::network::wireguard::{WireGuardDevice, InterfaceConfig, PeerConfig, VirtualIpPool};
-    use crate::network::protocol::{Protocol, ProtocolConfig, HandshakeResponse};
+    use crate::network::protocol::{HandshakeResponse, Protocol, ProtocolConfig};
+    use crate::network::wireguard::{InterfaceConfig, PeerConfig, VirtualIpPool, WireGuardDevice};
     use std::net::Ipv4Addr;
 
     #[test]
     fn test_complete_vpn_connection_simulation() {
         // Simulate a complete VPN connection setup
-        
+
         // Initialize crypto subsystem
         crate::crypto::init();
 
@@ -413,11 +424,11 @@ mod end_to_end_tests {
         let msg = client_protocol
             .create_transport_message(&data)
             .expect("Failed to create");
-        
+
         // Since server wasn't part of the handshake, we verify the message structure
         // In a real scenario, both parties would complete the handshake
         assert!(!msg.data.is_empty());
-        
+
         // For bidirectional communication, server also needs to complete handshake
         let _server_handshake = server_protocol
             .initiate_handshake()
@@ -430,7 +441,7 @@ mod end_to_end_tests {
         server_protocol
             .process_handshake_response(server_response)
             .expect("Failed to process server handshake");
-        
+
         // Now server can process transport messages
         let received = server_protocol
             .process_transport_message(msg)
@@ -497,7 +508,7 @@ mod end_to_end_tests {
 #[cfg(test)]
 mod error_handling_tests {
     use super::*;
-    use crate::network::protocol::{Protocol, ProtocolConfig, HandshakeResponse};
+    use crate::network::protocol::{HandshakeResponse, Protocol, ProtocolConfig};
 
     #[test]
     fn test_transport_without_connection() {
@@ -527,7 +538,7 @@ mod error_handling_tests {
     fn test_wireguard_full_handshake_response() {
         // Test wireguard_full::HandshakeResponse with correct field types
         use crate::network::wireguard_full::HandshakeResponse as WgHandshakeResponse;
-        
+
         let response = WgHandshakeResponse {
             message_type: 2,
             sender_index: 12345,
@@ -537,7 +548,7 @@ mod error_handling_tests {
             mac1: [0u8; 16],
             mac2: [0u8; 16],
         };
-        
+
         assert_eq!(response.message_type, 2);
         assert_eq!(response.sender_index, 12345);
     }
@@ -583,10 +594,10 @@ mod error_handling_tests {
 #[cfg(test)]
 mod performance_integration_tests {
     use super::*;
-    use crate::network::wireguard::{WireGuardDevice, InterfaceConfig, PeerConfig, VirtualIpPool};
-    use crate::network::protocol::{Protocol, ProtocolConfig, HandshakeResponse};
-    use std::time::Instant;
+    use crate::network::protocol::{HandshakeResponse, Protocol, ProtocolConfig};
+    use crate::network::wireguard::{InterfaceConfig, PeerConfig, VirtualIpPool, WireGuardDevice};
     use std::net::Ipv4Addr;
+    use std::time::Instant;
 
     #[test]
     fn test_protocol_handshake_performance() {
@@ -606,23 +617,25 @@ mod performance_integration_tests {
     #[test]
     fn test_message_throughput() {
         let mut protocol = Protocol::new(ProtocolConfig::default());
-        
+
         // Complete a handshake to get to connected state
-        let _init = protocol.initiate_handshake().expect("Failed to initiate handshake");
+        let _init = protocol
+            .initiate_handshake()
+            .expect("Failed to initiate handshake");
         let response = HandshakeResponse {
             ephemeral_public: vec![1u8; 32],
             pqc_ciphertext: vec![0u8; 32],
             encrypted: vec![0u8; 48],
         };
-        protocol.process_handshake_response(response).expect("Failed to process response");
+        protocol
+            .process_handshake_response(response)
+            .expect("Failed to process response");
 
         let data = vec![0u8; 1024]; // 1KB message
 
         let start = Instant::now();
         for _ in 0..1000 {
-            let msg = protocol
-                .create_transport_message(&data)
-                .expect("Failed");
+            let msg = protocol.create_transport_message(&data).expect("Failed");
             let _ = protocol.process_transport_message(msg).expect("Failed");
         }
         let duration = start.elapsed();

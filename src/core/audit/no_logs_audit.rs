@@ -3,11 +3,11 @@
 // Provides framework for no-logs audit compliance and evidence collection
 
 use crate::error::VantisError;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use serde::{Serialize, Deserialize};
-use chrono::{DateTime, Utc};
 
 /// Status of no-logs audit
 ///
@@ -48,7 +48,7 @@ pub enum EvidenceType {
 /// Audit evidence
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// Audit evidence for no-logs verification
-/// 
+///
 /// Represents a piece of evidence collected during a no-logs audit,
 /// including cryptographic hashes to verify data integrity without storing actual data.
 pub struct AuditEvidence {
@@ -69,7 +69,7 @@ pub struct AuditEvidence {
 }
 
 /// No-logs audit report
-/// 
+///
 /// Contains a comprehensive assessment of the no-logs policy compliance,
 /// including all evidence collected, findings, and recommendations.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -99,7 +99,7 @@ pub struct AuditReport {
 }
 
 /// No-logs audit configuration
-/// 
+///
 /// Configuration settings for no-logs policy auditing, including evidence
 /// collection schedules and third-party verification settings.
 #[derive(Debug, Clone)]
@@ -132,7 +132,7 @@ impl Default for AuditConfig {
 }
 
 /// No-Logs Audit Manager
-/// 
+///
 /// Manages no-logs policy auditing, evidence collection, and third-party
 /// verification to demonstrate compliance with privacy commitments and
 /// prepare for Big Four audits.
@@ -159,7 +159,11 @@ impl NoLogsAudit {
     }
 
     /// Start new audit
-    pub async fn start_audit(&self, period_start: DateTime<Utc>, period_end: DateTime<Utc>) -> Result<String, VantisError> {
+    pub async fn start_audit(
+        &self,
+        period_start: DateTime<Utc>,
+        period_end: DateTime<Utc>,
+    ) -> Result<String, VantisError> {
         let report_id = format!("audit_{}", Utc::now().timestamp());
 
         let report = AuditReport {
@@ -186,7 +190,12 @@ impl NoLogsAudit {
     }
 
     /// Collect evidence
-    pub async fn collect_evidence(&self, evidence_type: EvidenceType, description: String, data_hash: String) -> Result<String, VantisError> {
+    pub async fn collect_evidence(
+        &self,
+        evidence_type: EvidenceType,
+        description: String,
+        data_hash: String,
+    ) -> Result<String, VantisError> {
         let evidence_id = format!("evidence_{}", Utc::now().timestamp_nanos());
 
         let evidence = AuditEvidence {
@@ -222,24 +231,38 @@ impl NoLogsAudit {
             report.updated_at = Utc::now();
             Ok(())
         } else {
-            Err(VantisError::NotFound(format!("Audit {} not found", audit_id)))
+            Err(VantisError::NotFound(format!(
+                "Audit {} not found",
+                audit_id
+            )))
         }
     }
 
     /// Add recommendation
-    pub async fn add_recommendation(&self, audit_id: &str, recommendation: String) -> Result<(), VantisError> {
+    pub async fn add_recommendation(
+        &self,
+        audit_id: &str,
+        recommendation: String,
+    ) -> Result<(), VantisError> {
         let mut reports = self.reports.lock().await;
         if let Some(report) = reports.get_mut(audit_id) {
             report.recommendations.push(recommendation);
             report.updated_at = Utc::now();
             Ok(())
         } else {
-            Err(VantisError::NotFound(format!("Audit {} not found", audit_id)))
+            Err(VantisError::NotFound(format!(
+                "Audit {} not found",
+                audit_id
+            )))
         }
     }
 
     /// Complete audit
-    pub async fn complete_audit(&self, audit_id: &str, overall_score: u8) -> Result<(), VantisError> {
+    pub async fn complete_audit(
+        &self,
+        audit_id: &str,
+        overall_score: u8,
+    ) -> Result<(), VantisError> {
         let mut reports = self.reports.lock().await;
         if let Some(report) = reports.get_mut(audit_id) {
             report.status = AuditStatus::Completed;
@@ -247,7 +270,10 @@ impl NoLogsAudit {
             report.updated_at = Utc::now();
             Ok(())
         } else {
-            Err(VantisError::NotFound(format!("Audit {} not found", audit_id)))
+            Err(VantisError::NotFound(format!(
+                "Audit {} not found",
+                audit_id
+            )))
         }
     }
 
