@@ -66,8 +66,6 @@ mod router_os_tests {
 
     #[test]
     fn test_network_interface_creation() {
-        
-
         let interface = NetworkInterface {
             name: "eth0".to_string(),
             interface_type: InterfaceType::Ethernet,

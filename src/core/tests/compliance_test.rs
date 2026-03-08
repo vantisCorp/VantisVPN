@@ -13,11 +13,6 @@ fn test_compliance_placeholder() {
 fn test_compliance_modules_exist() {
     // Verify that compliance-related modules are accessible
     // This is a basic smoke test to ensure the codebase structure is correct
-    
-    
-    
-    
-    
 
     // If we can reference these types, the modules exist
 }

@@ -21,6 +21,9 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tokio::net::UdpSocket;
 use tokio::sync::{Mutex, RwLock};
 
+/// Type alias for the peer map to reduce type complexity
+type PeerMap = HashMap<[u8; 32], Arc<Mutex<PeerState>>>;
+
 // WireGuard constants
 /// Size in bytes of a WireGuard handshake initiation message
 pub const HANDSHAKE_INITIATION_SIZE: usize = 113;
@@ -52,8 +55,7 @@ pub const ENHANCED_REPLAY_PROTECTION: bool = true;
 ///
 /// Contains all configuration parameters for a WireGuard peer including
 /// cryptographic keys, routing information, and VANTISVPN-specific enhancements.
-#[derive(Debug, Clone)]
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct PeerConfig {
     /// Peer's 32-byte public key for authentication
     pub public_key: [u8; 32],
@@ -70,7 +72,6 @@ pub struct PeerConfig {
     /// Next hop for MultiHop+ onion routing (32-byte public key)
     pub next_hop: Option<[u8; 32]>,
 }
-
 
 /// WireGuard interface configuration for local VPN endpoint
 ///
@@ -475,8 +476,7 @@ enum HandshakeState {
 /// WireGuard peer statistics and metrics
 ///
 /// Tracks performance metrics and counters for a WireGuard peer connection.
-#[derive(Debug, Clone)]
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct PeerStats {
     /// Total bytes sent to this peer
     pub bytes_sent: u64,
@@ -491,7 +491,6 @@ pub struct PeerStats {
     /// Number of handshakes successfully completed
     pub handshakes_completed: u64,
 }
-
 
 impl PeerState {
     pub fn new(config: PeerConfig, index: u32) -> Self {
@@ -543,7 +542,7 @@ pub struct WireGuardDevice {
     /// Interface configuration
     config: InterfaceConfig,
     /// All peers indexed by their 32-byte public key
-    peers: Arc<RwLock<HashMap<[u8; 32], Arc<Mutex<PeerState>>>>>,
+    peers: Arc<RwLock<PeerMap>>,
     /// Peer lookup by index for routing
     peer_indices: Arc<RwLock<HashMap<u32, [u8; 32]>>>,
     /// Next available peer index

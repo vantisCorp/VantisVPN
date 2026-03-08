@@ -8,8 +8,7 @@ use std::path::PathBuf;
 /// Application configuration
 ///
 /// Main configuration structure for the VANTISVPN application.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Config {
     /// Application settings
     ///
@@ -194,7 +193,6 @@ impl Default for LoggingConfig {
         }
     }
 }
-
 
 impl Config {
     /// Create a new default configuration

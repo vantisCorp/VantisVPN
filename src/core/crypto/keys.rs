@@ -206,8 +206,7 @@ impl AsRef<[u8]> for PublicKey {
 /// Cipher suite for VPN encryption
 ///
 /// Supported cipher suites for VPN traffic encryption.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum CipherSuite {
     /// ChaCha20-Poly1305 (default)
     ///
@@ -219,7 +218,6 @@ pub enum CipherSuite {
     /// AES-256-GCM AEAD cipher (FIPS 140-3 compliant).
     Aes256Gcm,
 }
-
 
 /// Cipher for encrypting/decrypting VPN traffic
 ///

@@ -85,12 +85,3 @@ websocket = ["tokio-tungstenite"]
 post-quantum = []  # Enable post-quantum cryptography
 hardware-acceleration = []  # Enable hardware-level optimization
 
-[profile.release]
-opt-level = 3
-lto = true
-codegen-units = 1
-strip = true
-
-[profile.dev]
-opt-level = 0
-debug = true
