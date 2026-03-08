@@ -95,10 +95,15 @@ pub enum VaultState {
 /// password health metrics, and backup information.
 #[derive(Debug, Clone)]
 pub struct VaultStats {
+    /// Total number of entries in the vault
     pub total_entries: usize,
+    /// Number of entries with weak passwords
     pub weak_passwords: usize,
+    /// Number of entries with duplicate passwords
     pub duplicate_passwords: usize,
+    /// Timestamp of the last backup, if any
     pub last_backup: Option<DateTime<Utc>>,
+    /// When the vault was created
     pub created_at: DateTime<Utc>,
 }
 

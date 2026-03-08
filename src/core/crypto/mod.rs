@@ -13,11 +13,17 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Once;
 
+/// Symmetric encryption using ChaCha20-Poly1305
 pub mod cipher;
+/// BLAKE2s hashing implementation
 pub mod hash;
+/// Key generation and management utilities
 pub mod keys;
+/// Post-quantum cryptography stubs
 pub mod pqc;
+/// Full post-quantum cryptography implementation with Kyber and Dilithium
 pub mod pqc_full;
+/// Secure random number generation
 pub mod random;
 
 pub use cipher::CipherMode;

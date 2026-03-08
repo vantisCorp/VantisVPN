@@ -22,19 +22,30 @@ use tokio::net::UdpSocket;
 use tokio::sync::{Mutex, RwLock};
 
 // WireGuard constants
-pub const HANDSHAKE_INITIATION_SIZE: usize = 113; // Actual serialized size of HandshakeInitiation struct
+/// Size in bytes of a WireGuard handshake initiation message
+pub const HANDSHAKE_INITIATION_SIZE: usize = 113;
+/// Size in bytes of a WireGuard handshake response message
 pub const HANDSHAKE_RESPONSE_SIZE: usize = 92;
+/// Size in bytes of a WireGuard cookie reply message
 pub const COOKIE_REPLY_SIZE: usize = 64;
-pub const MESSAGE_DATA_SIZE: usize = 16; // Header size
+/// Size in bytes of the WireGuard data message header
+pub const MESSAGE_DATA_SIZE: usize = 16;
+/// Maximum size of a WireGuard message in bytes
 pub const MAX_MESSAGE_SIZE: usize = 65535;
+/// Size of the replay protection window for anti-replay protection
 pub const REPLAY_WINDOW_SIZE: usize = 64;
+/// Timeout for keepalive packets to maintain connection
 pub const KEEPALIVE_TIMEOUT: Duration = Duration::from_secs(25);
+/// Timeout for rekeying the session keys
 pub const REKEY_TIMEOUT: Duration = Duration::from_secs(120);
+/// Time after which cookies should be refreshed
 pub const COOKIE_REFRESH_TIME: Duration = Duration::from_secs(120);
 
-// VANTISVPN specific constants
+/// Header magic bytes for stealth mode packets
 pub const STEALTH_MODE_HEADER: &[u8] = b"VANTIS";
+/// Enable post-quantum hybrid key exchange
 pub const PQC_HYBRID_EXCHANGE: bool = true;
+/// Enable enhanced replay protection beyond standard WireGuard
 pub const ENHANCED_REPLAY_PROTECTION: bool = true;
 
 /// WireGuard peer configuration for VPN connections

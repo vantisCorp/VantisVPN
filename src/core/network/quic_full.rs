@@ -396,75 +396,129 @@ impl QuicPacketHeader {
 /// Frames are the atomic units of QUIC communication.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum QuicFrame {
+    /// Padding frame for packet size alignment
     Padding,
+    /// Ping frame for keepalive
     Ping,
+    /// Acknowledgement frame
     Ack {
+        /// Largest packet number acknowledged
         largest_acknowledged: u64,
+        /// Delay in microseconds
         ack_delay: u64,
+        /// Ranges of acknowledged packets
         ack_ranges: Vec<(u64, u64)>,
     },
+    /// Reset stream frame
     ResetStream {
+        /// Stream identifier
         stream_id: u64,
+        /// Error code causing the reset
         error_code: u64,
+        /// Final size of the stream
         final_size: u64,
     },
+    /// Stop sending frame
     StopSending {
+        /// Stream identifier
         stream_id: u64,
+        /// Error code
         error_code: u64,
     },
+    /// Crypto handshake frame
     Crypto {
+        /// Offset in the crypto stream
         offset: u64,
+        /// Crypto data
         data: Vec<u8>,
     },
+    /// New token frame
     NewToken {
+        /// Token data
         token: Vec<u8>,
     },
+    /// Stream data frame
     Stream {
+        /// Stream identifier
         stream_id: u64,
+        /// Offset in the stream
         offset: u64,
+        /// Stream data
         data: Vec<u8>,
+        /// Whether this is the final frame
         fin: bool,
     },
+    /// Maximum data frame
     MaxData {
+        /// Maximum data that can be received
         max_data: u64,
     },
+    /// Maximum stream data frame
     MaxStreamData {
+        /// Stream identifier
         stream_id: u64,
+        /// Maximum stream data that can be received
         max_stream_data: u64,
     },
+    /// Maximum streams frame
     MaxStreams {
+        /// Type of stream (bidirectional or unidirectional)
         stream_type: StreamType,
+        /// Maximum number of streams
         max_streams: u64,
     },
+    /// Data blocked frame
     DataBlocked {
+        /// Maximum data limit
         max_data: u64,
     },
+    /// Stream data blocked frame
     StreamDataBlocked {
+        /// Stream identifier
         stream_id: u64,
+        /// Maximum stream data limit
         max_stream_data: u64,
     },
+    /// Streams blocked frame
     StreamsBlocked {
+        /// Type of stream
         stream_type: StreamType,
+        /// Maximum streams limit
         max_streams: u64,
     },
+    /// New connection ID frame
     NewConnectionId {
+        /// Sequence number
         sequence: u64,
+        /// Retire prior to sequence
         retire_prior_to: u64,
+        /// Connection ID
         connection_id: Vec<u8>,
+        /// Stateless reset token
         stateless_reset_token: Vec<u8>,
     },
+    /// Retire connection ID frame
     RetireConnectionId {
+        /// Sequence number to retire
         sequence: u64,
     },
+    /// Path challenge frame
     PathChallenge {
+        /// Challenge data
         data: [u8; 8],
     },
+    /// Path response frame
     PathResponse {
+        /// Response data
         data: [u8; 8],
     },
+    /// Connection close frame
     ConnectionClose {
+        /// Error code
         error_code: u64,
+        /// Frame type that caused the error
         frame_type: u64,
+        /// Reason for closing
         reason: Vec<u8>,
     },
 }
