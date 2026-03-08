@@ -7,7 +7,10 @@ use crate::error::VantisError;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::net::{IpAddr, Ipv4Addr};
+use std::net::IpAddr;
+
+#[cfg(test)]
+use std::net::Ipv4Addr;
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::Mutex;
@@ -143,6 +146,7 @@ pub struct RotationStats {
 ///
 /// Manages IP address rotation across multiple pools of VPN endpoints,
 /// implementing various rotation strategies for enhanced privacy.
+#[allow(dead_code)]
 pub struct IpRotator {
     config: RotatorConfig,
     pools: Arc<Mutex<HashMap<String, IpPool>>>,

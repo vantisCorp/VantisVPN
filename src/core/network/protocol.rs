@@ -109,6 +109,7 @@ pub enum ProtocolState {
 ///
 /// Manages the state machine for the VANTISVPN protocol including
 /// handshake initiation, key exchange, and secure transport.
+#[allow(dead_code)]
 pub struct Protocol {
     /// Protocol configuration parameters
     config: ProtocolConfig,

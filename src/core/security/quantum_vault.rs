@@ -106,6 +106,25 @@ pub struct VaultStats {
     /// When the vault was created
     pub created_at: DateTime<Utc>,
 }
+/// Parameters for updating a vault entry
+///
+/// Used to group optional update parameters for the `update_entry` method,
+/// reducing the number of function arguments.
+#[derive(Debug, Clone, Default)]
+pub struct UpdateEntryParams {
+    /// New service name (optional)
+    pub service: Option<String>,
+    /// New username (optional)
+    pub username: Option<String>,
+    /// New password (optional)
+    pub password: Option<String>,
+    /// New URL (optional, can be set to None to clear)
+    pub url: Option<Option<String>>,
+    /// New notes (optional, can be set to None to clear)
+    pub notes: Option<Option<String>>,
+    /// New tags (optional)
+    pub tags: Option<Vec<String>>,
+}
 
 /// Quantum Vault - Secure Password Manager
 /// Quantum Vault password manager
@@ -262,12 +281,7 @@ impl QuantumVault {
     pub async fn update_entry(
         &self,
         id: &str,
-        service: Option<String>,
-        username: Option<String>,
-        password: Option<String>,
-        url: Option<Option<String>>,
-        notes: Option<Option<String>>,
-        tags: Option<Vec<String>>,
+        params: UpdateEntryParams,
     ) -> Result<(), VantisError> {
         self.check_unlocked().await?;
 
@@ -276,26 +290,26 @@ impl QuantumVault {
             .get_mut(id)
             .ok_or_else(|| VantisError::NotFound(format!("Entry not found: {}", id)))?;
 
-        if let Some(s) = service {
+        if let Some(s) = params.service {
             entry.service = s;
         }
-        if let Some(u) = username {
+        if let Some(u) = params.username {
             entry.username = u;
         }
-        if let Some(p) = password {
+        if let Some(p) = params.password {
             let strength_score = self.calculate_strength(&p);
             let (encrypted_password, password_nonce) = self.encrypt_password(&p).await?;
             entry.encrypted_password = encrypted_password;
             entry.password_nonce = password_nonce;
             entry.strength_score = strength_score;
         }
-        if let Some(u) = url {
+        if let Some(u) = params.url {
             entry.url = u;
         }
-        if let Some(n) = notes {
+        if let Some(n) = params.notes {
             entry.notes = n;
         }
-        if let Some(t) = tags {
+        if let Some(t) = params.tags {
             entry.tags = t;
         }
         entry.modified_at = Utc::now();

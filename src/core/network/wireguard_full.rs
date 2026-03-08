@@ -21,6 +21,9 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tokio::net::UdpSocket;
 use tokio::sync::{Mutex, RwLock};
 
+/// Type alias for the peer map to reduce type complexity
+type PeerMap = HashMap<[u8; 32], Arc<Mutex<PeerState>>>;
+
 // WireGuard constants
 /// Size in bytes of a WireGuard handshake initiation message
 pub const HANDSHAKE_INITIATION_SIZE: usize = 113;
@@ -543,7 +546,7 @@ pub struct WireGuardDevice {
     /// Interface configuration
     config: InterfaceConfig,
     /// All peers indexed by their 32-byte public key
-    peers: Arc<RwLock<HashMap<[u8; 32], Arc<Mutex<PeerState>>>>>,
+    peers: Arc<RwLock<PeerMap>>,
     /// Peer lookup by index for routing
     peer_indices: Arc<RwLock<HashMap<u32, [u8; 32]>>>,
     /// Next available peer index

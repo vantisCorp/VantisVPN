@@ -267,6 +267,7 @@ pub struct ShieldStats {
 ///
 /// Main structure for Family Shield DNS protection system. Provides family-friendly
 /// DNS filtering to protect against inappropriate content, malware, and phishing.
+#[allow(dead_code)]
 pub struct FamilyShield {
     config: ShieldConfig,
     rules: Arc<Mutex<HashMap<String, ShieldRule>>>,

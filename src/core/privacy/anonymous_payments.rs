@@ -282,6 +282,7 @@ impl Default for PaymentConfig {
 /// Manages anonymous payment processing using cryptocurrency methods that
 /// preserve user privacy, including Monero transactions, Lightning Network
 /// payments, and cash payment options.
+#[allow(dead_code)]
 pub struct AnonymousPaymentManager {
     config: PaymentConfig,
     monero_payments: Arc<Mutex<HashMap<String, MoneroPayment>>>,

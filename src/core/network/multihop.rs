@@ -346,8 +346,6 @@ impl OnionPacket {
     }
 
     pub fn deserialize(data: &[u8]) -> Result<Self> {
-        let mut offset = 0;
-
         // Circuit ID
         let circuit_id_end = data
             .iter()
@@ -355,7 +353,7 @@ impl OnionPacket {
             .ok_or_else(|| VantisError::InvalidPacket("Invalid circuit ID".into()))?;
         let circuit_id = String::from_utf8(data[..circuit_id_end].to_vec())
             .map_err(|_| VantisError::InvalidPacket("Invalid circuit ID encoding".into()))?;
-        offset = circuit_id_end + 1;
+        let mut offset = circuit_id_end + 1;
 
         // Hop index
         if offset + 1 > data.len() {
@@ -407,6 +405,7 @@ impl OnionPacket {
 ///
 /// Manages MultiHop+ onion routing circuits, including path selection,
 /// circuit establishment, and packet forwarding through multiple hops.
+#[allow(dead_code)]
 pub struct MultiHopManager {
     config: MultiHopConfig,
     nodes: Arc<RwLock<HashMap<String, VpnNode>>>,
@@ -503,18 +502,16 @@ impl MultiHopManager {
                 let node = if self.config.enable_path_randomization {
                     candidates[self.rng.generate_u64()? as usize % candidates.len()].clone()
                 } else if self.config.enable_latency_optimization {
-                    candidates
+                    (*candidates
                         .iter()
                         .min_by_key(|n| n.latency)
-                        .unwrap()
-                        .clone()
+                        .unwrap())
                         .clone()
                 } else {
-                    candidates
+                    (*candidates
                         .iter()
                         .max_by(|a, b| a.score().partial_cmp(&b.score()).unwrap())
-                        .unwrap()
-                        .clone()
+                        .unwrap())
                         .clone()
                 };
 

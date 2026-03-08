@@ -13,13 +13,12 @@ env:
   RUST_BACKTRACE: 1
 
 jobs:
-  # ====================
+  # ===============
   # Code Quality Checks
-  # ====================
+  # ===============
   lint:
     name: Lint & Format
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,28 +46,25 @@ jobs:
       - name: Run clippy
         run: cargo clippy --all-targets --all-features -- -D warnings || echo "Clippy check passed"
 
-  # ====================
+  # ===============
   # Security Scanning
-  # ====================
+  # ===============
   security:
     name: Security Scan
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Run Gitleaks
+      - name: Run GitLeaks
         uses: gitleaks/gitleaks-action@v2
-        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
-        continue-on-error: true
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -77,25 +73,23 @@ jobs:
 
       - name: Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@v3
-        continue-on-error: true
         with:
           sarif_file: 'trivy-results.sarif'
 
       - name: Run Cargo audit
-        continue-on-error: true
         run: |
           cargo install cargo-audit
           cargo audit || echo "No vulnerabilities found or cargo-audit not applicable"
 
-  # ====================
+  # ===============
   # Build & Test
-  # ====================
+  # ===============
   build:
     name: Build (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     needs: [lint]
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         include:
@@ -129,9 +123,9 @@ jobs:
       - name: Build library
         run: cargo build --release --lib --target ${{ matrix.target }}
 
-  # ====================
+  # ===============
   # Tests
-  # ====================
+  # ===============
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -167,9 +161,9 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./cobertura.xml
 
-  # ====================
+  # ===============
   # Documentation
-  # ====================
+  # ===============
   docs:
     name: Build Documentation
     runs-on: ubuntu-latest
@@ -191,9 +185,9 @@ jobs:
           name: documentation
           path: target/doc
 
-  # ====================
+  # ===============
   # Release
-  # ====================
+  # ===============
   release:
     name: Create Release
     needs: [build, test, security]
@@ -227,20 +221,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # ====================
+  # ===============
   # Notify
-  # ====================
+  # ===============
   notify:
     name: Notify
     needs: [lint, build, test, security]
     if: always()
-    continue-on-error: true
     runs-on: ubuntu-latest
 
     steps:
       - name: Determine status
         id: status
-        continue-on-error: true
         run: |
           if [[ "${{ needs.build.result }}" == "success" && "${{ needs.test.result }}" == "success" ]]; then
             echo "status=success" >> $GITHUB_OUTPUT
@@ -250,7 +242,6 @@ jobs:
 
       - name: Discord notification
         if: always()
-        continue-on-error: true
         uses: Ilshidur/action-discord@master
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
@@ -260,4 +251,4 @@ jobs:
             Branch: ${{ github.ref_name }}
             Commit: ${{ github.sha }}
             Author: ${{ github.actor }}
-            [View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})# CI/CD workflow fix applied
+            [View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})

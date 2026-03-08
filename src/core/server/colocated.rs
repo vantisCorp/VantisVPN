@@ -230,9 +230,7 @@ impl VpnServer {
             1.0 - (self.current_connections as f64 / self.capabilities.max_connections as f64);
         let load_score = 1.0 - (self.load_percentage / 100.0);
 
-        (connection_score * 0.6 + load_score * 0.4)
-            .max(0.0)
-            .min(1.0)
+        (connection_score * 0.6 + load_score * 0.4).clamp(0.0, 1.0)
     }
 }
 

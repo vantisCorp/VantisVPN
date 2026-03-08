@@ -384,6 +384,7 @@ impl Default for GdprConfig {
 /// Manages GDPR/RODO compliance for European privacy regulations, including
 /// consent management, data subject rights requests, right to be forgotten
 /// implementation, and data portability features.
+#[allow(dead_code)]
 pub struct GdprCompliance {
     config: GdprConfig,
     subjects: Arc<Mutex<HashMap<String, DataSubject>>>,
