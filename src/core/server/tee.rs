@@ -416,6 +416,7 @@ impl TeeManager {
         false // Placeholder
     }
 
+    #[allow(dead_code)]
     async fn check_trustzone_support(&self) -> bool {
         // In production, check ARM TrustZone support
         false // Placeholder

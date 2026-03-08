@@ -166,11 +166,11 @@ pub struct BootEvent {
     pub severity: String,
 }
 
-/// Secure Boot Manager
 /// Secure boot manager
 ///
 /// Manages secure boot verification process, ensuring only trusted
 /// components are loaded during system boot according to CIS Controls.
+#[allow(dead_code)]
 pub struct SecureBootManager {
     config: SecureBootConfig,
     state: Arc<Mutex<SecureBootState>>,

@@ -119,9 +119,7 @@ impl WifiLink {
         let snr_score = (self.snr_db / 40.0).min(1.0); // 0 to 40 dB range
         let loss_score = 1.0 - self.packet_loss_rate;
 
-        (rssi_score * 0.4 + snr_score * 0.3 + loss_score * 0.3)
-            .max(0.0)
-            .min(1.0)
+        (rssi_score * 0.4 + snr_score * 0.3 + loss_score * 0.3).clamp(0.0, 1.0)
     }
 }
 
