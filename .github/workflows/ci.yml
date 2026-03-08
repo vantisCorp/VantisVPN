@@ -41,10 +41,10 @@ jobs:
           key: ${{ runner.os }}-cargo-git-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Check formatting
-        run: cargo fmt --all -- --check || echo "Formatting check passed"
+        run: cargo fmt --all -- --check
 
       - name: Run clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings || echo "Clippy check passed"
+        run: cargo clippy --all-targets --all-features -- -D warnings
 
   # ===============
   # Security Scanning
@@ -79,7 +79,7 @@ jobs:
       - name: Run Cargo audit
         run: |
           cargo install cargo-audit
-          cargo audit || echo "No vulnerabilities found or cargo-audit not applicable"
+          cargo audit
 
   # ===============
   # Build & Test

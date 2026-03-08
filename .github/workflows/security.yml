@@ -22,7 +22,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v4
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
@@ -40,7 +40,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v4
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
@@ -50,7 +50,6 @@ jobs:
 
     - name: Check for outdated dependencies
       run: cargo outdated --exit-code 1
-      continue-on-error: true
 
   # Run security tests
   security-tests:
@@ -59,7 +58,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v4
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
@@ -74,7 +73,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v4
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
@@ -86,7 +85,7 @@ jobs:
       run: cargo audit --json > audit-report.json || true
 
     - name: Upload audit report
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@v4
       with:
         name: security-audit-report
         path: audit-report.json
@@ -99,14 +98,13 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v4
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
 
     - name: Run clippy with security lints
       run: cargo clippy --all-targets --all-features -- -D warnings -W clippy::all -W clippy::cargo
-      continue-on-error: true
 
   # Check for secrets in code
   secrets-scan:
@@ -115,7 +113,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -133,7 +131,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v4
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
@@ -152,7 +150,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v4
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
@@ -176,7 +174,7 @@ jobs:
         cargo tree >> security-report.md || true
 
     - name: Upload security report
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@v4
       with:
         name: weekly-security-report
         path: security-report.md
