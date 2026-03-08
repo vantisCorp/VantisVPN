@@ -24,17 +24,29 @@
 #![warn(rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
+/// Audit and compliance module for security logging and compliance reporting
 pub mod audit;
+/// Configuration management for VPN settings and preferences
 pub mod config;
+/// Cryptographic primitives and secure communication utilities
 pub mod crypto;
+/// Error types and error handling utilities
 pub mod error;
+/// Hardware abstraction for various platforms and security devices
 pub mod hardware;
+/// Network protocols and communication layers
 pub mod network;
+/// Privacy features including anonymous payments and identity protection
 pub mod privacy;
+/// Security features including kill switch, split tunneling, and threat protection
 pub mod security;
+/// Server infrastructure and deployment configurations
 pub mod server;
+/// Tunnel management and state handling
 pub mod tunnel;
+/// User interface components and themes
 pub mod ui;
+/// Utility functions and helper types
 pub mod utils;
 
 // Re-export commonly used types

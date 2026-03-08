@@ -462,7 +462,9 @@ pub struct TeeStats {
     ///
     /// Whether the TEE is hardware-backed.
     pub is_hardware_backed: bool,
+    /// Whether remote attestation is enabled
     pub attestation_enabled: bool,
+    /// Whether secure key storage is enabled
     pub secure_key_storage_enabled: bool,
 }
 

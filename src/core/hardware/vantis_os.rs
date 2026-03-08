@@ -164,14 +164,23 @@ pub enum Bootloader {
 /// but can optionally persist specific data to encrypted storage.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PersistenceConfig {
+    /// Whether persistence is enabled
     pub enabled: bool,
+    /// Whether encryption is enabled for persistent storage
     pub encryption_enabled: bool,
+    /// Encryption algorithm used for persistent storage
     pub encryption_algorithm: String,
+    /// Key derivation function used
     pub key_derivation: String,
-    pub persistence_size: u64, // bytes
+    /// Size of the persistence partition in bytes
+    pub persistence_size: u64,
+    /// Location of the persistent storage
     pub persistence_location: String,
+    /// Whether to automatically mount persistent storage
     pub auto_mount: bool,
+    /// Whether a hidden volume is configured
     pub hidden_volume: bool,
+    /// Whether plausible deniability is enabled
     pub plausible_deniability: bool,
 }
 
@@ -182,22 +191,39 @@ pub struct PersistenceConfig {
 /// access and data leakage.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SecurityConfig {
+    /// Whether to wipe memory on shutdown
     pub memory_wipe_on_shutdown: bool,
+    /// Whether swap is disabled
     pub disable_swap: bool,
+    /// Whether hibernation is disabled
     pub disable_hibernation: bool,
+    /// Whether firewall is enabled
     pub firewall_enabled: bool,
+    /// Whether network isolation is enabled
     pub network_isolation: bool,
+    /// Whether MAC address spoofing is enabled
     pub mac_address_spoofing: bool,
+    /// Whether DNS over HTTPS is enabled
     pub dns_over_https: bool,
+    /// Whether Tor is enabled
     pub tor_enabled: bool,
+    /// Whether VPN is enabled
     pub vpn_enabled: bool,
+    /// Whether kill switch is enabled
     pub kill_switch_enabled: bool,
+    /// Whether secure delete is enabled
     pub secure_delete: bool,
+    /// Whether USB storage is disabled
     pub disable_usb_storage: bool,
+    /// Whether Bluetooth is disabled
     pub disable_bluetooth: bool,
+    /// Whether webcam is disabled
     pub disable_webcam: bool,
+    /// Whether microphone is disabled
     pub disable_microphone: bool,
+    /// Screen lock timeout duration
     pub screen_lock_timeout: Duration,
+    /// Auto logout timeout duration
     pub auto_logout_timeout: Duration,
 }
 
@@ -207,10 +233,15 @@ pub struct SecurityConfig {
 /// DNS settings, and network security options for the Vantis OS.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NetworkConfig {
+    /// Tor network configuration
     pub tor_config: TorConfig,
+    /// VPN configuration
     pub vpn_config: VpnOsConfig,
+    /// List of DNS servers to use
     pub dns_servers: Vec<String>,
+    /// Optional proxy configuration
     pub proxy_config: Option<ProxyConfig>,
+    /// Network manager type
     pub network_manager: NetworkManager,
 }
 
