@@ -6,7 +6,6 @@
 fn test_compliance_placeholder() {
     // Placeholder test to satisfy CI compliance check requirement
     // Real compliance tests will be added as modules are implemented
-    assert!(true, "Compliance test placeholder");
 }
 
 /// Test that compliance modules exist
@@ -21,5 +20,4 @@ fn test_compliance_modules_exist() {
     
 
     // If we can reference these types, the modules exist
-    assert!(true, "All compliance modules are accessible");
 }

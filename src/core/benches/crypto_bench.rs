@@ -1,7 +1,8 @@
 // Benchmark Suite for VANTISVPN Cryptographic Operations
 // Measures performance of critical cryptographic functions
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
+use std::hint::black_box;
 use vantis_core::crypto::cipher::{CipherSuite, DecryptionContext, EncryptionContext};
 use vantis_core::crypto::hash::Hash;
 use vantis_core::crypto::keys::EphemeralKeyPair;

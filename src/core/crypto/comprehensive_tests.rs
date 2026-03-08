@@ -54,7 +54,6 @@ mod key_management_tests {
         drop(pair);
 
         // No way to directly verify zeroization, but the Drop impl should have run
-        assert!(true);
     }
 
     #[test]
@@ -592,7 +591,6 @@ mod random_tests {
         init_crypto();
         let _val = random::random_u32().expect("Random failed");
         // Just ensure it works
-        assert!(true);
     }
 
     #[test]
