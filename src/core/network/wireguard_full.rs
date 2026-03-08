@@ -55,8 +55,7 @@ pub const ENHANCED_REPLAY_PROTECTION: bool = true;
 ///
 /// Contains all configuration parameters for a WireGuard peer including
 /// cryptographic keys, routing information, and VANTISVPN-specific enhancements.
-#[derive(Debug, Clone)]
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct PeerConfig {
     /// Peer's 32-byte public key for authentication
     pub public_key: [u8; 32],
@@ -73,7 +72,6 @@ pub struct PeerConfig {
     /// Next hop for MultiHop+ onion routing (32-byte public key)
     pub next_hop: Option<[u8; 32]>,
 }
-
 
 /// WireGuard interface configuration for local VPN endpoint
 ///
@@ -478,8 +476,7 @@ enum HandshakeState {
 /// WireGuard peer statistics and metrics
 ///
 /// Tracks performance metrics and counters for a WireGuard peer connection.
-#[derive(Debug, Clone)]
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct PeerStats {
     /// Total bytes sent to this peer
     pub bytes_sent: u64,
@@ -494,7 +491,6 @@ pub struct PeerStats {
     /// Number of handshakes successfully completed
     pub handshakes_completed: u64,
 }
-
 
 impl PeerState {
     pub fn new(config: PeerConfig, index: u32) -> Self {

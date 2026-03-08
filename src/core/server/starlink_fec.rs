@@ -545,8 +545,7 @@ impl FecManager {
 
     /// Adapt FEC parameters based on network conditions
     pub async fn adapt_parameters(&self, _packet_loss_rate: f64, _latency_ms: f64) {
-        if !self.config.enable_adaptive {
-        }
+        if !self.config.enable_adaptive {}
 
         // In production, adjust parameters based on network conditions
         // For now, this is a placeholder

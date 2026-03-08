@@ -12,9 +12,8 @@ use super::*;
 
 #[cfg(test)]
 mod protocol_integration_tests {
-    
+
     use crate::network::protocol::{HandshakeResponse, Protocol, ProtocolConfig, ProtocolState};
-    
 
     #[test]
     fn test_full_handshake_workflow() {
@@ -174,7 +173,7 @@ mod protocol_integration_tests {
 
 #[cfg(test)]
 mod wireguard_integration_tests {
-    
+
     use crate::network::wireguard::{InterfaceConfig, PeerConfig, VirtualIpPool, WireGuardDevice};
     use std::net::Ipv4Addr;
 
@@ -592,7 +591,7 @@ mod error_handling_tests {
 
 #[cfg(test)]
 mod performance_integration_tests {
-    
+
     use crate::network::protocol::{HandshakeResponse, Protocol, ProtocolConfig};
     use crate::network::wireguard::{InterfaceConfig, PeerConfig, VirtualIpPool, WireGuardDevice};
     use std::net::Ipv4Addr;

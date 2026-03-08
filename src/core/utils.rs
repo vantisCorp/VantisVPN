@@ -63,7 +63,6 @@ pub fn is_valid_ipv6(s: &str) -> bool {
 
 /// Generate random string of specified length
 pub fn random_string(length: usize) -> String {
-    
     const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
                             abcdefghijklmnopqrstuvwxyz\
                             0123456789";
