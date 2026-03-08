@@ -27,27 +27,41 @@ pub const TLS_RECORD_HEADER_SIZE: usize = 5;
 pub const TLS_HANDSHAKE_HEADER_SIZE: usize = 4;
 
 // TLS 1.3 Record Types
+#[allow(dead_code)]
 const TLS_CONTENT_TYPE_CHANGE_CIPHER_SPEC: u8 = 20;
+#[allow(dead_code)]
 const TLS_CONTENT_TYPE_ALERT: u8 = 21;
 const TLS_CONTENT_TYPE_HANDSHAKE: u8 = 22;
 const TLS_CONTENT_TYPE_APPLICATION_DATA: u8 = 23;
 
 // TLS 1.3 Handshake Types
 const TLS_HANDSHAKE_TYPE_CLIENT_HELLO: u8 = 1;
+#[allow(dead_code)]
 const TLS_HANDSHAKE_TYPE_SERVER_HELLO: u8 = 2;
+#[allow(dead_code)]
 const TLS_HANDSHAKE_TYPE_ENCRYPTED_EXTENSIONS: u8 = 8;
+#[allow(dead_code)]
 const TLS_HANDSHAKE_TYPE_FINISHED: u8 = 20;
 
 // HTTP/2 Frame Types
 const HTTP2_FRAME_TYPE_DATA: u8 = 0;
+#[allow(dead_code)]
 const HTTP2_FRAME_TYPE_HEADERS: u8 = 1;
+#[allow(dead_code)]
 const HTTP2_FRAME_TYPE_PRIORITY: u8 = 2;
+#[allow(dead_code)]
 const HTTP2_FRAME_TYPE_RST_STREAM: u8 = 3;
+#[allow(dead_code)]
 const HTTP2_FRAME_TYPE_SETTINGS: u8 = 4;
+#[allow(dead_code)]
 const HTTP2_FRAME_TYPE_PUSH_PROMISE: u8 = 5;
+#[allow(dead_code)]
 const HTTP2_FRAME_TYPE_PING: u8 = 6;
+#[allow(dead_code)]
 const HTTP2_FRAME_TYPE_GOAWAY: u8 = 7;
+#[allow(dead_code)]
 const HTTP2_FRAME_TYPE_WINDOW_UPDATE: u8 = 8;
+#[allow(dead_code)]
 const HTTP2_FRAME_TYPE_CONTINUATION: u8 = 9;
 
 /// Stealth mode configuration
@@ -381,6 +395,7 @@ impl StealthPacket {
 ///
 /// Handles stealth protocol operations including packet obfuscation,
 /// TLS/HTTP2 mimicry, and traffic pattern hiding.
+#[allow(dead_code)]
 pub struct StealthHandler {
     config: StealthConfig,
     cipher: Arc<Cipher>,

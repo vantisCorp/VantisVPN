@@ -321,7 +321,7 @@ mod network_address_integration_tests {
 
     #[test]
     fn test_endpoint_parsing() {
-        let endpoint = Endpoint::from_str("192.168.1.1:443").expect("Failed to parse");
+        let endpoint: Endpoint = "192.168.1.1:443".parse().expect("Failed to parse");
         assert_eq!(endpoint.port, 443);
         assert!(matches!(endpoint.address, NetworkAddress::IPv4(_)));
 
@@ -332,14 +332,14 @@ mod network_address_integration_tests {
     #[test]
     fn test_endpoint_parsing_errors() {
         // Invalid format
-        assert!(Endpoint::from_str("invalid").is_err());
-        assert!(Endpoint::from_str("192.168.1.1").is_err());
+        assert!("invalid".parse::<Endpoint>().is_err());
+        assert!("192.168.1.1".parse::<Endpoint>().is_err());
 
         // Invalid port
-        assert!(Endpoint::from_str("192.168.1.1:99999").is_err());
+        assert!("192.168.1.1:99999".parse::<Endpoint>().is_err());
 
         // Invalid address
-        assert!(Endpoint::from_str("999.999.999.999:443").is_err());
+        assert!("999.999.999.999:443".parse::<Endpoint>().is_err());
     }
 }
 
@@ -555,22 +555,22 @@ mod error_handling_tests {
     #[test]
     fn test_invalid_network_address() {
         // Invalid IPv4
-        let result = NetworkAddress::from_str("256.256.256.256");
+        let result: Result<NetworkAddress, _> = "256.256.256.256".parse();
         assert!(result.is_err());
 
         // Invalid IPv6
-        let result = NetworkAddress::from_str("gggg::1");
+        let result: Result<NetworkAddress, _> = "gggg::1".parse();
         assert!(result.is_err());
     }
 
     #[test]
     fn test_invalid_endpoint() {
         // Missing port
-        let result = Endpoint::from_str("192.168.1.1");
+        let result: Result<Endpoint, _> = "192.168.1.1".parse();
         assert!(result.is_err());
 
         // Too many colons
-        let result = Endpoint::from_str(":::1:80");
+        let result: Result<Endpoint, _> = ":::1:80".parse();
         assert!(result.is_err());
     }
 

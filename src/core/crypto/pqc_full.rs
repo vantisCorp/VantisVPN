@@ -375,6 +375,7 @@ impl Default for HybridKeyExchange {
 /// Central manager for all post-quantum cryptographic operations in VANTISVPN.
 /// Provides convenient methods for generating key pairs and performing key exchanges
 /// using quantum-resistant algorithms.
+#[allow(dead_code)]
 pub struct PqcManager {
     /// Cryptographically secure random number generator
     rng: Arc<SecureRandom>,

@@ -106,11 +106,11 @@ impl Default for BiometricConfig {
     }
 }
 
-/// Biometric Auth - Biometric Authorization
 /// Biometric authentication manager
 ///
 /// Manages biometric authentication operations, including template storage,
 /// authentication attempts, and lockout policies.
+#[allow(dead_code)]
 pub struct BiometricAuth {
     config: BiometricConfig,
     templates: Arc<Mutex<HashMap<String, BiometricTemplate>>>,

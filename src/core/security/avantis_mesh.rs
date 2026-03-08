@@ -206,6 +206,7 @@ pub struct MeshStats {
 ///
 /// Manages the Avantis Mesh peer-to-peer network for LAN P2P
 /// networking, including node discovery, message routing, and encryption.
+#[allow(dead_code)]
 pub struct AvantisMesh {
     config: MeshConfig,
     local_node: Arc<Mutex<MeshNode>>,
