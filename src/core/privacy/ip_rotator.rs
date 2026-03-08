@@ -2,15 +2,15 @@
 // Phase 5: Privacy & Identity Management
 // Implements automatic IP rotation for enhanced privacy
 
-use crate::error::VantisError;
 use crate::crypto::random::SecureRandom;
+use crate::error::VantisError;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::net::{IpAddr, Ipv4Addr};
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::Mutex;
-use serde::{Serialize, Deserialize};
-use chrono::{DateTime, Utc};
 
 /// Strategy for rotating IP addresses to enhance privacy
 ///
@@ -33,7 +33,7 @@ pub enum RotationStrategy {
 /// IP endpoint with metadata
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// IP endpoint for VPN connections
-/// 
+///
 /// Represents a VPN server endpoint with its IP address, location,
 /// performance metrics, and availability status.
 pub struct IpEndpoint {
@@ -58,7 +58,7 @@ pub struct IpEndpoint {
 }
 
 /// IP pool for rotation
-/// 
+///
 /// Manages a pool of IP endpoints for rotation, tracking usage
 /// statistics and maintaining rotation state.
 #[derive(Debug, Clone)]
@@ -78,7 +78,7 @@ pub struct IpPool {
 }
 
 /// IP rotator configuration
-/// 
+///
 /// Configuration settings for IP rotation, including rotation strategies,
 /// thresholds, and geographic diversity options.
 #[derive(Debug, Clone)]
@@ -105,7 +105,7 @@ impl Default for RotatorConfig {
     fn default() -> Self {
         Self {
             strategy: RotationStrategy::TimeInterval,
-            rotation_interval: 300, // 5 minutes
+            rotation_interval: 300,             // 5 minutes
             data_threshold: 1024 * 1024 * 1024, // 1 GB
             min_latency_ms: 100,
             max_load: 80,
@@ -214,15 +214,22 @@ impl IpRotator {
 
     /// Rotate to next IP endpoint
     pub async fn rotate(&self) -> Result<IpEndpoint, VantisError> {
-        let pool_id = self.current_pool.lock().await.clone()
+        let pool_id = self
+            .current_pool
+            .lock()
+            .await
+            .clone()
             .ok_or_else(|| VantisError::InvalidState)?;
 
         let mut pools = self.pools.lock().await;
-        let pool = pools.get_mut(&pool_id)
+        let pool = pools
+            .get_mut(&pool_id)
             .ok_or_else(|| VantisError::NotFound(format!("Pool {} not found", pool_id)))?;
 
         // Find available endpoints
-        let available: Vec<_> = pool.endpoints.iter()
+        let available: Vec<_> = pool
+            .endpoints
+            .iter()
             .filter(|e| e.available && e.load <= self.config.max_load)
             .collect();
 
@@ -234,7 +241,9 @@ impl IpRotator {
         let selected = self.select_endpoint(&available).await?;
 
         // Update pool state
-        pool.current_index = pool.endpoints.iter()
+        pool.current_index = pool
+            .endpoints
+            .iter()
             .position(|e| e.ip_address == selected.ip_address)
             .unwrap_or(0);
         pool.total_rotations += 1;
@@ -257,7 +266,7 @@ impl IpRotator {
         stats.current_ip = Some(selected.ip_address);
         stats.last_rotation = Some(Utc::now());
         stats.data_transferred = 0;
-        
+
         // Track unique IPs and countries
         if !stats.countries_visited.contains(&selected.country_code) {
             stats.countries_visited.push(selected.country_code.clone());
@@ -274,52 +283,59 @@ impl IpRotator {
                 let rng = self.rng.lock().await;
                 let index = rng.generate_u32()? as usize % available.len();
                 Ok(available[index].clone())
-            }
+            },
             RotationStrategy::TimeInterval => {
                 // Select based on latency
-                let best = available.iter()
+                let best = available
+                    .iter()
                     .min_by_key(|e| e.latency_ms)
                     .ok_or_else(|| VantisError::NotFound("No endpoints available".to_string()))?;
                 Ok((*best).clone())
-            }
+            },
             RotationStrategy::DataThreshold => {
                 // Select based on load
-                let best = available.iter()
+                let best = available
+                    .iter()
                     .min_by_key(|e| e.load)
                     .ok_or_else(|| VantisError::NotFound("No endpoints available".to_string()))?;
                 Ok((*best).clone())
-            }
+            },
             RotationStrategy::Geographic => {
                 // Select from different country if possible
-                let current_country = self.current_endpoint.lock().await
+                let current_country = self
+                    .current_endpoint
+                    .lock()
+                    .await
                     .as_ref()
                     .map(|e| e.country_code.clone());
-                
+
                 if let Some(country) = current_country {
-                    let different_country = available.iter()
-                        .find(|e| e.country_code != country);
-                    
+                    let different_country = available.iter().find(|e| e.country_code != country);
+
                     if let Some(endpoint) = different_country {
                         return Ok((*endpoint).clone());
                     }
                 }
-                
+
                 // Fallback to random
                 let rng = self.rng.lock().await;
                 let index = rng.generate_u32()? as usize % available.len();
                 Ok(available[index].clone())
-            }
+            },
             RotationStrategy::Adaptive => {
                 // Select based on combined metrics
-                let best = available.iter()
+                let best = available
+                    .iter()
                     .min_by(|a, b| {
                         let score_a = (a.latency_ms as f64) * 0.5 + (a.load as f64) * 0.5;
                         let score_b = (b.latency_ms as f64) * 0.5 + (b.load as f64) * 0.5;
-                        score_a.partial_cmp(&score_b).unwrap_or(std::cmp::Ordering::Equal)
+                        score_a
+                            .partial_cmp(&score_b)
+                            .unwrap_or(std::cmp::Ordering::Equal)
                     })
                     .ok_or_else(|| VantisError::NotFound("No endpoints available".to_string()))?;
                 Ok((*best).clone())
-            }
+            },
         }
     }
 
@@ -335,11 +351,11 @@ impl IpRotator {
                 } else {
                     Ok(true)
                 }
-            }
+            },
             RotationStrategy::DataThreshold => {
                 let data = self.data_transferred.lock().await;
                 Ok(*data >= self.config.data_threshold)
-            }
+            },
             RotationStrategy::Geographic => {
                 // Rotate periodically for geographic diversity
                 let last_rotation = self.last_rotation_time.lock().await;
@@ -349,18 +365,19 @@ impl IpRotator {
                 } else {
                     Ok(true)
                 }
-            }
+            },
             RotationStrategy::Adaptive => {
                 // Adaptive rotation based on threat level
                 let last_rotation = self.last_rotation_time.lock().await;
                 if let Some(last) = *last_rotation {
                     let elapsed = last.elapsed().as_secs();
-                    let threshold = (self.config.rotation_interval as f64) * (1.0 - self.config.adaptive_threshold);
+                    let threshold = (self.config.rotation_interval as f64)
+                        * (1.0 - self.config.adaptive_threshold);
                     Ok(elapsed >= threshold as u64)
                 } else {
                     Ok(true)
                 }
-            }
+            },
         }
     }
 
@@ -368,7 +385,7 @@ impl IpRotator {
     pub async fn record_transfer(&self, bytes: u64) {
         let mut data = self.data_transferred.lock().await;
         *data += bytes;
-        
+
         let mut stats = self.stats.lock().await;
         stats.data_transferred += bytes;
     }

@@ -2,67 +2,67 @@
 // Manages colocated VPN servers across multiple data centers
 // Implements load balancing, failover, and geographic distribution
 
+use crate::error::{Result, VantisError};
+use rand::Rng;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
-use serde::{Serialize, Deserialize};
-use rand::Rng;
-use crate::error::{VantisError, Result};
 
 /// Server Status
-/// 
+///
 /// Operational status of a VPN server.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ServerStatus {
     /// Server offline
-    /// 
+    ///
     /// Server is not running or cannot be reached.
     Offline,
     /// Server starting
-    /// 
+    ///
     /// Server is in the process of starting up.
     Starting,
     /// Server online
-    /// 
+    ///
     /// Server is running and accepting connections.
     Online,
     /// Server under maintenance
-    /// 
+    ///
     /// Server is under maintenance and not accepting new connections.
     Maintenance,
     /// Server degraded
-    /// 
+    ///
     /// Server is running but with reduced performance or capabilities.
     Degraded,
 }
 
 /// Server Location
-/// 
+///
 /// Geographic location of a VPN server.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ServerLocation {
     /// Country
-    /// 
+    ///
     /// Country where the server is located.
     pub country: String,
     /// City
-    /// 
+    ///
     /// City where the server is located.
     pub city: String,
     /// Region
-    /// 
+    ///
     /// Region or state where the server is located.
     pub region: String,
     /// Latitude
-    /// 
+    ///
     /// Geographic latitude coordinate.
     pub latitude: f64,
     /// Longitude
-    /// 
+    ///
     /// Geographic longitude coordinate.
     pub longitude: f64,
     /// Timezone
-    /// 
+    ///
     /// Timezone of the server location.
     pub timezone: String,
 }
@@ -96,36 +96,36 @@ impl ServerLocation {
 }
 
 /// Server Capabilities
-/// 
+///
 /// Capabilities and resources available on a VPN server.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ServerCapabilities {
     /// Maximum connections
-    /// 
+    ///
     /// Maximum number of simultaneous VPN connections supported.
     pub max_connections: u32,
     /// Bandwidth in Mbps
-    /// 
+    ///
     /// Available bandwidth in megabits per second.
     pub bandwidth_mbps: u32,
     /// Supports PQC
-    /// 
+    ///
     /// Whether the server supports post-quantum cryptography.
     pub supports_pqc: bool,
     /// Supports stealth
-    /// 
+    ///
     /// Whether the server supports stealth protocol obfuscation.
     pub supports_stealth: bool,
     /// Supports multihop
-    /// 
+    ///
     /// Whether the server supports multi-hop routing.
     pub supports_multihop: bool,
     /// Supports WireGuard
-    /// 
+    ///
     /// Whether the server supports WireGuard protocol.
     pub supports_wireguard: bool,
     /// Supports QUIC
-    /// 
+    ///
     /// Whether the server supports QUIC/HTTP3 transport.
     pub supports_quic: bool,
 }
@@ -145,48 +145,48 @@ impl Default for ServerCapabilities {
 }
 
 /// VPN Server
-/// 
+///
 /// Represents a VPN server in the colocated infrastructure.
 #[derive(Debug, Clone)]
 pub struct VpnServer {
     /// Server ID
-    /// 
+    ///
     /// Unique identifier for this server.
     pub server_id: String,
     /// Hostname
-    /// 
+    ///
     /// Fully qualified domain name of the server.
     pub hostname: String,
     /// IP address
-    /// 
+    ///
     /// Public IP address of the server.
     pub ip_address: String,
     /// Location
-    /// 
+    ///
     /// Geographic location of the server.
     pub location: ServerLocation,
     /// Status
-    /// 
+    ///
     /// Current operational status of the server.
     pub status: ServerStatus,
     /// Capabilities
-    /// 
+    ///
     /// Capabilities and resources available on this server.
     pub capabilities: ServerCapabilities,
     /// Current connections
-    /// 
+    ///
     /// Number of active VPN connections.
     pub current_connections: u32,
     /// Load percentage
-    /// 
+    ///
     /// Current load as percentage of capacity.
     pub load_percentage: f64,
     /// Uptime in seconds
-    /// 
+    ///
     /// Server uptime in seconds.
     pub uptime_secs: u64,
     /// Last health check
-    /// 
+    ///
     /// Timestamp of the last health check.
     pub last_health_check: std::time::Instant,
 }
@@ -227,80 +227,82 @@ impl VpnServer {
             return 0.0;
         }
 
-        let connection_score = 1.0
-            - (self.current_connections as f64 / self.capabilities.max_connections as f64);
+        let connection_score =
+            1.0 - (self.current_connections as f64 / self.capabilities.max_connections as f64);
         let load_score = 1.0 - (self.load_percentage / 100.0);
 
-        (connection_score * 0.6 + load_score * 0.4).max(0.0).min(1.0)
+        (connection_score * 0.6 + load_score * 0.4)
+            .max(0.0)
+            .min(1.0)
     }
 }
 
 /// Load Balancing Strategy
-/// 
+///
 /// Strategies for distributing connections across multiple VPN servers.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LoadBalancingStrategy {
     /// Round-robin distribution
-    /// 
+    ///
     /// Distribute connections evenly across all servers.
     RoundRobin,
     /// Least connections
-    /// 
+    ///
     /// Route connections to the server with the fewest active connections.
     LeastConnections,
     /// Geographic proximity
-    /// 
+    ///
     /// Route connections to the geographically closest server.
     Geographic,
     /// Weighted by capacity
-    /// 
+    ///
     /// Distribute connections based on server capacity.
     Weighted,
     /// Random selection
-    /// 
+    ///
     /// Randomly select a server for each connection.
     Random,
 }
 
 /// Colocated Infrastructure Configuration
-/// 
+///
 /// Configuration settings for the colocated server infrastructure.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ColocatedConfig {
     /// Enable automatic failover
-    /// 
+    ///
     /// Whether to automatically failover to other servers when one goes offline.
     pub enable_failover: bool,
     /// Health check interval in seconds
-    /// 
+    ///
     /// Interval between health checks on servers.
     pub health_check_interval_secs: u64,
     /// Health check timeout in seconds
-    /// 
+    ///
     /// Timeout for health check requests.
     pub health_check_timeout_secs: u64,
     /// Maximum failed health checks before marking offline
-    /// 
+    ///
     /// Number of consecutive failed health checks before marking a server offline.
     pub max_failed_health_checks: u32,
     /// Load balancing strategy
-    /// 
+    ///
     /// Strategy for distributing connections across servers.
     pub load_balancing_strategy: LoadBalancingStrategy,
     /// Enable geographic routing
-    /// 
+    ///
     /// Whether to route connections to the geographically closest server.
     pub enable_geographic_routing: bool,
     /// Maximum distance for geographic routing in km
-    /// 
+    ///
     /// Maximum distance for geographic routing in kilometers.
     pub max_geographic_distance_km: f64,
     /// Enable server auto-scaling
-    /// 
+    ///
     /// Whether to automatically scale server capacity based on load.
     pub enable_auto_scaling: bool,
     /// Auto-scaling threshold (load percentage)
-    /// 
+    ///
     /// Load percentage threshold at which to trigger auto-scaling.
     pub auto_scaling_threshold: f64,
 }
@@ -322,47 +324,47 @@ impl Default for ColocatedConfig {
 }
 
 /// Infrastructure Statistics
-/// 
+///
 /// Statistics about the colocated server infrastructure.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InfrastructureStats {
     /// Total servers
-    /// 
+    ///
     /// Total number of servers in the infrastructure.
     pub total_servers: usize,
     /// Online servers
-    /// 
+    ///
     /// Number of servers currently online.
     pub online_servers: usize,
     /// Offline servers
-    /// 
+    ///
     /// Number of servers currently offline.
     pub offline_servers: usize,
     /// Total connections
-    /// 
+    ///
     /// Total number of active VPN connections across all servers.
     pub total_connections: u32,
     /// Average load percentage
-    /// 
+    ///
     /// Average load percentage across all online servers.
     pub average_load_percentage: f64,
     /// Total bandwidth in Mbps
-    /// 
+    ///
     /// Total bandwidth capacity across all servers.
     pub total_bandwidth_mbps: u32,
     /// Used bandwidth in Mbps
-    /// 
+    ///
     /// Bandwidth currently being used.
     pub used_bandwidth_mbps: u32,
     /// Failover count
-    /// 
+    ///
     /// Number of failover events that have occurred.
     pub failover_count: u64,
 }
 
 /// Colocated Infrastructure Manager
 /// Colocated Infrastructure Manager
-/// 
+///
 /// Manages the colocated VPN server infrastructure including load balancing,
 /// failover, health checks, and geographic routing.
 pub struct ColocatedInfrastructureManager {
@@ -409,8 +411,9 @@ impl ColocatedInfrastructureManager {
     pub async fn remove_server(&self, server_id: &str) -> Result<()> {
         {
             let mut servers = self.servers.write().await;
-            servers.remove(server_id)
-                .ok_or_else(|| VantisError::InvalidPeer(format!("Server not found: {}", server_id)))?;
+            servers.remove(server_id).ok_or_else(|| {
+                VantisError::InvalidPeer(format!("Server not found: {}", server_id))
+            })?;
         }
         self.update_stats().await;
         Ok(())
@@ -452,7 +455,10 @@ impl ColocatedInfrastructureManager {
     }
 
     /// Select server for connection
-    pub async fn select_server(&self, client_location: Option<ServerLocation>) -> Result<VpnServer> {
+    pub async fn select_server(
+        &self,
+        client_location: Option<ServerLocation>,
+    ) -> Result<VpnServer> {
         let available_servers = self.get_available_servers().await;
 
         if available_servers.is_empty() {
@@ -461,14 +467,16 @@ impl ColocatedInfrastructureManager {
 
         let selected = match self.config.load_balancing_strategy {
             LoadBalancingStrategy::RoundRobin => self.select_round_robin(available_servers).await?,
-            LoadBalancingStrategy::LeastConnections => self.select_least_connections(available_servers),
+            LoadBalancingStrategy::LeastConnections => {
+                self.select_least_connections(available_servers)
+            },
             LoadBalancingStrategy::Geographic => {
                 if let Some(location) = client_location {
                     self.select_geographic(available_servers, location)?
                 } else {
                     self.select_least_connections(available_servers)
                 }
-            }
+            },
             LoadBalancingStrategy::Weighted => self.select_weighted(available_servers),
             LoadBalancingStrategy::Random => self.select_random(available_servers),
         };
@@ -479,7 +487,8 @@ impl ColocatedInfrastructureManager {
     /// Round-robin selection
     async fn select_round_robin(&self, servers: Vec<VpnServer>) -> Result<VpnServer> {
         let mut index = self.round_robin_index.lock().await;
-        let selected = servers.get(*index % servers.len())
+        let selected = servers
+            .get(*index % servers.len())
             .ok_or_else(|| VantisError::InvalidPeer("No servers available".to_string()))?
             .clone();
         *index += 1;
@@ -495,9 +504,13 @@ impl ColocatedInfrastructureManager {
     }
 
     /// Geographic selection
-    fn select_geographic(&self, servers: Vec<VpnServer>, location: ServerLocation) -> Result<VpnServer> {
+    fn select_geographic(
+        &self,
+        servers: Vec<VpnServer>,
+        location: ServerLocation,
+    ) -> Result<VpnServer> {
         let max_distance = self.config.max_geographic_distance_km;
-        
+
         let nearby_servers: Vec<_> = servers
             .into_iter()
             .filter(|s| s.location.distance_to(&location) <= max_distance)
@@ -556,7 +569,10 @@ impl ColocatedInfrastructureManager {
             server.last_health_check = std::time::Instant::now();
             Ok(())
         } else {
-            Err(VantisError::InvalidPeer(format!("Server not found: {}", server_id)))
+            Err(VantisError::InvalidPeer(format!(
+                "Server not found: {}",
+                server_id
+            )))
         }
     }
 
@@ -578,7 +594,8 @@ impl ColocatedInfrastructureManager {
     /// Handle server failure
     async fn handle_server_failure(&self, server_id: &str) -> Result<()> {
         // Mark server as offline
-        self.update_server_status(server_id, ServerStatus::Offline, 0, 0.0).await?;
+        self.update_server_status(server_id, ServerStatus::Offline, 0, 0.0)
+            .await?;
 
         // Increment failover count
         {
@@ -630,7 +647,10 @@ impl ColocatedInfrastructureManager {
         } else {
             0.0
         };
-        stats.total_bandwidth_mbps = servers.values().map(|s| s.capabilities.bandwidth_mbps).sum();
+        stats.total_bandwidth_mbps = servers
+            .values()
+            .map(|s| s.capabilities.bandwidth_mbps)
+            .sum();
         stats.used_bandwidth_mbps = (stats.total_connections as f64 * 10.0) as u32; // Estimate
         stats.failover_count = *self.failover_count.lock().await;
     }
@@ -644,7 +664,7 @@ impl ColocatedInfrastructureManager {
             let mut timer = tokio::time::interval(interval);
             loop {
                 timer.tick().await;
-                
+
                 // Perform health checks on all servers
                 let server_ids: Vec<String> = servers.read().await.keys().cloned().collect();
                 for server_id in server_ids {
@@ -668,7 +688,7 @@ mod tests {
     async fn test_infrastructure_initialization() {
         let config = ColocatedConfig::default();
         let manager = ColocatedInfrastructureManager::new(config);
-        
+
         let stats = manager.get_stats().await;
         assert_eq!(stats.total_servers, 0);
     }
@@ -677,18 +697,24 @@ mod tests {
     async fn test_server_addition() {
         let config = ColocatedConfig::default();
         let manager = ColocatedInfrastructureManager::new(config);
-        
-        let location = ServerLocation::new("US".to_string(), "New York".to_string(), "NA".to_string(), 40.7128, -74.0060);
+
+        let location = ServerLocation::new(
+            "US".to_string(),
+            "New York".to_string(),
+            "NA".to_string(),
+            40.7128,
+            -74.0060,
+        );
         let server = VpnServer::new(
             "server1".to_string(),
             "vpn1.example.com".to_string(),
             "192.168.1.1".to_string(),
             location,
         );
-        
+
         manager.add_server(server).await.unwrap();
         let stats = manager.get_stats().await;
-        
+
         assert_eq!(stats.total_servers, 1);
     }
 
@@ -696,8 +722,14 @@ mod tests {
     async fn test_server_selection() {
         let config = ColocatedConfig::default();
         let manager = ColocatedInfrastructureManager::new(config);
-        
-        let location = ServerLocation::new("US".to_string(), "New York".to_string(), "NA".to_string(), 40.7128, -74.0060);
+
+        let location = ServerLocation::new(
+            "US".to_string(),
+            "New York".to_string(),
+            "NA".to_string(),
+            40.7128,
+            -74.0060,
+        );
         let mut server = VpnServer::new(
             "server1".to_string(),
             "vpn1.example.com".to_string(),
@@ -705,18 +737,30 @@ mod tests {
             location,
         );
         server.status = ServerStatus::Online;
-        
+
         manager.add_server(server).await.unwrap();
-        
+
         let selected = manager.select_server(None).await.unwrap();
         assert_eq!(selected.server_id, "server1");
     }
 
     #[tokio::test]
     async fn test_geographic_distance() {
-        let location1 = ServerLocation::new("US".to_string(), "New York".to_string(), "NA".to_string(), 40.7128, -74.0060);
-        let location2 = ServerLocation::new("US".to_string(), "Los Angeles".to_string(), "NA".to_string(), 34.0522, -118.2437);
-        
+        let location1 = ServerLocation::new(
+            "US".to_string(),
+            "New York".to_string(),
+            "NA".to_string(),
+            40.7128,
+            -74.0060,
+        );
+        let location2 = ServerLocation::new(
+            "US".to_string(),
+            "Los Angeles".to_string(),
+            "NA".to_string(),
+            34.0522,
+            -118.2437,
+        );
+
         let distance = location1.distance_to(&location2);
         assert!(distance > 3000.0 && distance < 5000.0); // Approximate distance
     }

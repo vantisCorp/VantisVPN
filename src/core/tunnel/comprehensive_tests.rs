@@ -53,10 +53,10 @@ mod tunnel_stats_tests {
     #[test]
     fn test_stats_large_values() {
         let mut stats = TunnelStats::default();
-        
+
         // Simulate large data transfer (1GB)
         stats.update(1_000_000_000, 1_000_000_000);
-        
+
         assert_eq!(stats.bytes_sent, 1_000_000_000);
         assert_eq!(stats.bytes_received, 1_000_000_000);
     }
@@ -158,7 +158,7 @@ mod tunnel_state_tests {
     fn test_state_copy() {
         let state1 = TunnelState::Connected;
         let state2 = state1;
-        
+
         assert_eq!(state1, TunnelState::Connected);
         assert_eq!(state2, TunnelState::Connected);
     }
@@ -198,98 +198,46 @@ mod state_transition_tests {
     #[test]
     fn test_valid_transitions() {
         // Disconnected -> Connecting
-        test_transition(
-            TunnelState::Disconnected,
-            TunnelState::Connecting,
-            true
-        );
+        test_transition(TunnelState::Disconnected, TunnelState::Connecting, true);
 
         // Connecting -> Connected
-        test_transition(
-            TunnelState::Connecting,
-            TunnelState::Connected,
-            true
-        );
+        test_transition(TunnelState::Connecting, TunnelState::Connected, true);
 
         // Connecting -> Error
-        test_transition(
-            TunnelState::Connecting,
-            TunnelState::Error,
-            true
-        );
+        test_transition(TunnelState::Connecting, TunnelState::Error, true);
 
         // Connected -> Disconnecting
-        test_transition(
-            TunnelState::Connected,
-            TunnelState::Disconnecting,
-            true
-        );
+        test_transition(TunnelState::Connected, TunnelState::Disconnecting, true);
 
         // Connected -> Reconnecting
-        test_transition(
-            TunnelState::Connected,
-            TunnelState::Reconnecting,
-            true
-        );
+        test_transition(TunnelState::Connected, TunnelState::Reconnecting, true);
 
         // Disconnecting -> Disconnected
-        test_transition(
-            TunnelState::Disconnecting,
-            TunnelState::Disconnected,
-            true
-        );
+        test_transition(TunnelState::Disconnecting, TunnelState::Disconnected, true);
 
         // Reconnecting -> Connecting
-        test_transition(
-            TunnelState::Reconnecting,
-            TunnelState::Connecting,
-            true
-        );
+        test_transition(TunnelState::Reconnecting, TunnelState::Connecting, true);
 
         // Error -> Disconnected
-        test_transition(
-            TunnelState::Error,
-            TunnelState::Disconnected,
-            true
-        );
+        test_transition(TunnelState::Error, TunnelState::Disconnected, true);
 
         // Error -> Reconnecting
-        test_transition(
-            TunnelState::Error,
-            TunnelState::Reconnecting,
-            true
-        );
+        test_transition(TunnelState::Error, TunnelState::Reconnecting, true);
     }
 
     #[test]
     fn test_invalid_transitions() {
         // Connected -> Connected (no change)
-        test_transition(
-            TunnelState::Connected,
-            TunnelState::Connected,
-            false
-        );
+        test_transition(TunnelState::Connected, TunnelState::Connected, false);
 
         // Disconnected -> Connected (skip connecting)
-        test_transition(
-            TunnelState::Disconnected,
-            TunnelState::Connected,
-            false
-        );
+        test_transition(TunnelState::Disconnected, TunnelState::Connected, false);
 
         // Connected -> Disconnected (skip disconnecting)
-        test_transition(
-            TunnelState::Connected,
-            TunnelState::Disconnected,
-            false
-        );
+        test_transition(TunnelState::Connected, TunnelState::Disconnected, false);
 
         // Disconnecting -> Connected (invalid)
-        test_transition(
-            TunnelState::Disconnecting,
-            TunnelState::Connected,
-            false
-        );
+        test_transition(TunnelState::Disconnecting, TunnelState::Connected, false);
     }
 
     #[test]
@@ -306,7 +254,7 @@ mod state_transition_tests {
         for from in states.iter() {
             for to in states.iter() {
                 let transition = StateTransition::new(*from, *to);
-                
+
                 // Just verify it doesn't panic
                 let _is_valid = transition.is_valid();
             }
@@ -514,7 +462,7 @@ mod error_handling_tests {
         let tunnel = Tunnel::new("error-tunnel-3".to_string(), config);
 
         tunnel.connect().await.expect("Connection failed");
-        
+
         // Should handle empty data
         let result = tunnel.send(b"").await;
         assert!(result.is_ok());
@@ -526,7 +474,7 @@ mod error_handling_tests {
         let tunnel = Tunnel::new("error-tunnel-4".to_string(), config);
 
         tunnel.connect().await.expect("Connection failed");
-        
+
         // 1MB of data
         let large_data = vec![0u8; 1024 * 1024];
         let result = tunnel.send(&large_data).await;
@@ -549,7 +497,7 @@ mod performance_tests {
     #[tokio::test]
     async fn test_connection_performance() {
         let config = TunnelConfig::default();
-        
+
         let start = Instant::now();
         for i in 0..100 {
             let tunnel = Tunnel::new(format!("perf-tunnel-{}", i), config.clone());
@@ -570,11 +518,11 @@ mod performance_tests {
 
         let data = vec![0u8; 1024]; // 1KB packet
         let start = Instant::now();
-        
+
         for _ in 0..1000 {
             tunnel.send(&data).await.expect("Send failed");
         }
-        
+
         let duration = start.elapsed();
         println!("1000 packets (1KB each): {:?}", duration);
     }

@@ -2,31 +2,31 @@
 // Optimized for satellite links with high latency and packet loss
 // Implements Reed-Solomon and LDPC codes for robust data transmission
 
+use crate::error::{Result, VantisError};
+use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use serde::{Serialize, Deserialize};
-use crate::error::{VantisError, Result};
 
 /// FEC Algorithm Type
-/// 
+///
 /// Types of Forward Error Correction algorithms available for satellite links.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum FecAlgorithm {
     /// Reed-Solomon codes
-    /// 
+    ///
     /// Reed-Solomon error correction codes, good for burst errors.
     ReedSolomon,
     /// Low-Density Parity-Check codes
-    /// 
+    ///
     /// LDPC codes, efficient for large data blocks.
     Ldpc,
     /// Turbo codes
-    /// 
+    ///
     /// Turbo codes, excellent for high BER channels.
     Turbo,
     /// Hybrid approach
-    /// 
+    ///
     /// Hybrid approach combining multiple algorithms for optimal performance.
     Hybrid,
 }
@@ -44,9 +44,9 @@ impl FecAlgorithm {
     pub fn overhead_ratio(&self) -> f64 {
         match self {
             FecAlgorithm::ReedSolomon => 0.2, // 20% overhead
-            FecAlgorithm::Ldpc => 0.15, // 15% overhead
-            FecAlgorithm::Turbo => 0.25, // 25% overhead
-            FecAlgorithm::Hybrid => 0.18, // 18% overhead
+            FecAlgorithm::Ldpc => 0.15,       // 15% overhead
+            FecAlgorithm::Turbo => 0.25,      // 25% overhead
+            FecAlgorithm::Hybrid => 0.18,     // 18% overhead
         }
     }
 }
@@ -58,36 +58,36 @@ impl FecConfig {
 }
 
 /// FEC Configuration
-/// 
+///
 /// Configuration settings for Forward Error Correction on satellite links.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FecConfig {
     /// FEC algorithm to use
-    /// 
+    ///
     /// The FEC algorithm to use for error correction.
     pub algorithm: FecAlgorithm,
     /// Data block size in bytes
-    /// 
+    ///
     /// Size of data blocks for FEC encoding.
     pub block_size: usize,
     /// Number of parity symbols
-    /// 
+    ///
     /// Number of parity symbols to add for error correction.
     pub parity_symbols: usize,
     /// Enable interleaving
-    /// 
+    ///
     /// Whether to enable packet interleaving to combat burst errors.
     pub enable_interleaving: bool,
     /// Interleaving depth
-    /// 
+    ///
     /// Depth of interleaving if enabled.
     pub interleaving_depth: usize,
     /// Maximum latency in milliseconds
-    /// 
+    ///
     /// Maximum acceptable latency for FEC processing.
     pub max_latency_ms: u64,
     /// Enable adaptive FEC
-    /// 
+    ///
     /// Whether to adaptively adjust FEC parameters based on network conditions.
     pub enable_adaptive: bool,
 }
@@ -107,24 +107,24 @@ impl Default for FecConfig {
 }
 
 /// FEC Block
-/// 
+///
 /// Represents a data block with FEC parity information.
 #[derive(Debug, Clone)]
 pub struct FecBlock {
     /// Block ID
-    /// 
+    ///
     /// Unique identifier for this FEC block.
     pub block_id: u64,
     /// Data
-    /// 
+    ///
     /// Original data payload.
     pub data: Vec<u8>,
     /// Parity
-    /// 
+    ///
     /// Parity symbols for error correction.
     pub parity: Vec<u8>,
     /// Timestamp
-    /// 
+    ///
     /// When this block was created.
     pub timestamp: std::time::Instant,
 }
@@ -145,50 +145,50 @@ impl FecBlock {
 }
 
 /// FEC Statistics
-/// 
+///
 /// Statistics about Forward Error Correction performance.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FecStats {
     /// Algorithm
-    /// 
+    ///
     /// FEC algorithm being used.
     pub algorithm: FecAlgorithm,
     /// Blocks encoded
-    /// 
+    ///
     /// Total number of blocks encoded.
     pub blocks_encoded: u64,
     /// Blocks decoded
-    /// 
+    ///
     /// Total number of blocks decoded.
     pub blocks_decoded: u64,
     /// Blocks recovered
-    /// 
+    ///
     /// Number of blocks successfully recovered using FEC.
     pub blocks_recovered: u64,
     /// Blocks failed
-    /// 
+    ///
     /// Number of blocks that could not be recovered.
     pub blocks_failed: u64,
     /// Total bytes sent
-    /// 
+    ///
     /// Total bytes sent including parity overhead.
     pub total_bytes_sent: u64,
     /// Total bytes received
-    /// 
+    ///
     /// Total bytes received.
     pub total_bytes_received: u64,
     /// Recovery rate
-    /// 
+    ///
     /// Percentage of blocks successfully recovered.
     pub recovery_rate: f64,
     /// Average latency
-    /// 
+    ///
     /// Average latency in milliseconds.
     pub average_latency_ms: f64,
 }
 
 /// FEC Encoder
-/// 
+///
 /// Encodes data with Forward Error Correction for transmission.
 pub struct FecEncoder {
     config: FecConfig,
@@ -259,12 +259,12 @@ impl FecEncoder {
         // For now, generate placeholder parity
         let parity_len = self.config.parity_symbols * (data.len() / self.config.parity_symbols);
         let mut parity = vec![0u8; parity_len];
-        
+
         // Simple XOR-based parity (placeholder)
         for i in 0..parity_len {
             parity[i] = data[i % data.len()];
         }
-        
+
         Ok(parity)
     }
 
@@ -274,12 +274,12 @@ impl FecEncoder {
         // For now, generate placeholder parity
         let parity_len = (data.len() as f64 * self.config.overhead_ratio()) as usize;
         let mut parity = vec![0u8; parity_len];
-        
+
         // Simple parity generation (placeholder)
         for i in 0..parity_len {
             parity[i] = data[i % data.len()] ^ data[(i + 1) % data.len()];
         }
-        
+
         Ok(parity)
     }
 
@@ -289,12 +289,12 @@ impl FecEncoder {
         // For now, generate placeholder parity
         let parity_len = (data.len() as f64 * self.config.overhead_ratio()) as usize;
         let mut parity = vec![0u8; parity_len];
-        
+
         // Simple convolutional encoding (placeholder)
         for i in 0..parity_len {
             parity[i] = data[i % data.len()] ^ data[(i + 2) % data.len()];
         }
-        
+
         Ok(parity)
     }
 
@@ -303,7 +303,7 @@ impl FecEncoder {
         // Combine Reed-Solomon and LDPC
         let rs_parity = self.encode_reed_solomon(data).await?;
         let ldpc_parity = self.encode_ldpc(data).await?;
-        
+
         // Interleave parity symbols
         let mut combined = Vec::with_capacity(rs_parity.len() + ldpc_parity.len());
         for i in 0..rs_parity.len().max(ldpc_parity.len()) {
@@ -314,26 +314,26 @@ impl FecEncoder {
                 combined.push(ldpc_parity[i]);
             }
         }
-        
+
         Ok(combined)
     }
 
     /// Interleave data and parity
     async fn interleave(&self, data: Vec<u8>, parity: Vec<u8>) -> Result<(Vec<u8>, Vec<u8>)> {
         let depth = self.config.interleaving_depth;
-        
+
         // Simple block interleaving
         let mut interleaved_data = vec![0u8; data.len()];
         let mut interleaved_parity = vec![0u8; parity.len()];
-        
+
         for i in 0..data.len() {
             interleaved_data[(i * depth) % data.len()] = data[i];
         }
-        
+
         for i in 0..parity.len() {
             interleaved_parity[(i * depth) % parity.len()] = parity[i];
         }
-        
+
         Ok((interleaved_data, interleaved_parity))
     }
 
@@ -345,7 +345,7 @@ impl FecEncoder {
 
 /// FEC Decoder
 /// FEC Decoder
-/// 
+///
 /// Decodes data with Forward Error Correction for received packets.
 pub struct FecDecoder {
     config: FecConfig,
@@ -396,7 +396,7 @@ impl FecDecoder {
             let mut stats = self.stats.lock().await;
             stats.blocks_decoded += 1;
             stats.total_bytes_received += (data.len() + parity.len()) as u64;
-            
+
             if stats.blocks_decoded > 0 {
                 stats.recovery_rate = stats.blocks_recovered as f64 / stats.blocks_decoded as f64;
             }
@@ -432,7 +432,7 @@ impl FecDecoder {
         let mid = parity.len() / 2;
         let rs_parity = &parity[..mid];
         let ldpc_parity = &parity[mid..];
-        
+
         // Try LDPC first (faster)
         match self.decode_ldpc(data, ldpc_parity).await {
             Ok(decoded) => {
@@ -440,10 +440,10 @@ impl FecDecoder {
                 if self.verify_reed_solomon(&decoded, rs_parity).await {
                     return Ok(decoded);
                 }
-            }
-            Err(_) => {}
+            },
+            Err(_) => {},
         }
-        
+
         // Fall back to RS
         self.decode_reed_solomon(data, rs_parity).await
     }
@@ -458,18 +458,18 @@ impl FecDecoder {
     /// De-interleave data and parity
     async fn deinterleave(&self, data: Vec<u8>, parity: Vec<u8>) -> Result<(Vec<u8>, Vec<u8>)> {
         let depth = self.config.interleaving_depth;
-        
+
         let mut deinterleaved_data = vec![0u8; data.len()];
         let mut deinterleaved_parity = vec![0u8; parity.len()];
-        
+
         for i in 0..data.len() {
             deinterleaved_data[i] = data[(i * depth) % data.len()];
         }
-        
+
         for i in 0..parity.len() {
             deinterleaved_parity[i] = parity[(i * depth) % parity.len()];
         }
-        
+
         Ok((deinterleaved_data, deinterleaved_parity))
     }
 
@@ -477,14 +477,16 @@ impl FecDecoder {
     pub async fn recover_packet(&self, _block_id: u64) -> Result<Vec<u8>> {
         // In production, use parity symbols to reconstruct lost data
         // For now, return error
-        Err(VantisError::InvalidPeer("Packet recovery not implemented".to_string()))
+        Err(VantisError::InvalidPeer(
+            "Packet recovery not implemented".to_string(),
+        ))
     }
 
     /// Clean up old blocks
     pub async fn cleanup_old_blocks(&self) {
         let mut buffer = self.buffer.lock().await;
         let max_age = std::time::Duration::from_millis(self.config.max_latency_ms);
-        
+
         buffer.retain(|block| block.age() < max_age);
     }
 
@@ -496,7 +498,7 @@ impl FecDecoder {
 
 /// FEC Manager
 /// FEC Manager
-/// 
+///
 /// Manages Forward Error Correction encoding and decoding for satellite links.
 pub struct FecManager {
     config: FecConfig,
@@ -563,10 +565,10 @@ mod tests {
     async fn test_fec_encoding() {
         let config = FecConfig::default();
         let encoder = FecEncoder::new(config);
-        
+
         let data = b"Hello, World!".to_vec();
         let block = encoder.encode(data).await.unwrap();
-        
+
         assert_eq!(block.data.len(), 13);
         assert!(!block.parity.is_empty());
     }
@@ -576,11 +578,11 @@ mod tests {
         let config = FecConfig::default();
         let encoder = FecEncoder::new(config.clone());
         let decoder = FecDecoder::new(config);
-        
+
         let data = b"Hello, World!".to_vec();
         let block = encoder.encode(data.clone()).await.unwrap();
         let decoded = decoder.decode(block).await.unwrap();
-        
+
         assert_eq!(decoded, data);
     }
 
@@ -588,11 +590,11 @@ mod tests {
     async fn test_fec_manager() {
         let config = FecConfig::default();
         let manager = FecManager::new(config);
-        
+
         let data = b"Test data".to_vec();
         let block = manager.encode(data.clone()).await.unwrap();
         let decoded = manager.decode(block).await.unwrap();
-        
+
         assert_eq!(decoded, data);
     }
 }

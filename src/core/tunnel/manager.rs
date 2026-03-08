@@ -1,15 +1,15 @@
 //! # Tunnel Manager
-//! 
+//!
 //! Manages multiple VPN tunnels.
 
+use super::Tunnel;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use super::Tunnel;
 
 /// Tunnel manager
 /// Manages multiple VPN tunnels with thread-safe operations
-/// 
+///
 /// The TunnelManager provides centralized control over all active VPN tunnels,
 /// allowing for creation, removal, and monitoring of tunnel instances.
 pub struct TunnelManager {
@@ -24,58 +24,58 @@ impl TunnelManager {
             tunnels: Arc::new(RwLock::new(HashMap::new())),
         }
     }
-    
+
     /// Add a tunnel
     pub async fn add_tunnel(&self, tunnel: Arc<Tunnel>) -> crate::Result<()> {
         let mut tunnels = self.tunnels.write().await;
         let id = tunnel.id().to_string();
-        
+
         if tunnels.contains_key(&id) {
             return Err(crate::VantisError::TunnelExists(id));
         }
-        
+
         tunnels.insert(id, tunnel);
         Ok(())
     }
-    
+
     /// Remove a tunnel
     pub async fn remove_tunnel(&self, id: &str) -> crate::Result<()> {
         let mut tunnels = self.tunnels.write().await;
-        
+
         if !tunnels.contains_key(id) {
             return Err(crate::VantisError::TunnelNotFound(id.to_string()));
         }
-        
+
         tunnels.remove(id);
         Ok(())
     }
-    
+
     /// Get a tunnel by ID
     pub async fn get_tunnel(&self, id: &str) -> crate::Result<Arc<Tunnel>> {
         let tunnels = self.tunnels.read().await;
-        
+
         tunnels
             .get(id)
             .cloned()
             .ok_or_else(|| crate::VantisError::TunnelNotFound(id.to_string()))
     }
-    
+
     /// Get all tunnels
     pub async fn list_tunnels(&self) -> Vec<String> {
         let tunnels = self.tunnels.read().await;
         tunnels.keys().cloned().collect()
     }
-    
+
     /// Get active tunnel
     pub async fn get_active_tunnel(&self) -> crate::Result<Arc<Tunnel>> {
         let tunnels = self.tunnels.read().await;
-        
+
         for tunnel in tunnels.values() {
             if tunnel.is_connected().await {
                 return Ok(tunnel.clone());
             }
         }
-        
+
         Err(crate::VantisError::NoActiveTunnel)
     }
 }

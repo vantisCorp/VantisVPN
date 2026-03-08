@@ -3,11 +3,11 @@
 // Provides framework for SOC 2 Type II compliance and control tracking
 
 use crate::error::VantisError;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use serde::{Serialize, Deserialize};
-use chrono::{DateTime, Utc};
 
 /// Trust Service Criteria category for SOC 2
 ///
@@ -46,7 +46,7 @@ pub enum Soc2ControlStatus {
 /// SOC 2 control
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// SOC 2 control
-/// 
+///
 /// Represents a single SOC 2 control with its implementation status,
 /// evidence, and testing schedule.
 pub struct Soc2Control {
@@ -73,7 +73,7 @@ pub struct Soc2Control {
 }
 
 /// SOC 2 compliance report
-/// 
+///
 /// Contains a comprehensive assessment of SOC 2 compliance status,
 /// including all controls, findings, and recommendations for a specified period.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -105,7 +105,7 @@ pub struct Soc2Report {
 }
 
 /// SOC 2 compliance configuration
-/// 
+///
 /// Configuration settings for SOC 2 compliance monitoring and reporting,
 /// including automatic checking intervals and notification settings.
 #[derive(Debug, Clone)]
@@ -138,7 +138,7 @@ impl Default for Soc2Config {
 }
 
 /// SOC 2 Compliance Manager
-/// 
+///
 /// Manages SOC 2 compliance monitoring, reporting, and control tracking
 /// for the VPN system to ensure compliance with SOC 2 trust service criteria.
 pub struct Soc2Compliance {
@@ -171,7 +171,13 @@ impl Soc2Compliance {
     }
 
     /// Update control status
-    pub async fn update_control_status(&self, control_id: &str, status: Soc2ControlStatus, evidence: Vec<String>, notes: String) -> Result<(), VantisError> {
+    pub async fn update_control_status(
+        &self,
+        control_id: &str,
+        status: Soc2ControlStatus,
+        evidence: Vec<String>,
+        notes: String,
+    ) -> Result<(), VantisError> {
         let mut controls = self.controls.lock().await;
         if let Some(control) = controls.get_mut(control_id) {
             control.status = status;
@@ -181,20 +187,33 @@ impl Soc2Compliance {
             control.next_test = Some(Utc::now() + chrono::Duration::days(90));
             Ok(())
         } else {
-            Err(VantisError::NotFound(format!("Control {} not found", control_id)))
+            Err(VantisError::NotFound(format!(
+                "Control {} not found",
+                control_id
+            )))
         }
     }
 
     /// Create compliance report
-    pub async fn create_report(&self, period_start: DateTime<Utc>, period_end: DateTime<Utc>) -> Result<String, VantisError> {
+    pub async fn create_report(
+        &self,
+        period_start: DateTime<Utc>,
+        period_end: DateTime<Utc>,
+    ) -> Result<String, VantisError> {
         let report_id = format!("soc2_{}", Utc::now().timestamp());
 
         let controls = self.controls.lock().await;
         let control_list: Vec<_> = controls.values().cloned().collect();
 
-        let overall_status = if control_list.iter().all(|c| c.status == Soc2ControlStatus::OperatingEffectively) {
+        let overall_status = if control_list
+            .iter()
+            .all(|c| c.status == Soc2ControlStatus::OperatingEffectively)
+        {
             Soc2ControlStatus::OperatingEffectively
-        } else if control_list.iter().any(|c| c.status == Soc2ControlStatus::NotImplemented) {
+        } else if control_list
+            .iter()
+            .any(|c| c.status == Soc2ControlStatus::NotImplemented)
+        {
             Soc2ControlStatus::NotImplemented
         } else {
             Soc2ControlStatus::PartiallyImplemented
@@ -203,7 +222,10 @@ impl Soc2Compliance {
         let compliance_score = if control_list.is_empty() {
             0
         } else {
-            let effective_count = control_list.iter().filter(|c| c.status == Soc2ControlStatus::OperatingEffectively).count();
+            let effective_count = control_list
+                .iter()
+                .filter(|c| c.status == Soc2ControlStatus::OperatingEffectively)
+                .count();
             ((effective_count as f64) / (control_list.len() as f64) * 100.0) as u8
         };
 
@@ -261,7 +283,10 @@ impl Soc2Compliance {
             return Ok(0);
         }
 
-        let effective_count = control_list.iter().filter(|c| c.status == Soc2ControlStatus::OperatingEffectively).count();
+        let effective_count = control_list
+            .iter()
+            .filter(|c| c.status == Soc2ControlStatus::OperatingEffectively)
+            .count();
         let score = ((effective_count as f64) / (control_list.len() as f64) * 100.0) as u8;
 
         Ok(score)

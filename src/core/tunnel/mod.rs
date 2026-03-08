@@ -1,14 +1,14 @@
 //! # VPN Tunnel Management
-//! 
+//!
 //! Manages VPN tunnel lifecycle, state, and routing.
 
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-pub mod state;
 pub mod manager;
+pub mod state;
 
-pub use state::{TunnelState, StateTransition};
+pub use state::{StateTransition, TunnelState};
 
 /// Tunnel statistics and performance metrics
 ///
@@ -99,84 +99,84 @@ impl Tunnel {
             stats: Arc::new(RwLock::new(TunnelStats::default())),
         }
     }
-    
+
     /// Get tunnel ID
     pub fn id(&self) -> &str {
         &self.id
     }
-    
+
     /// Get configuration
     pub fn config(&self) -> &TunnelConfig {
         &self.config
     }
-    
+
     /// Get state
     pub async fn state(&self) -> state::TunnelState {
         *self.state.read().await
     }
-    
+
     /// Get statistics
     pub async fn stats(&self) -> TunnelStats {
         self.stats.read().await.clone()
     }
-    
+
     /// Check if connected
     pub async fn is_connected(&self) -> bool {
         matches!(*self.state.read().await, state::TunnelState::Connected)
     }
-    
+
     /// Connect the tunnel
     pub async fn connect(&self) -> crate::Result<()> {
         tracing::info!("Connecting tunnel: {}", self.id);
-        
+
         // Update state
         *self.state.write().await = state::TunnelState::Connecting;
-        
+
         // Simulate connection
         tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
-        
+
         *self.state.write().await = state::TunnelState::Connected;
         tracing::info!("Tunnel connected: {}", self.id);
-        
+
         Ok(())
     }
-    
+
     /// Disconnect the tunnel
     pub async fn disconnect(&self) -> crate::Result<()> {
         tracing::info!("Disconnecting tunnel: {}", self.id);
-        
+
         *self.state.write().await = state::TunnelState::Disconnecting;
-        
+
         // Simulate disconnection
         tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
-        
+
         *self.state.write().await = state::TunnelState::Disconnected;
         tracing::info!("Tunnel disconnected: {}", self.id);
-        
+
         Ok(())
     }
-    
+
     /// Send data through tunnel
     pub async fn send(&self, data: &[u8]) -> crate::Result<()> {
         if !self.is_connected().await {
             return Err(crate::VantisError::NotConnected);
         }
-        
+
         let mut stats = self.stats.write().await;
         stats.update(data.len() as u64, 0);
-        
+
         Ok(())
     }
-    
+
     /// Receive data from tunnel
     pub async fn receive(&self) -> crate::Result<Vec<u8>> {
         if !self.is_connected().await {
             return Err(crate::VantisError::NotConnected);
         }
-        
+
         let mut stats = self.stats.write().await;
         stats.update(0, 100); // Simulated receive
-        
+
         Ok(vec![])
     }
 }
@@ -192,13 +192,13 @@ mod tests {
     async fn test_tunnel_connection() {
         let config = TunnelConfig::default();
         let tunnel = Tunnel::new("test-tunnel".to_string(), config);
-        
+
         assert_eq!(tunnel.state().await, state::TunnelState::Disconnected);
-        
+
         tunnel.connect().await.expect("Connection failed");
         assert_eq!(tunnel.state().await, state::TunnelState::Connected);
         assert!(tunnel.is_connected().await);
-        
+
         tunnel.disconnect().await.expect("Disconnect failed");
         assert_eq!(tunnel.state().await, state::TunnelState::Disconnected);
     }

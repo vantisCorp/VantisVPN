@@ -4,8 +4,8 @@
 //! zero-knowledge login, and identity management.
 
 use super::*;
-use std::net::{IpAddr, Ipv4Addr};
 use chrono::Utc;
+use std::net::{IpAddr, Ipv4Addr};
 
 // =============================================================================
 // Rotation Strategy Tests
@@ -17,9 +17,18 @@ mod rotation_strategy_tests {
 
     #[test]
     fn test_strategy_equality() {
-        assert_eq!(RotationStrategy::PerConnection, RotationStrategy::PerConnection);
-        assert_eq!(RotationStrategy::TimeInterval, RotationStrategy::TimeInterval);
-        assert_ne!(RotationStrategy::PerConnection, RotationStrategy::TimeInterval);
+        assert_eq!(
+            RotationStrategy::PerConnection,
+            RotationStrategy::PerConnection
+        );
+        assert_eq!(
+            RotationStrategy::TimeInterval,
+            RotationStrategy::TimeInterval
+        );
+        assert_ne!(
+            RotationStrategy::PerConnection,
+            RotationStrategy::TimeInterval
+        );
     }
 
     #[test]
@@ -33,7 +42,8 @@ mod rotation_strategy_tests {
     fn test_strategy_serialization() {
         let strategy = RotationStrategy::Geographic;
         let json = serde_json::to_string(&strategy).expect("Serialization failed");
-        let decoded: RotationStrategy = serde_json::from_str(&json).expect("Deserialization failed");
+        let decoded: RotationStrategy =
+            serde_json::from_str(&json).expect("Deserialization failed");
         assert_eq!(strategy, decoded);
     }
 
@@ -49,7 +59,8 @@ mod rotation_strategy_tests {
 
         for strategy in &strategies {
             let json = serde_json::to_string(strategy).expect("Serialization failed");
-            let decoded: RotationStrategy = serde_json::from_str(&json).expect("Deserialization failed");
+            let decoded: RotationStrategy =
+                serde_json::from_str(&json).expect("Deserialization failed");
             assert_eq!(*strategy, decoded);
         }
     }
@@ -235,7 +246,8 @@ mod ip_pool_tests {
     #[test]
     fn test_pool_multiple_countries() {
         let pool = create_test_pool();
-        let countries: std::collections::HashSet<_> = pool.endpoints
+        let countries: std::collections::HashSet<_> = pool
+            .endpoints
             .iter()
             .map(|e| e.country_code.as_str())
             .collect();
@@ -455,7 +467,10 @@ mod ip_rotator_tests {
         let pool = create_test_pool_with_endpoints();
 
         rotator.add_pool(pool).await.expect("Failed to add pool");
-        rotator.set_pool("test_pool").await.expect("Failed to set pool");
+        rotator
+            .set_pool("test_pool")
+            .await
+            .expect("Failed to set pool");
 
         let result = rotator.rotate().await;
         assert!(result.is_ok());
@@ -471,7 +486,10 @@ mod ip_rotator_tests {
         let pool = create_test_pool_with_endpoints();
 
         rotator.add_pool(pool).await.expect("Failed to add pool");
-        rotator.set_pool("test_pool").await.expect("Failed to set pool");
+        rotator
+            .set_pool("test_pool")
+            .await
+            .expect("Failed to set pool");
 
         for _ in 0..5 {
             let result = rotator.rotate().await;
@@ -489,15 +507,24 @@ mod ip_rotator_tests {
         let pool = create_test_pool_with_endpoints();
 
         rotator.add_pool(pool).await.expect("Failed to add pool");
-        rotator.set_pool("test_pool").await.expect("Failed to set pool");
+        rotator
+            .set_pool("test_pool")
+            .await
+            .expect("Failed to set pool");
 
         // Initially no endpoint
-        let current = rotator.get_current_endpoint().await.expect("Failed to get endpoint");
+        let current = rotator
+            .get_current_endpoint()
+            .await
+            .expect("Failed to get endpoint");
         assert!(current.is_none());
 
         // After rotation
         rotator.rotate().await.expect("Failed to rotate");
-        let current = rotator.get_current_endpoint().await.expect("Failed to get endpoint");
+        let current = rotator
+            .get_current_endpoint()
+            .await
+            .expect("Failed to get endpoint");
         assert!(current.is_some());
     }
 
@@ -623,7 +650,10 @@ mod error_handling_tests {
         };
 
         rotator.add_pool(pool).await.expect("Failed to add pool");
-        rotator.set_pool("unavailable").await.expect("Failed to set pool");
+        rotator
+            .set_pool("unavailable")
+            .await
+            .expect("Failed to set pool");
 
         let result = rotator.rotate().await;
         assert!(result.is_err());
@@ -659,7 +689,10 @@ mod error_handling_tests {
         };
 
         rotator.add_pool(pool).await.expect("Failed to add pool");
-        rotator.set_pool("highload").await.expect("Failed to set pool");
+        rotator
+            .set_pool("highload")
+            .await
+            .expect("Failed to set pool");
 
         let result = rotator.rotate().await;
         assert!(result.is_err());
@@ -707,7 +740,10 @@ mod performance_tests {
         let pool = create_large_pool(100);
 
         rotator.add_pool(pool).await.expect("Failed to add pool");
-        rotator.set_pool("large_pool").await.expect("Failed to set pool");
+        rotator
+            .set_pool("large_pool")
+            .await
+            .expect("Failed to set pool");
 
         let start = Instant::now();
         for _ in 0..100 {

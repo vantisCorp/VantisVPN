@@ -1,12 +1,12 @@
 //! # Protocol Implementation
-//! 
+//!
 //! VANTISVPN protocol based on WireGuard with enhancements:
 //! - Post-quantum key exchange
 //! - Dynamic IP allocation
 //! - Key rotation
 //! - QUIC transport
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// Protocol version
 pub const PROTOCOL_VERSION: u8 = 1;
@@ -133,33 +133,33 @@ impl Protocol {
             remote_index: 0,
         }
     }
-    
+
     /// Get current state
     pub fn state(&self) -> ProtocolState {
         self.state
     }
-    
+
     /// Check if connected
     pub fn is_connected(&self) -> bool {
         self.state == ProtocolState::Connected && self.handshake_complete
     }
-    
+
     /// Initiate handshake
     pub fn initiate_handshake(&mut self) -> crate::Result<HandshakeInit> {
         self.state = ProtocolState::Handshaking;
-        
+
         // Generate ephemeral keys
         let classical_pair = crate::crypto::keys::EphemeralKeyPair::new()
             .map_err(|e| crate::VantisError::CryptoError(e.to_string()))?;
         let (_pqc_pair, pqc_public) = crate::crypto::pqc::KyberKEM::generate_keypair()
             .map_err(|e| crate::VantisError::CryptoError(e.to_string()))?;
-        
+
         // Store local index
         self.local_index = crate::crypto::random::random_u32()
             .map_err(|e| crate::VantisError::CryptoError(e.to_string()))?;
-        
+
         let classical_public = classical_pair.public_key().as_bytes().to_vec();
-        
+
         Ok(HandshakeInit {
             ephemeral_public: classical_public,
             static_public: None,
@@ -171,7 +171,7 @@ impl Protocol {
             encrypted: vec![],
         })
     }
-    
+
     /// Process handshake response
     pub fn process_handshake_response(
         &mut self,
@@ -180,46 +180,40 @@ impl Protocol {
         if self.state != ProtocolState::Handshaking {
             return Err(crate::VantisError::InvalidState);
         }
-        
+
         // Process response and derive shared secrets
         // (Simplified - production would do full handshake)
-        
+
         self.state = ProtocolState::Connected;
         self.handshake_complete = true;
         self.remote_index = crate::crypto::random::random_u32()
             .map_err(|e| crate::VantisError::CryptoError(e.to_string()))?;
-        
+
         Ok(())
     }
-    
+
     /// Create transport message
-    pub fn create_transport_message(
-        &mut self,
-        data: &[u8],
-    ) -> crate::Result<TransportMessage> {
+    pub fn create_transport_message(&mut self, data: &[u8]) -> crate::Result<TransportMessage> {
         if !self.is_connected() {
             return Err(crate::VantisError::NotConnected);
         }
-        
+
         Ok(TransportMessage {
             receiver: self.remote_index,
             counter: 0, // Would be sequence number
             data: data.to_vec(),
         })
     }
-    
+
     /// Process transport message
-    pub fn process_transport_message(
-        &mut self,
-        msg: TransportMessage,
-    ) -> crate::Result<Vec<u8>> {
+    pub fn process_transport_message(&mut self, msg: TransportMessage) -> crate::Result<Vec<u8>> {
         if !self.is_connected() {
             return Err(crate::VantisError::NotConnected);
         }
-        
+
         Ok(msg.data)
     }
-    
+
     /// Close connection
     pub fn close(&mut self) {
         self.state = ProtocolState::Closing;
@@ -235,7 +229,7 @@ mod tests {
     fn test_protocol_creation() {
         let config = ProtocolConfig::default();
         let protocol = Protocol::new(config);
-        
+
         assert_eq!(protocol.state(), ProtocolState::Disconnected);
         assert!(!protocol.is_connected());
     }
@@ -244,7 +238,7 @@ mod tests {
     fn test_handshake_initiation() {
         let mut protocol = Protocol::new(ProtocolConfig::default());
         let init = protocol.initiate_handshake().expect("Failed to initiate");
-        
+
         assert_eq!(protocol.state(), ProtocolState::Handshaking);
         assert!(!init.pqc_public.is_empty());
     }
@@ -255,10 +249,11 @@ mod tests {
         protocol.state = ProtocolState::Connected;
         protocol.handshake_complete = true;
         protocol.remote_index = 123;
-        
-        let msg = protocol.create_transport_message(b"test data")
+
+        let msg = protocol
+            .create_transport_message(b"test data")
             .expect("Failed to create message");
-        
+
         assert_eq!(msg.receiver, 123);
     }
 }

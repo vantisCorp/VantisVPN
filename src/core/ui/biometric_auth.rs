@@ -2,14 +2,14 @@
 // Phase 6: UX/UI & Additional Features
 // Provides biometric authentication support
 
-use crate::error::VantisError;
 use crate::crypto::hash::Hash;
 use crate::crypto::random::SecureRandom;
+use crate::error::VantisError;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use serde::{Serialize, Deserialize};
-use chrono::{DateTime, Utc};
 
 /// Type of biometric authentication method
 ///
@@ -32,7 +32,7 @@ pub enum BiometricType {
 /// Authentication result
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// Biometric authentication result
-/// 
+///
 /// Contains the result of a biometric authentication attempt, including
 /// success status, confidence score, and error information.
 pub struct AuthResult {
@@ -49,7 +49,7 @@ pub struct AuthResult {
 }
 
 /// Biometric template
-/// 
+///
 /// Represents a stored biometric template for authentication,
 /// containing encrypted biometric data and metadata.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -71,7 +71,7 @@ pub struct BiometricTemplate {
 }
 
 /// Biometric authentication configuration
-/// 
+///
 /// Configuration settings for biometric authentication, including
 /// confidence thresholds, lockout policies, and multi-factor options.
 #[derive(Debug, Clone)]
@@ -136,7 +136,12 @@ impl BiometricAuth {
     }
 
     /// Register biometric template
-    pub async fn register_template(&self, user_id: String, biometric_type: BiometricType, template_data: Vec<u8>) -> Result<String, VantisError> {
+    pub async fn register_template(
+        &self,
+        user_id: String,
+        biometric_type: BiometricType,
+        template_data: Vec<u8>,
+    ) -> Result<String, VantisError> {
         let rng = self.rng.lock().await;
         let template_id = format!("bio_{}", hex::encode(rng.generate_bytes(16)?));
         drop(rng);
@@ -158,7 +163,12 @@ impl BiometricAuth {
     }
 
     /// Authenticate user
-    pub async fn authenticate(&self, user_id: String, biometric_type: BiometricType, sample_data: Vec<u8>) -> Result<AuthResult, VantisError> {
+    pub async fn authenticate(
+        &self,
+        user_id: String,
+        biometric_type: BiometricType,
+        sample_data: Vec<u8>,
+    ) -> Result<AuthResult, VantisError> {
         // Check lockout status
         {
             let lockout = self.lockout_until.lock().await;
@@ -169,7 +179,9 @@ impl BiometricAuth {
                         confidence: 0.0,
                         method: biometric_type,
                         timestamp: Utc::now(),
-                        error_message: Some("Account locked due to too many failed attempts".to_string()),
+                        error_message: Some(
+                            "Account locked due to too many failed attempts".to_string(),
+                        ),
                     });
                 }
             }
@@ -177,7 +189,8 @@ impl BiometricAuth {
 
         // Find matching template
         let templates = self.templates.lock().await;
-        let template = templates.values()
+        let template = templates
+            .values()
             .find(|t| t.user_id == user_id && t.biometric_type == biometric_type && t.is_active)
             .cloned();
         drop(templates);
@@ -192,7 +205,7 @@ impl BiometricAuth {
                     timestamp: Utc::now(),
                     error_message: Some("No biometric template found".to_string()),
                 });
-            }
+            },
         };
 
         // Compare biometric data (placeholder - in production, use actual biometric matching)
@@ -227,7 +240,10 @@ impl BiometricAuth {
             // Check if should lockout
             if *attempts >= self.config.max_failed_attempts {
                 let mut lockout = self.lockout_until.lock().await;
-                lockout.insert(user_id.clone(), Utc::now() + chrono::Duration::seconds(self.config.lockout_duration as i64));
+                lockout.insert(
+                    user_id.clone(),
+                    Utc::now() + chrono::Duration::seconds(self.config.lockout_duration as i64),
+                );
             }
 
             Ok(AuthResult {
@@ -246,9 +262,18 @@ impl BiometricAuth {
         // For now, return a random confidence score
         let rng = self.rng.blocking_lock();
         let random_bytes = rng.generate_bytes(8)?;
-        let confidence = (u64::from_be_bytes([random_bytes[0], random_bytes[1], random_bytes[2], random_bytes[3], 
-                                                      random_bytes[4], random_bytes[5], random_bytes[6], random_bytes[7]]) as f64) / u64::MAX as f64;
-        
+        let confidence = (u64::from_be_bytes([
+            random_bytes[0],
+            random_bytes[1],
+            random_bytes[2],
+            random_bytes[3],
+            random_bytes[4],
+            random_bytes[5],
+            random_bytes[6],
+            random_bytes[7],
+        ]) as f64)
+            / u64::MAX as f64;
+
         // Bias towards higher confidence for testing
         Ok(0.7 + confidence * 0.3)
     }
@@ -263,7 +288,8 @@ impl BiometricAuth {
     /// Get user templates
     pub async fn get_user_templates(&self, user_id: &str) -> Vec<BiometricTemplate> {
         let templates = self.templates.lock().await;
-        templates.values()
+        templates
+            .values()
             .filter(|t| t.user_id == user_id)
             .cloned()
             .collect()

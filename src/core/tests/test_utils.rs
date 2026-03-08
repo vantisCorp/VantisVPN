@@ -1,6 +1,5 @@
 /// Test utilities for VantisVPN
 /// Provides common setup functions for tests
-
 use std::sync::Once;
 
 static CRYPTO_INIT: Once = Once::new();

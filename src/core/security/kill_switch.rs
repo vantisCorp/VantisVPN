@@ -3,10 +3,10 @@
 // when VPN connection is lost or compromised
 // Supports Linux (iptables/nftables), macOS (pf), and Windows (Windows Filtering Platform)
 
+use crate::error::{Result, VantisError};
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
-use serde::{Serialize, Deserialize};
-use crate::error::{VantisError, Result};
 
 /// State of the Kill Switch system
 ///
@@ -102,7 +102,7 @@ pub struct KillSwitchStats {
 }
 
 /// Kill Switch Manager
-/// 
+///
 /// Manages kernel-level kill switch functionality to protect against data leaks
 /// when the VPN connection is lost, blocking all network traffic until the VPN
 /// is re-established or the user manually disables protection.
@@ -168,7 +168,9 @@ impl KillSwitchManager {
         // Check if the kill switch is in Enabled or Active state (allow re-activation when already active)
         let state = self.state.read().await.clone();
         if state != KillSwitchState::Enabled && state != KillSwitchState::Active {
-            return Err(VantisError::InvalidPeer("Kill switch is not enabled".to_string()));
+            return Err(VantisError::InvalidPeer(
+                "Kill switch is not enabled".to_string(),
+            ));
         }
 
         // Apply firewall rules based on mode
@@ -261,7 +263,7 @@ impl KillSwitchManager {
     pub async fn update_config(&mut self, config: KillSwitchConfig) -> Result<()> {
         // If kill switch is active, reapply rules with new config
         let was_active = self.is_active().await;
-        
+
         if was_active {
             self.deactivate().await?;
         }
@@ -287,16 +289,16 @@ impl KillSwitchManager {
         match self.config.mode {
             KillSwitchMode::BlockAll => {
                 self.apply_block_all_rules().await?;
-            }
+            },
             KillSwitchMode::BlockUnencrypted => {
                 self.apply_block_unencrypted_rules().await?;
-            }
+            },
             KillSwitchMode::AllowLanOnly => {
                 self.apply_allow_lan_only_rules().await?;
-            }
+            },
             KillSwitchMode::AllowAppsOnly => {
                 self.apply_allow_apps_only_rules().await?;
-            }
+            },
         }
         Ok(())
     }

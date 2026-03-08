@@ -3,11 +3,11 @@
 // Provides framework for HITRUST CSF compliance and control tracking
 
 use crate::error::VantisError;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use serde::{Serialize, Deserialize};
-use chrono::{DateTime, Utc};
 
 /// Category of HITRUST CSF control
 ///
@@ -70,7 +70,7 @@ pub enum HitrustControlStatus {
 /// HITRUST control
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// HITRUST CSF control
-/// 
+///
 /// Represents a single HITRUST CSF control with its implementation status,
 /// evidence, and assessment details.
 pub struct HitrustControl {
@@ -97,7 +97,7 @@ pub struct HitrustControl {
 }
 
 /// HITRUST CSF compliance report
-/// 
+///
 /// Contains a comprehensive assessment of HITRUST CSF compliance status,
 /// including all controls, findings, and recommendations.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -129,7 +129,7 @@ pub struct HitrustReport {
 }
 
 /// HITRUST CSF compliance configuration
-/// 
+///
 /// Configuration settings for HITRUST CSF compliance monitoring and reporting,
 /// including automatic checking intervals and notification settings.
 #[derive(Debug, Clone)]
@@ -162,7 +162,7 @@ impl Default for HitrustConfig {
 }
 
 /// HITRUST CSF Compliance Manager
-/// 
+///
 /// Manages HITRUST CSF compliance monitoring, reporting, and control tracking
 /// for the VPN system to ensure compliance with healthcare security standards.
 pub struct HitrustCompliance {
@@ -195,7 +195,14 @@ impl HitrustCompliance {
     }
 
     /// Update control status
-    pub async fn update_control_status(&self, control_id: &str, status: HitrustControlStatus, implementation_level: u8, evidence: Vec<String>, notes: String) -> Result<(), VantisError> {
+    pub async fn update_control_status(
+        &self,
+        control_id: &str,
+        status: HitrustControlStatus,
+        implementation_level: u8,
+        evidence: Vec<String>,
+        notes: String,
+    ) -> Result<(), VantisError> {
         let mut controls = self.controls.lock().await;
         if let Some(control) = controls.get_mut(control_id) {
             control.status = status;
@@ -205,7 +212,10 @@ impl HitrustCompliance {
             control.last_updated = Utc::now();
             Ok(())
         } else {
-            Err(VantisError::NotFound(format!("Control {} not found", control_id)))
+            Err(VantisError::NotFound(format!(
+                "Control {} not found",
+                control_id
+            )))
         }
     }
 
@@ -216,9 +226,15 @@ impl HitrustCompliance {
         let controls = self.controls.lock().await;
         let control_list: Vec<_> = controls.values().cloned().collect();
 
-        let overall_status = if control_list.iter().all(|c| c.status == HitrustControlStatus::Validated) {
+        let overall_status = if control_list
+            .iter()
+            .all(|c| c.status == HitrustControlStatus::Validated)
+        {
             HitrustControlStatus::Validated
-        } else if control_list.iter().any(|c| c.status == HitrustControlStatus::NotImplemented) {
+        } else if control_list
+            .iter()
+            .any(|c| c.status == HitrustControlStatus::NotImplemented)
+        {
             HitrustControlStatus::NotImplemented
         } else {
             HitrustControlStatus::Implemented
@@ -227,7 +243,10 @@ impl HitrustCompliance {
         let compliance_score = if control_list.is_empty() {
             0
         } else {
-            let validated_count = control_list.iter().filter(|c| c.status == HitrustControlStatus::Validated).count();
+            let validated_count = control_list
+                .iter()
+                .filter(|c| c.status == HitrustControlStatus::Validated)
+                .count();
             ((validated_count as f64) / (control_list.len() as f64) * 100.0) as u8
         };
 
@@ -253,7 +272,10 @@ impl HitrustCompliance {
     }
 
     /// Get control
-    pub async fn get_control(&self, control_id: &str) -> Result<Option<HitrustControl>, VantisError> {
+    pub async fn get_control(
+        &self,
+        control_id: &str,
+    ) -> Result<Option<HitrustControl>, VantisError> {
         let controls = self.controls.lock().await;
         Ok(controls.get(control_id).cloned())
     }
@@ -285,7 +307,10 @@ impl HitrustCompliance {
             return Ok(0);
         }
 
-        let validated_count = control_list.iter().filter(|c| c.status == HitrustControlStatus::Validated).count();
+        let validated_count = control_list
+            .iter()
+            .filter(|c| c.status == HitrustControlStatus::Validated)
+            .count();
         let score = ((validated_count as f64) / (control_list.len() as f64) * 100.0) as u8;
 
         Ok(score)

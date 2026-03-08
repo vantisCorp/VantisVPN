@@ -1,81 +1,81 @@
 // VANTISVPN YubiKey 2FA Support
 // Hardware-based two-factor authentication using YubiKey
 
+use crate::crypto::hash::Hash;
+use crate::error::VantisError;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::{Duration, SystemTime};
-use serde::{Serialize, Deserialize};
-use crate::error::VantisError;
-use crate::crypto::hash::Hash;
 
 /// YubiKey configuration
-/// 
+///
 /// Configuration settings for YubiKey two-factor authentication.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct YubiKeyConfig {
     /// YubiKey enabled
-    /// 
+    ///
     /// Whether YubiKey authentication is enabled.
     pub enabled: bool,
     /// Require for login
-    /// 
+    ///
     /// Whether YubiKey is required for user login.
     pub require_for_login: bool,
     /// Require for admin
-    /// 
+    ///
     /// Whether YubiKey is required for administrative access.
     pub require_for_admin: bool,
     /// Require for VPN
-    /// 
+    ///
     /// Whether YubiKey is required for VPN connection.
     pub require_for_vpn: bool,
     /// Allowed slots
-    /// 
+    ///
     /// List of YubiKey slots that can be used for authentication.
     pub allowed_slots: Vec<YubiKeySlot>,
     /// Challenge timeout
-    /// 
+    ///
     /// Maximum time allowed to respond to a challenge.
     pub challenge_timeout: Duration,
     /// Maximum attempts
-    /// 
+    ///
     /// Maximum number of failed authentication attempts before lockout.
     pub max_attempts: u32,
     /// Lockout duration
-    /// 
+    ///
     /// Duration of account lockout after too many failed attempts.
     pub lockout_duration: Duration,
     /// Backup codes enabled
-    /// 
+    ///
     /// Whether backup codes are enabled as a fallback.
     pub backup_codes_enabled: bool,
     /// Backup codes count
-    /// 
+    ///
     /// Number of backup codes to generate per user.
     pub backup_codes_count: u32,
 }
 
 /// YubiKey slot
-/// 
+///
 /// YubiKey slots that can be configured for authentication.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum YubiKeySlot {
     /// Slot 1
-    /// 
+    ///
     /// First configuration slot on the YubiKey.
     Slot1,
     /// Slot 2
-    /// 
+    ///
     /// Second configuration slot on the YubiKey.
     Slot2,
 }
 
 /// YubiKey authentication method
-/// 
+///
 /// Different authentication methods supported by YubiKey.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum YubiKeyAuth {
     /// Challenge-response authentication
-    /// 
+    ///
     /// Uses challenge-response protocol for authentication.
     ChallengeResponse {
         /// YubiKey slot to use
@@ -86,7 +86,7 @@ pub enum YubiKeyAuth {
         response: Vec<u8>,
     },
     /// HMAC-based authentication
-    /// 
+    ///
     /// Uses HMAC for message authentication.
     Hmac {
         /// YubiKey slot to use
@@ -97,7 +97,7 @@ pub enum YubiKeyAuth {
         hmac: Vec<u8>,
     },
     /// One-time password authentication
-    /// 
+    ///
     /// Uses YubiKey OTP for authentication.
     Otp {
         /// One-time password from YubiKey
@@ -106,92 +106,92 @@ pub enum YubiKeyAuth {
 }
 
 /// YubiKey challenge-response
-/// 
+///
 /// Represents a challenge-response authentication session.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct YubiKeyChallengeResponse {
     /// YubiKey slot
-    /// 
+    ///
     /// The YubiKey slot being used for authentication.
     pub slot: YubiKeySlot,
     /// Challenge data
-    /// 
+    ///
     /// The challenge data sent to the YubiKey.
     pub challenge: Vec<u8>,
     /// Response data
-    /// 
+    ///
     /// The response data received from the YubiKey.
     pub response: Vec<u8>,
     /// Timestamp
-    /// 
+    ///
     /// When the challenge was issued.
     pub timestamp: SystemTime,
     /// Attempts
-    /// 
+    ///
     /// Number of authentication attempts made.
     pub attempts: u32,
 }
 
 /// YubiKey HMAC
-/// 
+///
 /// Represents an HMAC-based authentication operation.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct YubiKeyHmac {
     /// YubiKey slot
-    /// 
+    ///
     /// The YubiKey slot being used for authentication.
     pub slot: YubiKeySlot,
     /// Secret key
-    /// 
+    ///
     /// The secret key used for HMAC computation.
     pub secret_key: Vec<u8>,
     /// Data to authenticate
-    /// 
+    ///
     /// The data being authenticated.
     pub data: Vec<u8>,
     /// HMAC signature
-    /// 
+    ///
     /// The computed HMAC signature.
     pub hmac: Vec<u8>,
     /// Timestamp
-    /// 
+    ///
     /// When the HMAC was computed.
     pub timestamp: SystemTime,
 }
 
 /// YubiKey OTP
-/// 
+///
 /// Represents a YubiKey one-time password authentication.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct YubiKeyOtp {
     /// Public ID
-    /// 
+    ///
     /// Public identifier of the YubiKey.
     pub public_id: String,
     /// Private ID
-    /// 
+    ///
     /// Private identifier of the YubiKey.
     pub private_id: String,
     /// Secret key
-    /// 
+    ///
     /// Secret key used for OTP generation.
     pub secret_key: Vec<u8>,
     /// Counter
-    /// 
+    ///
     /// OTP counter value.
     pub counter: u32,
     /// Timestamp
-    /// 
+    ///
     /// When the OTP was generated.
     pub timestamp: SystemTime,
     /// Use count
-    /// 
+    ///
     /// Number of times this OTP has been used.
     pub use_count: u32,
 }
 
 /// YubiKey Manager
-/// 
+///
 /// Manages YubiKey two-factor authentication for VPN access, supporting
 /// multiple authentication methods including OTP, FIDO2/WebAuthn, and
 /// challenge-response protocols for secure hardware key integration.
@@ -205,82 +205,82 @@ pub struct YubiKeyManager {
 }
 
 /// Registered YubiKey
-/// 
+///
 /// Represents a YubiKey that has been registered with the system.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RegisteredYubiKey {
     /// Key ID
-    /// 
+    ///
     /// Unique identifier for this registered YubiKey.
     pub key_id: String,
     /// Public ID
-    /// 
+    ///
     /// Public identifier of the YubiKey.
     pub public_id: String,
     /// User ID
-    /// 
+    ///
     /// ID of the user who owns this YubiKey.
     pub user_id: String,
     /// Slot 1 configuration
-    /// 
+    ///
     /// Configuration for YubiKey slot 1.
     pub slot1_config: Option<SlotConfig>,
     /// Slot 2 configuration
-    /// 
+    ///
     /// Configuration for YubiKey slot 2.
     pub slot2_config: Option<SlotConfig>,
     /// Registered at
-    /// 
+    ///
     /// When this YubiKey was registered.
     pub registered_at: SystemTime,
     /// Last used
-    /// 
+    ///
     /// When this YubiKey was last used for authentication.
     pub last_used: Option<SystemTime>,
     /// Enabled
-    /// 
+    ///
     /// Whether this YubiKey is currently enabled.
     pub enabled: bool,
 }
 
 /// Slot configuration
-/// 
+///
 /// Configuration for a YubiKey slot.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SlotConfig {
     /// Slot
-    /// 
+    ///
     /// The YubiKey slot being configured.
     pub slot: YubiKeySlot,
     /// Configuration type
-    /// 
+    ///
     /// The type of configuration for this slot.
     pub config_type: SlotConfigType,
     /// Secret key
-    /// 
+    ///
     /// Secret key configured for this slot.
     pub secret_key: Vec<u8>,
     /// Require touch
-    /// 
+    ///
     /// Whether physical touch is required for authentication.
     pub require_touch: bool,
 }
 
 /// Slot configuration type
-/// 
+///
 /// Types of configurations that can be applied to a YubiKey slot.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SlotConfigType {
     /// Challenge-response
-    /// 
+    ///
     /// Slot configured for challenge-response authentication.
     ChallengeResponse,
     /// HMAC
-    /// 
+    ///
     /// Slot configured for HMAC-based authentication.
     Hmac,
     /// OTP
-    /// 
+    ///
     /// Slot configured for one-time password authentication.
     Otp,
 }
@@ -319,7 +319,9 @@ impl YubiKeyManager {
         slot2_config: Option<SlotConfig>,
     ) -> Result<(), VantisError> {
         if self.registered_keys.contains_key(&key_id) {
-            return Err(VantisError::InvalidData("YubiKey already registered".to_string()));
+            return Err(VantisError::InvalidData(
+                "YubiKey already registered".to_string(),
+            ));
         }
 
         // Generate backup codes if enabled before moving user_id
@@ -353,16 +355,22 @@ impl YubiKeyManager {
         self.active_challenges.remove(key_id);
         self.failed_attempts.remove(key_id);
         self.lockout_until.remove(key_id);
-        
+
         Ok(())
     }
 
     /// Generate challenge
-    pub fn generate_challenge(&mut self, key_id: &str, slot: YubiKeySlot) -> Result<Vec<u8>, VantisError> {
+    pub fn generate_challenge(
+        &mut self,
+        key_id: &str,
+        slot: YubiKeySlot,
+    ) -> Result<Vec<u8>, VantisError> {
         // Check if key is registered and enabled
-        let key = self.registered_keys.get(key_id)
+        let key = self
+            .registered_keys
+            .get(key_id)
             .ok_or_else(|| VantisError::NotFound("YubiKey not found".to_string()))?;
-        
+
         if !key.enabled {
             return Err(VantisError::InvalidData("YubiKey is disabled".to_string()));
         }
@@ -380,7 +388,9 @@ impl YubiKeyManager {
         // Check lockout
         if let Some(lockout_time) = self.lockout_until.get(key_id) {
             if SystemTime::now() < *lockout_time {
-                return Err(VantisError::AuthenticationFailed("Account locked out".to_string()));
+                return Err(VantisError::AuthenticationFailed(
+                    "Account locked out".to_string(),
+                ));
             }
         }
 
@@ -396,7 +406,8 @@ impl YubiKeyManager {
             attempts: 0,
         };
 
-        self.active_challenges.insert(key_id.to_string(), challenge_response);
+        self.active_challenges
+            .insert(key_id.to_string(), challenge_response);
 
         Ok(challenge)
     }
@@ -408,7 +419,9 @@ impl YubiKeyManager {
         response: Vec<u8>,
     ) -> Result<bool, VantisError> {
         // Get active challenge
-        let challenge = self.active_challenges.get_mut(key_id)
+        let challenge = self
+            .active_challenges
+            .get_mut(key_id)
             .ok_or_else(|| VantisError::InvalidData("No active challenge".to_string()))?;
 
         // Check timeout
@@ -462,7 +475,9 @@ impl YubiKeyManager {
         hmac: Vec<u8>,
     ) -> Result<bool, VantisError> {
         // Get registered key
-        let key = self.registered_keys.get(key_id)
+        let key = self
+            .registered_keys
+            .get(key_id)
             .ok_or_else(|| VantisError::NotFound("YubiKey not found".to_string()))?;
 
         if !key.enabled {
@@ -475,7 +490,8 @@ impl YubiKeyManager {
             YubiKeySlot::Slot2 => &key.slot2_config,
         };
 
-        let _slot_config = slot_config.as_ref()
+        let _slot_config = slot_config
+            .as_ref()
             .ok_or_else(|| VantisError::InvalidData("Slot not configured".to_string()))?;
 
         // Compute expected HMAC (placeholder)
@@ -498,7 +514,9 @@ impl YubiKeyManager {
     /// Verify OTP
     pub fn verify_otp(&mut self, key_id: &str, otp: String) -> Result<bool, VantisError> {
         // Get registered key
-        let key = self.registered_keys.get(key_id)
+        let key = self
+            .registered_keys
+            .get(key_id)
             .ok_or_else(|| VantisError::NotFound("YubiKey not found".to_string()))?;
 
         if !key.enabled {
@@ -521,7 +539,7 @@ impl YubiKeyManager {
     /// Generate backup codes
     pub fn generate_backup_codes(&mut self, user_id: &str) -> Result<(), VantisError> {
         let mut codes = Vec::new();
-        
+
         for _ in 0..self.config.backup_codes_count {
             // Generate random 8-character code
             let code = format!("{:08x}", rand::random::<u32>());
@@ -529,13 +547,15 @@ impl YubiKeyManager {
         }
 
         self.backup_codes.insert(user_id.to_string(), codes);
-        
+
         Ok(())
     }
 
     /// Verify backup code
     pub fn verify_backup_code(&mut self, user_id: &str, code: &str) -> Result<bool, VantisError> {
-        let codes = self.backup_codes.get_mut(user_id)
+        let codes = self
+            .backup_codes
+            .get_mut(user_id)
             .ok_or_else(|| VantisError::NotFound("No backup codes for user".to_string()))?;
 
         if let Some(pos) = codes.iter().position(|c| c == code) {
@@ -559,18 +579,22 @@ impl YubiKeyManager {
 
     /// Enable key
     pub fn enable_key(&mut self, key_id: &str) -> Result<(), VantisError> {
-        let key = self.registered_keys.get_mut(key_id)
+        let key = self
+            .registered_keys
+            .get_mut(key_id)
             .ok_or_else(|| VantisError::NotFound("YubiKey not found".to_string()))?;
-        
+
         key.enabled = true;
         Ok(())
     }
 
     /// Disable key
     pub fn disable_key(&mut self, key_id: &str) -> Result<(), VantisError> {
-        let key = self.registered_keys.get_mut(key_id)
+        let key = self
+            .registered_keys
+            .get_mut(key_id)
             .ok_or_else(|| VantisError::NotFound("YubiKey not found".to_string()))?;
-        
+
         key.enabled = false;
         Ok(())
     }
@@ -578,9 +602,11 @@ impl YubiKeyManager {
     /// Clear expired challenges
     pub fn clear_expired_challenges(&mut self) {
         let now = SystemTime::now();
-        
+
         self.active_challenges.retain(|_key_id, challenge| {
-            let elapsed = now.duration_since(challenge.timestamp).unwrap_or(Duration::MAX);
+            let elapsed = now
+                .duration_since(challenge.timestamp)
+                .unwrap_or(Duration::MAX);
             elapsed <= self.config.challenge_timeout
         });
     }
@@ -588,10 +614,9 @@ impl YubiKeyManager {
     /// Clear expired lockouts
     pub fn clear_expired_lockouts(&mut self) {
         let now = SystemTime::now();
-        
-        self.lockout_until.retain(|_key_id, lockout_time| {
-            now < *lockout_time
-        });
+
+        self.lockout_until
+            .retain(|_key_id, lockout_time| now < *lockout_time);
     }
 }
 

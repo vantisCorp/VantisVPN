@@ -1,5 +1,5 @@
 //! # Utility Functions
-//! 
+//!
 //! Common utility functions used throughout VANTISVPN.
 
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -23,16 +23,16 @@ pub fn current_timestamp_ms() -> u128 {
 /// Format bytes to human-readable size
 pub fn format_bytes(bytes: u64) -> String {
     const UNITS: &[&str] = &["B", "KB", "MB", "GB", "TB"];
-    
+
     if bytes == 0 {
         return "0 B".to_string();
     }
-    
+
     let bytes = bytes as f64;
     let unit_index = (bytes.log2() / 10.0).floor() as usize;
     let unit_index = unit_index.min(UNITS.len() - 1);
     let size = bytes / 1024_f64.powi(unit_index as i32);
-    
+
     format!("{:.2} {}", size, UNITS[unit_index])
 }
 
@@ -41,7 +41,7 @@ pub fn format_duration(seconds: u64) -> String {
     let hours = seconds / 3600;
     let minutes = (seconds % 3600) / 60;
     let secs = seconds % 60;
-    
+
     if hours > 0 {
         format!("{}h {}m {}s", hours, minutes, secs)
     } else if minutes > 0 {
@@ -67,7 +67,7 @@ pub fn random_string(length: usize) -> String {
     const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
                             abcdefghijklmnopqrstuvwxyz\
                             0123456789";
-    
+
     (0..length)
         .map(|_| {
             let idx = (rand::random::<u32>() as usize) % CHARSET.len();
@@ -124,7 +124,7 @@ mod tests {
     fn test_random_string() {
         let s1 = random_string(16);
         let s2 = random_string(16);
-        
+
         assert_eq!(s1.len(), 16);
         assert_eq!(s2.len(), 16);
         assert_ne!(s1, s2);

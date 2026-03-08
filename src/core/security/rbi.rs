@@ -2,108 +2,108 @@
 // Isolates web browsing in remote containers to prevent malware and tracking
 // All web content is rendered remotely and only safe pixels are sent to client
 
+use crate::error::{Result, VantisError};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
-use serde::{Serialize, Deserialize};
-use crate::error::{VantisError, Result};
 
 /// Browser Type
-/// 
+///
 /// Specifies the type of browser engine to use for remote browser isolation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserType {
     /// Chromium-based browser
-    /// 
+    ///
     /// Uses the Chromium engine, providing compatibility with Chrome-based
     /// web applications and extensions.
     Chromium,
     /// Firefox-based browser
-    /// 
+    ///
     /// Uses the Firefox engine, providing enhanced privacy features and
     /// support for Firefox-specific web technologies.
     Firefox,
     /// Headless browser
-    /// 
+    ///
     /// Runs without a graphical interface, optimized for automated
     /// testing and background processing.
     Headless,
 }
 
 /// Isolation Level
-/// 
+///
 /// Defines the degree of isolation between the remote browser and the local system.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum IsolationLevel {
     /// Full isolation - no local execution
-    /// 
+    ///
     /// All web content is rendered remotely with no local execution.
     /// Provides maximum security but may have higher latency.
     Full,
     /// Partial isolation - some local execution
-    /// 
+    ///
     /// Allows certain trusted content to execute locally while
     /// isolating untrusted content remotely.
     Partial,
     /// Hybrid - smart isolation based on risk
-    /// 
+    ///
     /// Dynamically adjusts isolation level based on risk assessment
     /// of the content being accessed.
     Hybrid,
 }
 
 /// RBI Configuration
-/// 
+///
 /// Configuration settings for Remote Browser Isolation, controlling
 /// browser behavior, security features, and session management.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RbiConfig {
     /// Enable RBI
-    /// 
+    ///
     /// Whether Remote Browser Isolation is enabled for the system.
     pub enabled: bool,
     /// Browser type to use
-    /// 
+    ///
     /// The browser engine to use for remote rendering.
     pub browser_type: BrowserType,
     /// Isolation level
-    /// 
+    ///
     /// The degree of isolation between remote browser and local system.
     pub isolation_level: IsolationLevel,
     /// Enable JavaScript execution
-    /// 
+    ///
     /// Whether JavaScript is allowed to execute in the remote browser.
     pub enable_javascript: bool,
     /// Enable cookies
-    /// 
+    ///
     /// Whether cookies are stored and sent in the remote browser session.
     pub enable_cookies: bool,
     /// Enable local storage
-    /// 
+    ///
     /// Whether local storage APIs are available in the remote browser.
     pub enable_local_storage: bool,
     /// Enable WebGL
-    /// 
+    ///
     /// Whether WebGL graphics acceleration is enabled in the remote browser.
     pub enable_webgl: bool,
     /// Enable WebRTC
-    /// 
+    ///
     /// Whether WebRTC real-time communication is enabled in the remote browser.
     pub enable_webrtc: bool,
     /// Maximum session duration in minutes
-    /// 
+    ///
     /// Maximum allowed duration for a browser session before automatic termination.
     pub max_session_duration_mins: u64,
     /// Enable screenshot capability
-    /// 
+    ///
     /// Whether users can take screenshots of the remote browser session.
     pub enable_screenshots: bool,
     /// Enable file downloads
-    /// 
+    ///
     /// Whether file downloads from the remote browser are allowed.
     pub enable_downloads: bool,
     /// Enable file uploads
-    /// 
+    ///
     /// Whether file uploads to the remote browser are allowed.
     pub enable_uploads: bool,
 }
@@ -128,7 +128,7 @@ impl Default for RbiConfig {
 }
 
 /// Browser Session
-/// 
+///
 /// Represents an active remote browser isolation session, tracking
 /// session state, user information, and activity metrics.
 #[derive(Debug, Clone)]
@@ -150,7 +150,12 @@ pub struct BrowserSession {
 }
 
 impl BrowserSession {
-    pub fn new(session_id: String, user_id: String, browser_type: BrowserType, url: String) -> Self {
+    pub fn new(
+        session_id: String,
+        user_id: String,
+        browser_type: BrowserType,
+        url: String,
+    ) -> Self {
         let now = std::time::Instant::now();
         Self {
             session_id,
@@ -173,7 +178,7 @@ impl BrowserSession {
 }
 
 /// Rendered Frame
-/// 
+///
 /// Represents a rendered frame from the remote browser, containing
 /// compressed image data and metadata for display on the client.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -193,69 +198,69 @@ pub struct RenderedFrame {
 }
 
 /// Browser Event
-/// 
+///
 /// Represents user input events that are sent to the remote browser
 /// for processing, including mouse, keyboard, and navigation events.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum BrowserEvent {
     /// Mouse click
-    /// 
+    ///
     /// Represents a mouse button click at specific coordinates.
-    MouseClick { 
+    MouseClick {
         /// X coordinate of the click
-        x: u32, 
+        x: u32,
         /// Y coordinate of the click
-        y: u32, 
+        y: u32,
         /// Mouse button that was clicked (0=left, 1=middle, 2=right)
-        button: u8 
+        button: u8,
     },
     /// Mouse move
-    /// 
+    ///
     /// Represents mouse movement to new coordinates.
-    MouseMove { 
+    MouseMove {
         /// New X coordinate
-        x: u32, 
+        x: u32,
         /// New Y coordinate
-        y: u32 
+        y: u32,
     },
     /// Key press
-    /// 
+    ///
     /// Represents a keyboard key press event.
-    KeyPress { 
+    KeyPress {
         /// The key that was pressed
-        key: String, 
+        key: String,
         /// Modifier keys held down (bitmask: 1=Ctrl, 2=Shift, 4=Alt)
-        modifiers: u32 
+        modifiers: u32,
     },
     /// Scroll
-    /// 
+    ///
     /// Represents a scroll event.
-    Scroll { 
+    Scroll {
         /// Horizontal scroll amount
-        x: i32, 
+        x: i32,
         /// Vertical scroll amount
-        y: i32 
+        y: i32,
     },
     /// Navigation
-    /// 
+    ///
     /// Represents a navigation to a new URL.
-    Navigate { 
+    Navigate {
         /// Target URL to navigate to
-        url: String 
+        url: String,
     },
     /// Form input
-    /// 
+    ///
     /// Represents text input into a form field.
-    FormInput { 
+    FormInput {
         /// ID of the form field
-        field_id: String, 
+        field_id: String,
         /// Value to input into the field
-        value: String 
+        value: String,
     },
 }
 
 /// RBI Statistics
-/// 
+///
 /// Contains statistics about Remote Browser Isolation operations,
 /// including session counts, rendering metrics, and performance data.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -277,7 +282,7 @@ pub struct RbiStats {
 }
 
 /// Remote Browser Isolation Manager
-/// 
+///
 /// Manages secure remote browser isolation sessions that execute web content
 /// in isolated environments, rendering frames remotely to protect against
 /// malware, drive-by downloads, and web-based attacks.
@@ -315,12 +320,8 @@ impl RbiManager {
         }
 
         let session_id = self.generate_session_id();
-        let session = BrowserSession::new(
-            session_id.clone(),
-            user_id,
-            self.config.browser_type,
-            url,
-        );
+        let session =
+            BrowserSession::new(session_id.clone(), user_id, self.config.browser_type, url);
 
         {
             let mut sessions = self.sessions.write().await;
@@ -349,8 +350,9 @@ impl RbiManager {
     pub async fn terminate_session(&self, session_id: &str) -> Result<()> {
         let session = {
             let mut sessions = self.sessions.write().await;
-            sessions.remove(session_id)
-                .ok_or_else(|| VantisError::InvalidPeer(format!("Session not found: {}", session_id)))?
+            sessions.remove(session_id).ok_or_else(|| {
+                VantisError::InvalidPeer(format!("Session not found: {}", session_id))
+            })?
         };
 
         {
@@ -361,15 +363,20 @@ impl RbiManager {
             // Update average session duration
             let duration = session.created_at.elapsed().as_secs_f64();
             let total_sessions = stats.total_sessions_terminated;
-            stats.average_session_duration_secs = 
-                (stats.average_session_duration_secs * (total_sessions - 1) as f64 + duration) / total_sessions as f64;
+            stats.average_session_duration_secs =
+                (stats.average_session_duration_secs * (total_sessions - 1) as f64 + duration)
+                    / total_sessions as f64;
         }
 
         Ok(())
     }
 
     /// Process browser event
-    pub async fn process_event(&self, session_id: &str, event: BrowserEvent) -> Result<RenderedFrame> {
+    pub async fn process_event(
+        &self,
+        session_id: &str,
+        event: BrowserEvent,
+    ) -> Result<RenderedFrame> {
         let session = self.get_session(session_id).await?;
 
         // Update session activity
@@ -395,7 +402,11 @@ impl RbiManager {
     }
 
     /// Render frame for session
-    async fn render_frame(&self, _session: &BrowserSession, _event: &BrowserEvent) -> Result<RenderedFrame> {
+    async fn render_frame(
+        &self,
+        _session: &BrowserSession,
+        _event: &BrowserEvent,
+    ) -> Result<RenderedFrame> {
         // In production, this would:
         // 1. Send event to remote browser
         // 2. Wait for browser to render
@@ -433,18 +444,24 @@ impl RbiManager {
             session.update_activity();
             Ok(())
         } else {
-            Err(VantisError::InvalidPeer(format!("Session not found: {}", session_id)))
+            Err(VantisError::InvalidPeer(format!(
+                "Session not found: {}",
+                session_id
+            )))
         }
     }
 
     /// Take screenshot
     pub async fn take_screenshot(&self, session_id: &str) -> Result<RenderedFrame> {
         if !self.config.enable_screenshots {
-            return Err(VantisError::InvalidPeer("Screenshots are disabled".to_string()));
+            return Err(VantisError::InvalidPeer(
+                "Screenshots are disabled".to_string(),
+            ));
         }
 
         let session = self.get_session(session_id).await?;
-        self.render_frame(&session, &BrowserEvent::MouseMove { x: 0, y: 0 }).await
+        self.render_frame(&session, &BrowserEvent::MouseMove { x: 0, y: 0 })
+            .await
     }
 
     /// Get statistics
@@ -460,20 +477,21 @@ impl RbiManager {
 
     /// Clean up expired sessions
     pub async fn cleanup_expired_sessions(&self) -> usize {
-        let max_duration = std::time::Duration::from_secs(self.config.max_session_duration_mins * 60);
-        
+        let max_duration =
+            std::time::Duration::from_secs(self.config.max_session_duration_mins * 60);
+
         let mut sessions = self.sessions.write().await;
         let initial_count = sessions.len();
-        
+
         sessions.retain(|_, session| !session.is_expired(max_duration));
-        
+
         let removed = initial_count - sessions.len();
-        
+
         if removed > 0 {
             let mut stats = self.stats.lock().await;
             stats.active_sessions = sessions.len();
         }
-        
+
         removed
     }
 
@@ -484,21 +502,22 @@ impl RbiManager {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        
+
         format!("rbi_session_{}", timestamp)
     }
 
     /// Start session cleanup task
     pub async fn start_cleanup_task(&self) -> tokio::task::JoinHandle<()> {
         let sessions = self.sessions.clone();
-        let max_duration = std::time::Duration::from_secs(self.config.max_session_duration_mins * 60);
+        let max_duration =
+            std::time::Duration::from_secs(self.config.max_session_duration_mins * 60);
         let interval = std::time::Duration::from_secs(60); // Check every minute
 
         tokio::spawn(async move {
             let mut timer = tokio::time::interval(interval);
             loop {
                 timer.tick().await;
-                
+
                 let mut sessions = sessions.write().await;
                 sessions.retain(|_, session| !session.is_expired(max_duration));
             }
@@ -525,7 +544,10 @@ mod tests {
         config.enabled = true;
         let manager = RbiManager::new(config);
 
-        let session = manager.create_session("user123".to_string(), "https://example.com".to_string()).await.unwrap();
+        let session = manager
+            .create_session("user123".to_string(), "https://example.com".to_string())
+            .await
+            .unwrap();
         assert!(session.is_active);
         assert_eq!(session.url, "https://example.com");
     }
@@ -536,8 +558,14 @@ mod tests {
         config.enabled = true;
         let manager = RbiManager::new(config);
 
-        let session = manager.create_session("user123".to_string(), "https://example.com".to_string()).await.unwrap();
-        manager.terminate_session(&session.session_id).await.unwrap();
+        let session = manager
+            .create_session("user123".to_string(), "https://example.com".to_string())
+            .await
+            .unwrap();
+        manager
+            .terminate_session(&session.session_id)
+            .await
+            .unwrap();
 
         let stats = manager.get_stats().await;
         assert_eq!(stats.active_sessions, 0);
@@ -550,10 +578,16 @@ mod tests {
         config.enabled = true;
         let manager = RbiManager::new(config);
 
-        let session = manager.create_session("user123".to_string(), "https://example.com".to_string()).await.unwrap();
+        let session = manager
+            .create_session("user123".to_string(), "https://example.com".to_string())
+            .await
+            .unwrap();
         let event = BrowserEvent::MouseMove { x: 100, y: 200 };
 
-        let frame = manager.process_event(&session.session_id, event).await.unwrap();
+        let frame = manager
+            .process_event(&session.session_id, event)
+            .await
+            .unwrap();
         assert!(frame.is_full_frame);
     }
 
@@ -564,8 +598,11 @@ mod tests {
         config.max_session_duration_mins = 0; // Immediate expiration
         let manager = RbiManager::new(config);
 
-        manager.create_session("user123".to_string(), "https://example.com".to_string()).await.unwrap();
-        
+        manager
+            .create_session("user123".to_string(), "https://example.com".to_string())
+            .await
+            .unwrap();
+
         let removed = manager.cleanup_expired_sessions().await;
         assert_eq!(removed, 1);
     }

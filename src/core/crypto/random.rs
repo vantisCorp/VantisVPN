@@ -1,18 +1,18 @@
 //! # Cryptographically Secure Random Number Generation
-//! 
+//!
 //! Uses ChaCha20-based CSPRNG for all cryptographic operations.
 
-use rand::{Rng, random};
-use rand_core::SeedableRng;
 use crate::error::VantisError;
+use rand::{random, Rng};
 use rand_chacha::ChaCha20Rng;
+use rand_core::SeedableRng;
 use std::sync::Mutex;
 
 /// Thread-safe CSPRNG instance
 static CSPRNG: Mutex<Option<ChaCha20Rng>> = Mutex::new(None);
 
 /// Cryptographically secure random number generator
-/// 
+///
 /// Thread-safe CSPRNG using ChaCha20 for cryptographic operations.
 #[derive(Debug)]
 pub struct SecureRandom {
@@ -28,34 +28,40 @@ impl SecureRandom {
             rng: Mutex::new(ChaCha20Rng::from_seed(seed)),
         })
     }
-    
+
     /// Generate random bytes
     pub fn generate_bytes(&self, len: usize) -> crate::Result<Vec<u8>> {
         let mut bytes = vec![0u8; len];
-        let mut rng = self.rng.lock()
+        let mut rng = self
+            .rng
+            .lock()
             .map_err(|_| crate::VantisError::CryptoError("RNG lock failed".to_string()))?;
         rng.fill_bytes(&mut bytes);
         Ok(bytes)
     }
-    
+
     /// Generate a random u64 value
     pub fn generate_u64(&self) -> crate::Result<u64> {
         let mut bytes = [0u8; 8];
-        let mut rng = self.rng.lock()
+        let mut rng = self
+            .rng
+            .lock()
             .map_err(|_| crate::VantisError::CryptoError("RNG lock failed".to_string()))?;
         rng.fill_bytes(&mut bytes);
         Ok(u64::from_be_bytes(bytes))
     }
-    
+
     /// Generate a random u32 value
     pub fn generate_u32(&self) -> crate::Result<u32> {
         let mut bytes = [0u8; 4];
-        let mut rng = self.rng.lock()
+        let mut rng = self
+            .rng
+            .lock()
             .map_err(|_| crate::VantisError::CryptoError("RNG lock failed".to_string()))?;
         rng.fill_bytes(&mut bytes);
         Ok(u32::from_be_bytes(bytes))
     }
-    
+
     /// Generate a random boolean
     pub fn generate_bool(&self) -> crate::Result<bool> {
         Ok(self.generate_u32()? % 2 == 0)
@@ -63,7 +69,7 @@ impl SecureRandom {
 }
 
 /// Initialize the random number generator
-/// 
+///
 /// Uses system entropy to seed the generator.
 pub fn init() {
     let mut rng = CSPRNG.lock().unwrap();
@@ -74,16 +80,17 @@ pub fn init() {
 }
 
 /// Generate cryptographically secure random bytes
-/// 
+///
 /// This is the preferred method for generating random data.
 pub fn secure_random(bytes: &mut [u8]) -> crate::Result<()> {
     let mut rng = CSPRNG
         .lock()
         .map_err(|_| crate::VantisError::CryptoError("CSPRNG lock failed".to_string()))?;
-    
-    let rng = rng.as_mut()
+
+    let rng = rng
+        .as_mut()
         .ok_or_else(|| crate::VantisError::CryptoError("CSPRNG not initialized".to_string()))?;
-    
+
     rng.fill_bytes(bytes);
     Ok(())
 }
@@ -129,7 +136,7 @@ mod tests {
         init_crypto();
         let mut bytes = [0u8; 32];
         secure_random(&mut bytes).expect("Failed to generate random bytes");
-        
+
         // Check that not all bytes are the same (extremely unlikely)
         let first = bytes[0];
         let all_same = bytes.iter().all(|&b| b == first);
@@ -142,7 +149,7 @@ mod tests {
         init_crypto();
         let val1 = random_u64().expect("Failed to generate u64");
         let val2 = random_u64().expect("Failed to generate u64");
-        
+
         // They should be different (extremely unlikely to be same)
         assert_ne!(val1, val2);
     }
@@ -153,7 +160,7 @@ mod tests {
         init_crypto();
         let nonce1 = random_nonce(12).expect("Failed to generate nonce");
         let nonce2 = random_nonce(12).expect("Failed to generate nonce");
-        
+
         assert_eq!(nonce1.len(), 12);
         assert_eq!(nonce2.len(), 12);
         assert_ne!(nonce1, nonce2);

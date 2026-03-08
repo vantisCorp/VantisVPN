@@ -2,12 +2,12 @@
 // Implements ZK-SNARKs-based authentication without password transmission
 // User proves knowledge of secret without revealing it to server
 
+use crate::crypto::{Hash, SecureRandom};
+use crate::error::{Result, VantisError};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
-use serde::{Serialize, Deserialize};
-use crate::error::{VantisError, Result};
-use crate::crypto::{Hash, SecureRandom};
 
 /// Type of zero-knowledge proof used for authentication
 ///
@@ -42,7 +42,7 @@ pub enum AuthState {
 /// ZK Authentication Challenge
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// Zero-knowledge authentication challenge
-/// 
+///
 /// Represents a cryptographic challenge sent from the server to the client
 /// as part of the zero-knowledge authentication protocol.
 pub struct ZkChallenge {
@@ -59,7 +59,7 @@ pub struct ZkChallenge {
 }
 
 /// Zero-knowledge authentication response
-/// 
+///
 /// Contains the client's response to the authentication challenge,
 /// including the zero-knowledge proof and cryptographic commitments.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -77,7 +77,7 @@ pub struct ZkResponse {
 }
 
 /// Zero-knowledge authentication result
-/// 
+///
 /// Contains the result of a zero-knowledge authentication attempt,
 /// including session token if successful or error message if failed.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -111,17 +111,20 @@ impl UserCredentials {
     pub fn new(username: String, password: String) -> Result<Self> {
         let hash = Hash::new()?;
         let password_hash = hash.compute(password.as_bytes())?;
-        
+
         // Generate key pair (in production, use actual cryptographic operations)
         let rng = SecureRandom::new()?;
         let secret_key = rng.generate_bytes(32)?;
         let public_key = rng.generate_bytes(32)?;
         let public_key_commitment = hash.compute(&public_key)?;
 
-        let user_id = format!("user_{}", std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs());
+        let user_id = format!(
+            "user_{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs()
+        );
 
         Ok(Self {
             user_id,
@@ -142,7 +145,7 @@ impl UserCredentials {
 }
 
 /// Zero-knowledge login configuration
-/// 
+///
 /// Configuration settings for zero-knowledge authentication system,
 /// including session management and authentication options.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -189,7 +192,7 @@ pub struct ZkLoginManager {
 impl ZkLoginManager {
     pub fn new(config: ZkLoginConfig) -> Result<Self> {
         let rng = SecureRandom::new()?;
-        
+
         // Generate server key pair (placeholder - in production, use actual ZK-SNARKs)
         let secret_key = rng.generate_bytes(32)?;
         let public_key = rng.generate_bytes(32)?;
@@ -204,12 +207,18 @@ impl ZkLoginManager {
     }
 
     /// Register new user
-    pub async fn register_user(&self, username: String, password: String) -> Result<UserCredentials> {
+    pub async fn register_user(
+        &self,
+        username: String,
+        password: String,
+    ) -> Result<UserCredentials> {
         // Check if username already exists
         {
             let creds = self.credentials.read().await;
             if creds.contains_key(&username) {
-                return Err(VantisError::InvalidPeer("Username already exists".to_string()));
+                return Err(VantisError::InvalidPeer(
+                    "Username already exists".to_string(),
+                ));
             }
         }
 
@@ -230,7 +239,8 @@ impl ZkLoginManager {
         // Check if user exists
         let _user_creds = {
             let creds = self.credentials.read().await;
-            creds.get(&username)
+            creds
+                .get(&username)
                 .cloned()
                 .ok_or_else(|| VantisError::InvalidPeer("User not found".to_string()))?
         };
@@ -257,11 +267,16 @@ impl ZkLoginManager {
     }
 
     /// Complete authentication
-    pub async fn complete_auth(&self, username: String, response: ZkResponse) -> Result<ZkAuthResult> {
+    pub async fn complete_auth(
+        &self,
+        username: String,
+        response: ZkResponse,
+    ) -> Result<ZkAuthResult> {
         // Get user credentials
         let user_creds = {
             let creds = self.credentials.read().await;
-            creds.get(&username)
+            creds
+                .get(&username)
                 .cloned()
                 .ok_or_else(|| VantisError::InvalidPeer("User not found".to_string()))?
         };
@@ -288,7 +303,8 @@ impl ZkLoginManager {
         let expires_at = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
-            .as_secs() + self.config.session_duration_secs;
+            .as_secs()
+            + self.config.session_duration_secs;
 
         let result = ZkAuthResult {
             success: true,
@@ -307,7 +323,11 @@ impl ZkLoginManager {
     }
 
     /// Verify ZK proof
-    async fn verify_proof(&self, credentials: &UserCredentials, _response: &ZkResponse) -> Result<bool> {
+    async fn verify_proof(
+        &self,
+        credentials: &UserCredentials,
+        _response: &ZkResponse,
+    ) -> Result<bool> {
         // In production, this would:
         // 1. Verify the ZK-SNARKs proof
         // 2. Verify the signature
@@ -317,21 +337,21 @@ impl ZkLoginManager {
         // Placeholder: simple verification
         let hash = Hash::new()?;
         let commitment_hash = hash.compute(&credentials.public_key)?;
-        
+
         Ok(commitment_hash == credentials.public_key_commitment)
     }
 
     /// Verify session token
     pub async fn verify_session(&self, session_token: &str) -> Result<bool> {
         let sessions = self.active_sessions.read().await;
-        
+
         if let Some(result) = sessions.get(session_token) {
             if let Some(expires_at) = result.expires_at {
                 let now = std::time::SystemTime::now()
                     .duration_since(std::time::UNIX_EPOCH)
                     .unwrap()
                     .as_secs();
-                
+
                 return Ok(now < expires_at);
             }
             return Ok(true);
@@ -343,7 +363,8 @@ impl ZkLoginManager {
     /// Logout user
     pub async fn logout(&self, session_token: &str) -> Result<()> {
         let mut sessions = self.active_sessions.write().await;
-        sessions.remove(session_token)
+        sessions
+            .remove(session_token)
             .ok_or_else(|| VantisError::InvalidPeer("Session not found".to_string()))?;
         Ok(())
     }
@@ -351,7 +372,8 @@ impl ZkLoginManager {
     /// Get user credentials
     pub async fn get_credentials(&self, username: &str) -> Result<UserCredentials> {
         let creds = self.credentials.read().await;
-        creds.get(username)
+        creds
+            .get(username)
             .cloned()
             .ok_or_else(|| VantisError::InvalidPeer("User not found".to_string()))
     }
@@ -363,7 +385,7 @@ impl ZkLoginManager {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        
+
         format!("challenge_{}", timestamp)
     }
 
@@ -374,12 +396,12 @@ impl ZkLoginManager {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        
+
         let hash = Hash::new().unwrap();
         let random_bytes = hex::encode(self.rng.generate_bytes(16).unwrap());
         let token_data = format!("{}:{}:{}", username, timestamp, random_bytes);
         let token_hash = hash.compute(token_data.as_bytes()).unwrap();
-        
+
         hex::encode(token_hash)
     }
 
@@ -399,7 +421,7 @@ impl ZkLoginManager {
 /// ZK Login Statistics
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// Zero-knowledge login statistics
-/// 
+///
 /// Contains statistics about the zero-knowledge authentication system,
 /// including user counts and active sessions.
 pub struct ZkLoginStats {
@@ -420,7 +442,10 @@ mod tests {
         let config = ZkLoginConfig::default();
         let manager = ZkLoginManager::new(config).unwrap();
 
-        let creds = manager.register_user("testuser".to_string(), "password123".to_string()).await.unwrap();
+        let creds = manager
+            .register_user("testuser".to_string(), "password123".to_string())
+            .await
+            .unwrap();
         assert_eq!(creds.username, "testuser");
     }
 
@@ -429,7 +454,10 @@ mod tests {
         let config = ZkLoginConfig::default();
         let manager = ZkLoginManager::new(config).unwrap();
 
-        let creds = manager.register_user("testuser".to_string(), "password123".to_string()).await.unwrap();
+        let creds = manager
+            .register_user("testuser".to_string(), "password123".to_string())
+            .await
+            .unwrap();
         assert!(creds.verify_password("password123").unwrap());
         assert!(!creds.verify_password("wrongpassword").unwrap());
     }
@@ -440,7 +468,10 @@ mod tests {
         let manager = ZkLoginManager::new(config).unwrap();
 
         // Register user
-        manager.register_user("testuser".to_string(), "password123".to_string()).await.unwrap();
+        manager
+            .register_user("testuser".to_string(), "password123".to_string())
+            .await
+            .unwrap();
 
         // Initiate auth
         let challenge = manager.initiate_auth("testuser".to_string()).await.unwrap();
@@ -455,7 +486,10 @@ mod tests {
             signature: vec![4u8; 64],
         };
 
-        let result = manager.complete_auth("testuser".to_string(), response).await.unwrap();
+        let result = manager
+            .complete_auth("testuser".to_string(), response)
+            .await
+            .unwrap();
         assert!(result.success);
         assert!(result.session_token.is_some());
     }
@@ -465,7 +499,10 @@ mod tests {
         let config = ZkLoginConfig::default();
         let manager = ZkLoginManager::new(config).unwrap();
 
-        manager.register_user("testuser".to_string(), "password123".to_string()).await.unwrap();
+        manager
+            .register_user("testuser".to_string(), "password123".to_string())
+            .await
+            .unwrap();
         let challenge = manager.initiate_auth("testuser".to_string()).await.unwrap();
 
         let response = ZkResponse {
@@ -476,7 +513,10 @@ mod tests {
             signature: vec![4u8; 64],
         };
 
-        let result = manager.complete_auth("testuser".to_string(), response).await.unwrap();
+        let result = manager
+            .complete_auth("testuser".to_string(), response)
+            .await
+            .unwrap();
         let session_token = result.session_token.unwrap();
 
         // Verify session

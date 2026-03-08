@@ -1,158 +1,158 @@
 // VANTISVPN Vantis OS
 // Tails-like secure USB operating system
 
+use crate::error::VantisError;
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::time::{Duration, SystemTime};
-use serde::{Serialize, Deserialize};
-use crate::error::VantisError;
 
 /// Vantis OS configuration
-/// 
+///
 /// Complete configuration for the Vantis OS secure USB operating system.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VantisOsConfig {
     /// Operating system name
-    /// 
+    ///
     /// Name of the operating system.
     pub os_name: String,
     /// Version number
-    /// 
+    ///
     /// Version string of the operating system.
     pub version: String,
     /// Build number
-    /// 
+    ///
     /// Build number of this release.
     pub build_number: String,
     /// Boot configuration
-    /// 
+    ///
     /// Boot configuration settings.
     pub boot_config: BootConfig,
     /// Persistence configuration
-    /// 
+    ///
     /// Data persistence configuration.
     pub persistence_config: PersistenceConfig,
     /// Security configuration
-    /// 
+    ///
     /// Security settings and policies.
     pub security_config: SecurityConfig,
     /// Network configuration
-    /// 
+    ///
     /// Network configuration settings.
     pub network_config: NetworkConfig,
     /// List of applications
-    /// 
+    ///
     /// Pre-installed applications.
     pub applications: Vec<ApplicationConfig>,
     /// System locale
-    /// 
+    ///
     /// System locale setting.
     pub locale: String,
     /// System timezone
-    /// 
+    ///
     /// System timezone setting.
     pub timezone: String,
     /// Keyboard layout
-    /// 
+    ///
     /// Keyboard layout setting.
     pub keyboard_layout: String,
 }
 
 /// Boot configuration
-/// 
+///
 /// Boot configuration settings for Vantis OS.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BootConfig {
     /// Boot mode
-    /// 
+    ///
     /// Mode of operation (live, persistent, or encrypted).
     pub boot_mode: BootMode,
     /// Secure boot
-    /// 
+    ///
     /// Whether secure boot is enabled.
     pub secure_boot: bool,
     /// Boot timeout
-    /// 
+    ///
     /// Timeout before automatic boot in seconds.
     pub boot_timeout: Duration,
     /// Default boot option
-    /// 
+    ///
     /// Default boot option to use.
     pub default_boot_option: BootOption,
     /// Kernel parameters
-    /// 
+    ///
     /// Additional kernel parameters.
     pub kernel_parameters: Vec<String>,
     /// Initramfs compression
-    /// 
+    ///
     /// Compression algorithm for initramfs.
     pub initramfs_compression: String,
     /// Bootloader
-    /// 
+    ///
     /// Bootloader to use (GRUB, Syslinux, or systemd-boot).
     pub bootloader: Bootloader,
 }
 
 /// Boot mode
-/// 
+///
 /// Available boot modes for Vantis OS.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum BootMode {
     /// Live mode
-    /// 
+    ///
     /// Boot from USB without persistence.
     Live,
     /// Persistent mode
-    /// 
+    ///
     /// Boot from USB with encrypted persistence.
     Persistent,
     /// Encrypted mode
-    /// 
+    ///
     /// Fully encrypted system mode.
     Encrypted,
 }
 
 /// Boot option
-/// 
+///
 /// Available boot options for the bootloader menu.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum BootOption {
     /// Live mode
-    /// 
+    ///
     /// Boot in live mode (no persistence).
     LiveMode,
     /// Persistent mode
-    /// 
+    ///
     /// Boot in persistent mode (encrypted persistence).
     PersistentMode,
     /// Encrypted mode
-    /// 
+    ///
     /// Boot in fully encrypted mode.
     EncryptedMode,
     /// Diagnostic mode
-    /// 
+    ///
     /// Boot in diagnostic/recovery mode.
     DiagnosticMode,
     /// Standard
-    /// 
+    ///
     /// Boot in standard mode.
     Standard,
 }
 
 /// Bootloader
-/// 
+///
 /// Supported bootloaders for Vantis OS.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum Bootloader {
     /// GRUB bootloader
-    /// 
+    ///
     /// GNU GRUB bootloader (default).
     Grub,
     /// Syslinux bootloader
-    /// 
+    ///
     /// Syslinux bootloader (lightweight).
     Syslinux,
     /// systemd-boot bootloader
-    /// 
+    ///
     /// systemd-boot bootloader (UEFI).
     SystemdBoot,
 }
@@ -407,13 +407,21 @@ impl VantisOsBuilder {
     /// Validate configuration
     fn validate_config(&self) -> Result<(), VantisError> {
         // Check if persistence is enabled but size is 0
-        if self.config.persistence_config.enabled && self.config.persistence_config.persistence_size == 0 {
-            return Err(VantisError::InvalidData("Persistence size must be > 0".to_string()));
+        if self.config.persistence_config.enabled
+            && self.config.persistence_config.persistence_size == 0
+        {
+            return Err(VantisError::InvalidData(
+                "Persistence size must be > 0".to_string(),
+            ));
         }
 
         // Check if both Tor and VPN are enabled
-        if self.config.network_config.tor_config.enabled && self.config.network_config.vpn_config.enabled {
-            return Err(VantisError::InvalidData("Cannot enable both Tor and VPN simultaneously".to_string()));
+        if self.config.network_config.tor_config.enabled
+            && self.config.network_config.vpn_config.enabled
+        {
+            return Err(VantisError::InvalidData(
+                "Cannot enable both Tor and VPN simultaneously".to_string(),
+            ));
         }
 
         Ok(())
@@ -445,7 +453,7 @@ impl VantisOsImage {
     pub fn generate_iso(&self, _output_path: PathBuf) -> Result<(), VantisError> {
         // Placeholder for ISO generation
         // In production, this would use tools like xorriso, mkisofs, etc.
-        
+
         Ok(())
     }
 
@@ -453,7 +461,7 @@ impl VantisOsImage {
     pub fn generate_usb_image(&self, _output_path: PathBuf) -> Result<(), VantisError> {
         // Placeholder for USB image generation
         // In production, this would use dd, or create a hybrid ISO
-        
+
         Ok(())
     }
 
@@ -593,10 +601,7 @@ impl Default for NetworkConfig {
         Self {
             tor_config: TorConfig::default(),
             vpn_config: VpnOsConfig::default(),
-            dns_servers: vec![
-                "1.1.1.1".to_string(),
-                "1.0.0.1".to_string(),
-            ],
+            dns_servers: vec!["1.1.1.1".to_string(), "1.0.0.1".to_string()],
             proxy_config: None,
             network_manager: NetworkManager::NetworkManager,
         }

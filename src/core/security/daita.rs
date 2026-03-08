@@ -2,11 +2,11 @@
 // Phase 4: User Security & Protection
 // Implements traffic noise generation to prevent traffic analysis attacks
 
-use crate::error::VantisError;
 use crate::crypto::random::SecureRandom;
+use crate::error::VantisError;
 use std::sync::Arc;
-use tokio::sync::Mutex;
 use std::time::{Duration, Instant};
+use tokio::sync::Mutex;
 
 /// Strategy for DAITA traffic obfuscation
 ///
@@ -31,7 +31,7 @@ pub enum DaitaStrategy {
 /// DAITA configuration
 #[derive(Debug, Clone)]
 /// DAITA configuration
-/// 
+///
 /// Configuration settings for DAITA (Defense Against Internet Traffic Analysis),
 /// including traffic obfuscation strategies and adaptive parameters.
 pub struct DaitaConfig {
@@ -66,7 +66,7 @@ impl Default for DaitaConfig {
 }
 
 /// Traffic statistics for adaptive DAITA strategy
-/// 
+///
 /// Contains traffic statistics used by the adaptive obfuscation strategy
 /// to determine when and how to apply traffic obfuscation.
 #[derive(Debug, Clone)]
@@ -127,7 +127,7 @@ impl Daita {
     pub async fn obfuscate_packet(&self, packet: Vec<u8>) -> Result<Vec<u8>, VantisError> {
         let original_size = packet.len();
         let obfuscated_size = self.calculate_obfuscated_size(original_size).await?;
-        
+
         if obfuscated_size <= original_size {
             return Ok(packet);
         }
@@ -139,7 +139,7 @@ impl Daita {
 
         let mut obfuscated = packet;
         obfuscated.extend_from_slice(&padding);
-        
+
         // Update stats
         let mut stats = self.stats.lock().await;
         stats.packets_sent += 1;
@@ -166,7 +166,7 @@ impl Daita {
                     let padding_size = (padding % max_padding) + 1;
                     Ok(original_size + padding_size)
                 }
-            }
+            },
             DaitaStrategy::ExponentialPadding => {
                 if original_size >= self.config.max_packet_size {
                     Ok(original_size)
@@ -178,17 +178,17 @@ impl Daita {
                     let max_padding = self.config.max_packet_size - original_size;
                     Ok(original_size + padding_size.min(max_padding))
                 }
-            }
+            },
             DaitaStrategy::BurstTraffic => {
                 // Check if we should generate burst traffic
                 let mut timer = self.burst_timer.lock().await;
                 let should_burst = match *timer {
                     Some(last_burst) => {
                         last_burst.elapsed() >= Duration::from_millis(self.config.burst_interval)
-                    }
+                    },
                     None => true,
                 };
-                
+
                 if should_burst {
                     *timer = Some(Instant::now());
                     drop(timer);
@@ -197,7 +197,7 @@ impl Daita {
                     drop(timer);
                     Ok(original_size)
                 }
-            }
+            },
             DaitaStrategy::Adaptive => {
                 // Calculate current packet rate
                 let stats = self.stats.lock().await;
@@ -220,7 +220,7 @@ impl Daita {
                 } else {
                     Ok(original_size)
                 }
-            }
+            },
         }
     }
 
@@ -230,7 +230,7 @@ impl Daita {
             let rng = self.rng.lock().await;
             let size = rng.generate_u32()? as usize;
             drop(rng);
-            (size % (self.config.max_packet_size - self.config.min_packet_size)) 
+            (size % (self.config.max_packet_size - self.config.min_packet_size))
                 + self.config.min_packet_size
         };
 

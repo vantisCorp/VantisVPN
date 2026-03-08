@@ -2,11 +2,11 @@
 // Implements IEEE 802.11be MLO for enhanced throughput and reliability
 // Supports simultaneous transmission over multiple frequency bands
 
+use crate::error::{Result, VantisError};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
-use serde::{Serialize, Deserialize};
-use crate::error::{VantisError, Result};
 
 /// Frequency bands supported by Wi-Fi 7
 ///
@@ -63,7 +63,7 @@ pub enum LinkState {
 /// Wi-Fi Link
 #[derive(Debug, Clone)]
 /// Wi-Fi 7 link for Multi-Link Operation
-/// 
+///
 /// Represents a single Wi-Fi link in a Multi-Link Operation (MLO) setup,
 /// with performance metrics and link state information.
 pub struct WifiLink {
@@ -119,12 +119,14 @@ impl WifiLink {
         let snr_score = (self.snr_db / 40.0).min(1.0); // 0 to 40 dB range
         let loss_score = 1.0 - self.packet_loss_rate;
 
-        (rssi_score * 0.4 + snr_score * 0.3 + loss_score * 0.3).max(0.0).min(1.0)
+        (rssi_score * 0.4 + snr_score * 0.3 + loss_score * 0.3)
+            .max(0.0)
+            .min(1.0)
     }
 }
 
 /// Multi-Link Operation (MLO) configuration
-/// 
+///
 /// Configuration settings for Wi-Fi 7 Multi-Link Operation, including
 /// link aggregation, failover, and adaptive selection options.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -163,7 +165,7 @@ impl Default for MloConfig {
 }
 
 /// Multi-Link Operation (MLO) statistics
-/// 
+///
 /// Contains statistics about MLO performance, including link counts,
 /// throughput metrics, and failover statistics.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -222,7 +224,9 @@ impl MloManager {
     /// Add a new Wi-Fi link
     pub async fn add_link(&self, link: WifiLink) -> Result<()> {
         if self.links.read().await.len() >= self.config.max_links {
-            return Err(VantisError::InvalidPeer("Maximum number of links reached".to_string()));
+            return Err(VantisError::InvalidPeer(
+                "Maximum number of links reached".to_string(),
+            ));
         }
 
         {
@@ -238,7 +242,8 @@ impl MloManager {
     pub async fn remove_link(&self, link_id: &str) -> Result<()> {
         {
             let mut links = self.links.write().await;
-            links.remove(link_id)
+            links
+                .remove(link_id)
                 .ok_or_else(|| VantisError::InvalidPeer(format!("Link not found: {}", link_id)))?;
         }
 
@@ -262,7 +267,10 @@ impl MloManager {
             link.state = LinkState::Active;
             Ok(())
         } else {
-            Err(VantisError::InvalidPeer(format!("Link not found: {}", link_id)))
+            Err(VantisError::InvalidPeer(format!(
+                "Link not found: {}",
+                link_id
+            )))
         }
     }
 
@@ -273,7 +281,10 @@ impl MloManager {
             link.state = LinkState::Inactive;
             Ok(())
         } else {
-            Err(VantisError::InvalidPeer(format!("Link not found: {}", link_id)))
+            Err(VantisError::InvalidPeer(format!(
+                "Link not found: {}",
+                link_id
+            )))
         }
     }
 
@@ -296,20 +307,22 @@ impl MloManager {
             link.packet_loss_rate = packet_loss_rate;
             Ok(())
         } else {
-            Err(VantisError::InvalidPeer(format!("Link not found: {}", link_id)))
+            Err(VantisError::InvalidPeer(format!(
+                "Link not found: {}",
+                link_id
+            )))
         }
     }
 
     /// Get best link for transmission
     pub async fn get_best_link(&self) -> Result<WifiLink> {
         let links = self.links.read().await;
-        let active_links: Vec<_> = links
-            .values()
-            .filter(|l| l.is_active())
-            .collect();
+        let active_links: Vec<_> = links.values().filter(|l| l.is_active()).collect();
 
         if active_links.is_empty() {
-            return Err(VantisError::InvalidPeer("No active links available".to_string()));
+            return Err(VantisError::InvalidPeer(
+                "No active links available".to_string(),
+            ));
         }
 
         // Return link with highest quality score
@@ -323,11 +336,7 @@ impl MloManager {
     /// Get all active links
     pub async fn get_active_links(&self) -> Vec<WifiLink> {
         let links = self.links.read().await;
-        links
-            .values()
-            .filter(|l| l.is_active())
-            .cloned()
-            .collect()
+        links.values().filter(|l| l.is_active()).cloned().collect()
     }
 
     /// Send data using MLO
@@ -335,7 +344,9 @@ impl MloManager {
         let active_links = self.get_active_links().await;
 
         if active_links.is_empty() {
-            return Err(VantisError::InvalidPeer("No active links available".to_string()));
+            return Err(VantisError::InvalidPeer(
+                "No active links available".to_string(),
+            ));
         }
 
         if self.config.enable_aggregation && active_links.len() > 1 {
@@ -354,11 +365,11 @@ impl MloManager {
     async fn send_aggregated(&self, data: Vec<u8>, links: Vec<WifiLink>) -> Result<()> {
         // Split data across links
         let chunk_size = (data.len() / links.len()).max(1);
-        
+
         for (i, link) in links.iter().enumerate() {
             let start = i * chunk_size;
             let end = ((i + 1) * chunk_size).min(data.len());
-            
+
             if start < data.len() {
                 let chunk = data[start..end].to_vec();
                 self.send_on_link(link, chunk).await?;
@@ -446,7 +457,7 @@ impl MloManager {
             let mut timer = tokio::time::interval(interval);
             loop {
                 timer.tick().await;
-                
+
                 // In production, this would:
                 // 1. Monitor link quality
                 // 2. Switch to better links if needed
@@ -464,7 +475,7 @@ mod tests {
     async fn test_mlo_initialization() {
         let config = MloConfig::default();
         let manager = MloManager::new(config);
-        
+
         let stats = manager.get_stats().await;
         assert_eq!(stats.total_links, 0);
     }
@@ -473,17 +484,12 @@ mod tests {
     async fn test_link_addition() {
         let config = MloConfig::default();
         let manager = MloManager::new(config);
-        
-        let link = WifiLink::new(
-            "link1".to_string(),
-            WifiBand::Band5GHz,
-            36,
-            80,
-        );
-        
+
+        let link = WifiLink::new("link1".to_string(), WifiBand::Band5GHz, 36, 80);
+
         manager.add_link(link).await.unwrap();
         let stats = manager.get_stats().await;
-        
+
         assert_eq!(stats.total_links, 1);
     }
 
@@ -491,17 +497,12 @@ mod tests {
     async fn test_link_activation() {
         let config = MloConfig::default();
         let manager = MloManager::new(config);
-        
-        let link = WifiLink::new(
-            "link1".to_string(),
-            WifiBand::Band5GHz,
-            36,
-            80,
-        );
-        
+
+        let link = WifiLink::new("link1".to_string(), WifiBand::Band5GHz, 36, 80);
+
         manager.add_link(link).await.unwrap();
         manager.activate_link("link1").await.unwrap();
-        
+
         let retrieved = manager.get_link("link1").await.unwrap();
         assert!(retrieved.is_active());
     }
@@ -510,20 +511,20 @@ mod tests {
     async fn test_best_link_selection() {
         let config = MloConfig::default();
         let manager = MloManager::new(config);
-        
+
         let mut link1 = WifiLink::new("link1".to_string(), WifiBand::Band5GHz, 36, 80);
         link1.state = LinkState::Active;
         link1.rssi_dbm = -50;
         link1.snr_db = 30.0;
-        
+
         let mut link2 = WifiLink::new("link2".to_string(), WifiBand::Band6GHz, 100, 160);
         link2.state = LinkState::Active;
         link2.rssi_dbm = -40;
         link2.snr_db = 35.0;
-        
+
         manager.add_link(link1).await.unwrap();
         manager.add_link(link2).await.unwrap();
-        
+
         let best = manager.get_best_link().await.unwrap();
         assert_eq!(best.link_id, "link2"); // Better quality
     }

@@ -2,202 +2,202 @@
 // AI-powered DNS filtering and blocking system
 // Blocks malicious domains, trackers, ads, and phishing sites
 
+use crate::error::Result;
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
-use serde::{Serialize, Deserialize};
-use crate::error::Result;
 
 /// Blocklist Category
-/// 
+///
 /// Categories of domains that can be blocked by NetShield.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum BlocklistCategory {
     /// Malware domains
-    /// 
+    ///
     /// Domains known to host or distribute malware.
     Malware,
     /// Phishing domains
-    /// 
+    ///
     /// Domains used for phishing attacks and credential theft.
     Phishing,
     /// Tracker domains
-    /// 
+    ///
     /// Domains used for tracking user behavior across websites.
     Tracker,
     /// Ad domains
-    /// 
+    ///
     /// Domains serving advertisements.
     Ad,
     /// Adult content
-    /// 
+    ///
     /// Domains hosting adult content.
     Adult,
     /// Gambling
-    /// 
+    ///
     /// Domains related to gambling and betting.
     Gambling,
     /// Social media
-    /// 
+    ///
     /// Social media platforms and related domains.
     SocialMedia,
     /// Custom blocklist
-    /// 
+    ///
     /// User-defined custom blocklist entries.
     Custom,
 }
 
 /// DNS Query Type
-/// 
+///
 /// Types of DNS queries that can be processed by NetShield.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum DnsQueryType {
     /// A record
-    /// 
+    ///
     /// IPv4 address record query.
     A,
     /// AAAA record
-    /// 
+    ///
     /// IPv6 address record query.
     AAAA,
     /// CNAME record
-    /// 
+    ///
     /// Canonical name record query.
     CNAME,
     /// MX record
-    /// 
+    ///
     /// Mail exchange record query.
     MX,
     /// TXT record
-    /// 
+    ///
     /// Text record query.
     TXT,
     /// NS record
-    /// 
+    ///
     /// Name server record query.
     NS,
 }
 
 /// DNS Query
-/// 
+///
 /// Represents a DNS query to be processed by NetShield.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DnsQuery {
     /// Unique query identifier
-    /// 
+    ///
     /// Unique identifier for this DNS query.
     pub query_id: u64,
     /// Domain being queried
-    /// 
+    ///
     /// The domain name being resolved.
     pub domain: String,
     /// Type of DNS query
-    /// 
+    ///
     /// The type of DNS record being requested.
     pub query_type: DnsQueryType,
     /// Client IP address
-    /// 
+    ///
     /// IP address of the client making the query.
     pub client_ip: String,
     /// Query timestamp
-    /// 
+    ///
     /// Unix timestamp when the query was made.
     pub timestamp: u64,
 }
 
 /// DNS Response
-/// 
+///
 /// Represents the response to a DNS query processed by NetShield.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DnsResponse {
     /// Query identifier
-    /// 
+    ///
     /// The ID of the query this response corresponds to.
     pub query_id: u64,
     /// Whether the query was blocked
-    /// 
+    ///
     /// True if the domain was blocked, false if allowed.
     pub blocked: bool,
     /// Reason for blocking
-    /// 
+    ///
     /// Human-readable reason for blocking, if applicable.
     pub block_reason: Option<String>,
     /// Block category
-    /// 
+    ///
     /// The category that caused the block, if applicable.
     pub block_category: Option<BlocklistCategory>,
     /// Response IP address
-    /// 
+    ///
     /// IP address to return (0.0.0.0 for blocked domains).
     pub response_ip: Option<String>,
     /// Time to live
-    /// 
+    ///
     /// TTL value for the DNS response in seconds.
     pub ttl: u32,
 }
 
 /// Blocklist Entry
-/// 
+///
 /// Represents a domain entry in the NetShield blocklist.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BlocklistEntry {
     /// Domain name
-    /// 
+    ///
     /// The domain to be blocked.
     pub domain: String,
     /// Block category
-    /// 
+    ///
     /// The category this domain belongs to.
     pub category: BlocklistCategory,
     /// Added timestamp
-    /// 
+    ///
     /// Unix timestamp when this entry was added.
     pub added_at: u64,
     /// Source
-    /// 
+    ///
     /// Source of this blocklist entry (e.g., "manual", "feed").
     pub source: String,
 }
 
 /// NetShield Configuration
-/// 
+///
 /// Configuration settings for the NetShield DNS filtering system.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NetShieldConfig {
     /// Enable NetShield
-    /// 
+    ///
     /// Whether NetShield DNS filtering is enabled.
     pub enabled: bool,
     /// Enable AI-based detection
-    /// 
+    ///
     /// Whether to use AI-based malicious domain detection.
     pub enable_ai_detection: bool,
     /// Enable blocklist filtering
-    /// 
+    ///
     /// Whether to filter domains based on blocklists.
     pub enable_blocklist_filtering: bool,
     /// Enable safe search
-    /// 
+    ///
     /// Whether to enable safe search for search engines.
     pub enable_safe_search: bool,
     /// Enable family mode
-    /// 
+    ///
     /// Whether to enable family-friendly filtering.
     pub enable_family_mode: bool,
     /// Blocked categories
-    /// 
+    ///
     /// Set of categories to block.
     pub blocked_categories: HashSet<BlocklistCategory>,
     /// Enable logging
-    /// 
+    ///
     /// Whether to log DNS queries and responses.
     pub enable_logging: bool,
     /// Log file path
-    /// 
+    ///
     /// Path to the log file for DNS queries.
     pub log_path: String,
     /// Enable statistics
-    /// 
+    ///
     /// Whether to collect and track DNS query statistics.
     pub enable_stats: bool,
 }
@@ -225,38 +225,38 @@ impl Default for NetShieldConfig {
 }
 
 /// NetShield Statistics
-/// 
+///
 /// Contains statistics about NetShield DNS filtering operations.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NetShieldStats {
     /// Total queries processed
-    /// 
+    ///
     /// Total number of DNS queries processed.
     pub total_queries: u64,
     /// Blocked queries
-    /// 
+    ///
     /// Number of queries that were blocked.
     pub blocked_queries: u64,
     /// Allowed queries
-    /// 
+    ///
     /// Number of queries that were allowed.
     pub allowed_queries: u64,
     /// Queries by category
-    /// 
+    ///
     /// Number of blocked queries per category.
     pub queries_by_category: HashMap<BlocklistCategory, u64>,
     /// Top blocked domains
-    /// 
+    ///
     /// List of most frequently blocked domains with counts.
     pub top_blocked_domains: Vec<(String, u64)>,
     /// Average response time
-    /// 
+    ///
     /// Average response time in milliseconds.
     pub average_response_time_ms: f64,
 }
 
 /// NetShield AI Manager
-/// 
+///
 /// Manages AI-powered DNS filtering that blocks access to malicious domains,
 /// phishing sites, and inappropriate content, with family-friendly protection
 /// and customizable filtering rules.
@@ -314,7 +314,8 @@ impl NetShieldManager {
                     self.create_allowed_response(&query)
                 };
 
-                self.update_stats(&query, &response, start_time.elapsed()).await;
+                self.update_stats(&query, &response, start_time.elapsed())
+                    .await;
                 return Ok(response);
             }
         }
@@ -346,7 +347,8 @@ impl NetShieldManager {
             self.create_allowed_response(&query)
         };
 
-        self.update_stats(&query, &response, start_time.elapsed()).await;
+        self.update_stats(&query, &response, start_time.elapsed())
+            .await;
         Ok(response)
     }
 
@@ -357,7 +359,7 @@ impl NetShieldManager {
         }
 
         let blocklist = self.blocklist.read().await;
-        
+
         // Check exact match
         if let Some(entry) = blocklist.get(domain) {
             return self.config.blocked_categories.contains(&entry.category);
@@ -365,7 +367,9 @@ impl NetShieldManager {
 
         // Check subdomain match
         for (blocklisted_domain, entry) in blocklist.iter() {
-            if domain.ends_with(blocklisted_domain) && self.config.blocked_categories.contains(&entry.category) {
+            if domain.ends_with(blocklisted_domain)
+                && self.config.blocked_categories.contains(&entry.category)
+            {
                 return true;
             }
         }
@@ -386,7 +390,7 @@ impl NetShieldManager {
 
         // Placeholder: simple heuristic
         let domain = &query.domain;
-        
+
         // Check for suspicious patterns
         let suspicious_patterns = vec![
             "login",
@@ -413,7 +417,7 @@ impl NetShieldManager {
     /// Get domain category
     async fn get_domain_category(&self, domain: &str) -> Option<BlocklistCategory> {
         let blocklist = self.blocklist.read().await;
-        
+
         if let Some(entry) = blocklist.get(domain) {
             return Some(entry.category);
         }
@@ -429,7 +433,12 @@ impl NetShieldManager {
     }
 
     /// Create blocked response
-    fn create_blocked_response(&self, query: &DnsQuery, reason: String, category: Option<BlocklistCategory>) -> DnsResponse {
+    fn create_blocked_response(
+        &self,
+        query: &DnsQuery,
+        reason: String,
+        category: Option<BlocklistCategory>,
+    ) -> DnsResponse {
         DnsResponse {
             query_id: query.query_id,
             blocked: true,
@@ -500,7 +509,12 @@ impl NetShieldManager {
     }
 
     /// Update statistics
-    async fn update_stats(&self, query: &DnsQuery, response: &DnsResponse, duration: std::time::Duration) {
+    async fn update_stats(
+        &self,
+        query: &DnsQuery,
+        response: &DnsResponse,
+        duration: std::time::Duration,
+    ) {
         let mut stats = self.stats.lock().await;
         stats.total_queries += 1;
 
@@ -514,7 +528,10 @@ impl NetShieldManager {
 
             // Update top blocked domains
             let domain = query.domain.clone();
-            let entry = stats.top_blocked_domains.iter_mut().find(|(d, _)| d == &domain);
+            let entry = stats
+                .top_blocked_domains
+                .iter_mut()
+                .find(|(d, _)| d == &domain);
             if let Some((_, count)) = entry {
                 *count += 1;
             } else {
@@ -528,8 +545,9 @@ impl NetShieldManager {
 
         // Update average response time
         let response_time_ms = duration.as_millis() as f64;
-        stats.average_response_time_ms = 
-            (stats.average_response_time_ms * (stats.total_queries - 1) as f64 + response_time_ms) / stats.total_queries as f64;
+        stats.average_response_time_ms =
+            (stats.average_response_time_ms * (stats.total_queries - 1) as f64 + response_time_ms)
+                / stats.total_queries as f64;
     }
 
     /// Import blocklist
@@ -622,10 +640,10 @@ mod tests {
 
         // First query
         let response1 = manager.process_query(query.clone()).await.unwrap();
-        
+
         // Second query should use cache
         let response2 = manager.process_query(query).await.unwrap();
-        
+
         assert_eq!(response1.blocked, response2.blocked);
     }
 
