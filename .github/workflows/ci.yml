@@ -152,15 +152,16 @@ jobs:
         run: cargo test --all-features --workspace
 
       - name: Generate coverage report
-        uses: actions-rs/tarpaulin@v0.1
-        with:
-          args: '--all-features --workspace --out Xml'
+        run: |
+          cargo install cargo-tarpaulin
+          cargo tarpaulin --all-features --workspace --out Xml --skip-clean
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./cobertura.xml
+        continue-on-error: true
 
   # ===============
   # Documentation
