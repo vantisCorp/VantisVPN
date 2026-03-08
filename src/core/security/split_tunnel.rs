@@ -496,9 +496,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_route_traffic() {
-        let mut config = SplitTunnelConfig::default();
-        config.enabled = true;
-        config.mode = SplitTunnelMode::Include;
+        let config = SplitTunnelConfig {
+            enabled: true,
+            mode: SplitTunnelMode::Include,
+            ..Default::default()
+        };
         let manager = SplitTunnelManager::new(config);
 
         let rule = SplitTunnelRule::new(
@@ -520,9 +522,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_route_dns() {
-        let mut config = SplitTunnelConfig::default();
-        config.enabled = true;
-        config.mode = SplitTunnelMode::Include;
+        let config = SplitTunnelConfig {
+            enabled: true,
+            mode: SplitTunnelMode::Include,
+            ..Default::default()
+        };
         let manager = SplitTunnelManager::new(config);
 
         let rule = SplitTunnelRule::new(
@@ -540,8 +544,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_dns_cache() {
-        let mut config = SplitTunnelConfig::default();
-        config.enabled = true;
+        let config = SplitTunnelConfig {
+            enabled: true,
+            ..Default::default()
+        };
         let manager = SplitTunnelManager::new(config);
 
         // First query

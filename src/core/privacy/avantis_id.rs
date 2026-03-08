@@ -435,8 +435,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_identity_expiration() {
-        let mut config = AvantisIdConfig::default();
-        config.default_duration_days = 0; // Immediate expiration
+        let config = AvantisIdConfig {
+            default_duration_days: 0, // Immediate expiration
+            ..Default::default()
+        };
         let manager = AvantisIdManager::new(config).unwrap();
 
         let identity = manager
@@ -493,8 +495,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_cleanup_expired_identities() {
-        let mut config = AvantisIdConfig::default();
-        config.default_duration_days = 0; // Immediate expiration
+        let config = AvantisIdConfig {
+            default_duration_days: 0, // Immediate expiration
+            ..Default::default()
+        };
         let manager = AvantisIdManager::new(config).unwrap();
 
         manager
