@@ -5,9 +5,7 @@
 //! FTTH jumbo frames, smart routing, and colocated infrastructure.
 
 use super::*;
-use crate::error::{Result, VantisError};
-use crate::server::secure_boot::{ComponentType, IntegrityStatus};
-use std::time::Duration;
+use crate::server::secure_boot::ComponentType;
 
 #[cfg(test)]
 mod server_status_tests {

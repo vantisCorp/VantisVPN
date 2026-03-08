@@ -5,7 +5,6 @@
 //! stealth, and multihop components.
 
 use super::*;
-use std::net::Ipv4Addr;
 
 // =============================================================================
 // Protocol Integration Tests
@@ -13,9 +12,9 @@ use std::net::Ipv4Addr;
 
 #[cfg(test)]
 mod protocol_integration_tests {
-    use super::*;
+    
     use crate::network::protocol::{HandshakeResponse, Protocol, ProtocolConfig, ProtocolState};
-    use crate::network::wireguard::{InterfaceConfig, PeerConfig, VirtualIpPool, WireGuardDevice};
+    
 
     #[test]
     fn test_full_handshake_workflow() {
@@ -175,7 +174,7 @@ mod protocol_integration_tests {
 
 #[cfg(test)]
 mod wireguard_integration_tests {
-    use super::*;
+    
     use crate::network::wireguard::{InterfaceConfig, PeerConfig, VirtualIpPool, WireGuardDevice};
     use std::net::Ipv4Addr;
 
@@ -593,7 +592,7 @@ mod error_handling_tests {
 
 #[cfg(test)]
 mod performance_integration_tests {
-    use super::*;
+    
     use crate::network::protocol::{HandshakeResponse, Protocol, ProtocolConfig};
     use crate::network::wireguard::{InterfaceConfig, PeerConfig, VirtualIpPool, WireGuardDevice};
     use std::net::Ipv4Addr;

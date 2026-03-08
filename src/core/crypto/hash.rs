@@ -58,7 +58,7 @@ impl Hash {
 
     /// Get hash as hex string
     pub fn as_hex(&self) -> String {
-        hex::encode(&self.bytes)
+        hex::encode(self.bytes)
     }
 
     /// Parse from hex string

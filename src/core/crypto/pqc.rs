@@ -196,11 +196,11 @@ impl HybridKeyExchange {
         let classical_pair = self
             .classical_key
             .as_ref()
-            .ok_or_else(|| crate::VantisError::KeyConsumed)?;
+            .ok_or(crate::VantisError::KeyConsumed)?;
         let pqc_pair = self
             .pqc_key
             .as_ref()
-            .ok_or_else(|| crate::VantisError::KeyConsumed)?;
+            .ok_or(crate::VantisError::KeyConsumed)?;
 
         // Derive classical secret (X25519-like)
         let classical_public_key = super::keys::PublicKey::new(
@@ -235,7 +235,7 @@ mod tests {
     #[serial(crypto)]
     fn test_kyber_keypair() {
         init_crypto();
-        let (kem, public) = KyberKEM::generate_keypair().expect("Failed to generate");
+        let (_kem, public) = KyberKEM::generate_keypair().expect("Failed to generate");
         assert_eq!(public.len(), KYBER_PUBLIC_KEY_SIZE);
     }
 
@@ -272,9 +272,9 @@ mod tests {
     #[serial(crypto)]
     fn test_hybrid_key_exchange() {
         init_crypto();
-        let (alice, alice_classical, alice_pqc) =
+        let (_alice, alice_classical, _alice_pqc) =
             HybridKeyExchange::generate().expect("Failed to generate Alice's keys");
-        let (bob, bob_classical, bob_pqc) =
+        let (bob, _bob_classical, bob_pqc) =
             HybridKeyExchange::generate().expect("Failed to generate Bob's keys");
 
         // Alice encapsulates with Bob's public keys

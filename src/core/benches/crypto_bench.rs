@@ -2,7 +2,7 @@
 // Measures performance of critical cryptographic functions
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use vantis_core::crypto::cipher::{Cipher, CipherSuite, DecryptionContext, EncryptionContext};
+use vantis_core::crypto::cipher::{CipherSuite, DecryptionContext, EncryptionContext};
 use vantis_core::crypto::hash::Hash;
 use vantis_core::crypto::keys::EphemeralKeyPair;
 use vantis_core::crypto::random::SecureRandom;

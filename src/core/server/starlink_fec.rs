@@ -434,14 +434,11 @@ impl FecDecoder {
         let ldpc_parity = &parity[mid..];
 
         // Try LDPC first (faster)
-        match self.decode_ldpc(data, ldpc_parity).await {
-            Ok(decoded) => {
-                // Verify with RS
-                if self.verify_reed_solomon(&decoded, rs_parity).await {
-                    return Ok(decoded);
-                }
-            },
-            Err(_) => {},
+        if let Ok(decoded) = self.decode_ldpc(data, ldpc_parity).await {
+            // Verify with RS
+            if self.verify_reed_solomon(&decoded, rs_parity).await {
+                return Ok(decoded);
+            }
         }
 
         // Fall back to RS
@@ -549,7 +546,6 @@ impl FecManager {
     /// Adapt FEC parameters based on network conditions
     pub async fn adapt_parameters(&self, _packet_loss_rate: f64, _latency_ms: f64) {
         if !self.config.enable_adaptive {
-            return;
         }
 
         // In production, adjust parameters based on network conditions

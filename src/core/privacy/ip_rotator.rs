@@ -219,7 +219,7 @@ impl IpRotator {
             .lock()
             .await
             .clone()
-            .ok_or_else(|| VantisError::InvalidState)?;
+            .ok_or(VantisError::InvalidState)?;
 
         let mut pools = self.pools.lock().await;
         let pool = pools

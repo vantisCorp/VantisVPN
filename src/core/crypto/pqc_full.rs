@@ -617,7 +617,7 @@ mod tests {
             .generate_ml_dsa_keypair(MlDsaSecurityLevel::MlDsa44)
             .expect("Failed to generate ML-DSA keypair");
 
-        assert!(ml_kem_keypair.secret_key.len() > 0);
-        assert!(ml_dsa_keypair.secret_key.len() > 0);
+        assert!(!ml_kem_keypair.secret_key.is_empty());
+        assert!(!ml_dsa_keypair.secret_key.is_empty());
     }
 }

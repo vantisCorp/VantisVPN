@@ -196,7 +196,7 @@ impl NoLogsAudit {
         description: String,
         data_hash: String,
     ) -> Result<String, VantisError> {
-        let evidence_id = format!("evidence_{}", Utc::now().timestamp_nanos());
+        let evidence_id = format!("evidence_{}", Utc::now().timestamp_nanos_opt().unwrap_or(0));
 
         let evidence = AuditEvidence {
             evidence_id: evidence_id.clone(),
@@ -323,7 +323,7 @@ mod tests {
     #[test]
     fn test_audit_config_default() {
         let config = AuditConfig::default();
-        assert_eq!(config.auto_collect_evidence, true);
+        assert!(config.auto_collect_evidence);
         assert_eq!(config.min_evidence_required, 10);
     }
 }

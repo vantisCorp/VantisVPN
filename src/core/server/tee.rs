@@ -382,7 +382,7 @@ impl TeeManager {
         let _enclave = self.get_enclave(enclave_id).await?;
 
         // Execute the function (in production, this would be within actual TEE)
-        let result = tokio::task::spawn_blocking(move || f())
+        let result = tokio::task::spawn_blocking(f)
             .await
             .map_err(|e| VantisError::InvalidPeer(format!("Execution failed: {}", e)))?;
 

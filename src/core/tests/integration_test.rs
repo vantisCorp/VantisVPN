@@ -9,7 +9,7 @@ use vantis_core::crypto::random::SecureRandom;
 #[test]
 fn test_full_encryption_flow() {
     // Initialize crypto subsystem
-    vantis_core::crypto::init();
+    let _ = vantis_core::crypto::init();
 
     // Test complete encryption/decryption flow
     let key_pair = EphemeralKeyPair::new().unwrap();
@@ -30,7 +30,7 @@ fn test_full_encryption_flow() {
 #[test]
 fn test_hash_and_encryption_integration() {
     // Initialize crypto subsystem
-    vantis_core::crypto::init();
+    let _ = vantis_core::crypto::init();
 
     // Test hashing and encryption together
     let data = b"Test data for integration";
@@ -67,7 +67,7 @@ fn test_random_key_generation() {
 #[test]
 fn test_multiple_encryption_rounds() {
     // Initialize crypto subsystem
-    vantis_core::crypto::init();
+    let _ = vantis_core::crypto::init();
 
     // Test multiple encryption/decryption rounds
     let key_pair = EphemeralKeyPair::new().unwrap();
@@ -93,7 +93,7 @@ fn test_multiple_encryption_rounds() {
 #[test]
 fn test_error_handling() {
     // Initialize crypto subsystem
-    vantis_core::crypto::init();
+    let _ = vantis_core::crypto::init();
 
     // Test error handling in integration scenarios
     let key_pair = EphemeralKeyPair::new().unwrap();

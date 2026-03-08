@@ -4,7 +4,6 @@
 //! All keys are temporary and automatically zeroized when dropped.
 
 use super::random::secure_random;
-use crate::error::VantisError;
 use chacha20poly1305::{
     aead::{Aead, KeyInit},
     ChaCha20Poly1305, Key as ChaChaKey, Nonce as ChaChaNonce,
@@ -103,7 +102,7 @@ impl EphemeralKeyPair {
         let private = self
             .private_key
             .as_ref()
-            .ok_or_else(|| crate::VantisError::KeyConsumed)?;
+            .ok_or(crate::VantisError::KeyConsumed)?;
 
         // Get private key bytes as a fixed-size array
         let mut private_bytes = [0u8; 32];
@@ -208,10 +207,12 @@ impl AsRef<[u8]> for PublicKey {
 ///
 /// Supported cipher suites for VPN traffic encryption.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Default)]
 pub enum CipherSuite {
     /// ChaCha20-Poly1305 (default)
     ///
     /// ChaCha20-Poly1305 AEAD cipher (default for VPN).
+    #[default]
     ChaCha20Poly1305,
     /// AES-256-GCM (FIPS compliant)
     ///
@@ -219,11 +220,6 @@ pub enum CipherSuite {
     Aes256Gcm,
 }
 
-impl Default for CipherSuite {
-    fn default() -> Self {
-        Self::ChaCha20Poly1305
-    }
-}
 
 /// Cipher for encrypting/decrypting VPN traffic
 ///
