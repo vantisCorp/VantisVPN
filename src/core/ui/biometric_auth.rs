@@ -106,7 +106,6 @@ impl Default for BiometricConfig {
     }
 }
 
-/// Biometric Auth - Biometric Authorization
 /// Biometric authentication manager
 ///
 /// Manages biometric authentication operations, including template storage,

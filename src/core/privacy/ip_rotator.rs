@@ -8,9 +8,6 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::net::IpAddr;
-
-#[cfg(test)]
-use std::net::Ipv4Addr;
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::Mutex;
@@ -141,7 +138,6 @@ pub struct RotationStats {
     pub countries_visited: Vec<String>,
 }
 
-/// IP Rotator - Dynamic IP Address Rotation
 /// IP rotator manager
 ///
 /// Manages IP address rotation across multiple pools of VPN endpoints,
@@ -414,6 +410,7 @@ impl IpRotator {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::net::Ipv4Addr;
 
     #[test]
     fn test_rotator_creation() {

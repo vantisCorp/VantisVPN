@@ -91,9 +91,12 @@ impl Endpoint {
     pub fn new(address: NetworkAddress, port: u16) -> Self {
         Self { address, port }
     }
+}
 
-    /// Parse from "address:port" string
-    pub fn parse(s: &str) -> crate::Result<Self> {
+impl std::str::FromStr for Endpoint {
+    type Err = crate::VantisError;
+
+    fn from_str(s: &str) -> crate::Result<Self> {
         let parts: Vec<&str> = s.rsplitn(2, ':').collect();
         if parts.len() != 2 {
             return Err(crate::VantisError::InvalidEndpoint);
@@ -102,14 +105,16 @@ impl Endpoint {
         let port: u16 = parts[0]
             .parse()
             .map_err(|_| crate::VantisError::InvalidEndpoint)?;
-        let address = NetworkAddress::parse(parts[1])?;
+        let address = parts[1].parse()?;
 
         Ok(Self { address, port })
     }
 }
 
-impl NetworkAddress {
-    pub fn parse(s: &str) -> crate::Result<Self> {
+impl std::str::FromStr for NetworkAddress {
+    type Err = crate::VantisError;
+
+    fn from_str(s: &str) -> crate::Result<Self> {
         // Parse IPv4 or IPv6 address
         if s.contains(':') && !s.contains('.') {
             // IPv6 validation
@@ -256,7 +261,7 @@ mod tests {
 
     #[test]
     fn test_network_address_ipv4() {
-        let addr = NetworkAddress::parse("192.168.1.1").expect("Failed to parse");
+        let addr: NetworkAddress = "192.168.1.1".parse().expect("Failed to parse");
         assert!(matches!(addr, NetworkAddress::IPv4(_)));
 
         let display = format!("{}", addr);
@@ -265,14 +270,14 @@ mod tests {
 
     #[test]
     fn test_network_address_ipv6() {
-        let addr = NetworkAddress::parse("2001:db8::1").expect("Failed to parse");
+        let addr: NetworkAddress = "2001:db8::1".parse().expect("Failed to parse");
         assert!(matches!(addr, NetworkAddress::IPv6(_)));
         assert!(addr.is_ipv6());
     }
 
     #[test]
     fn test_endpoint() {
-        let endpoint = Endpoint::parse("192.168.1.1:443").expect("Failed to parse");
+        let endpoint: Endpoint = "192.168.1.1:443".parse().expect("Failed to parse");
         assert_eq!(endpoint.port, 443);
 
         let display = format!("{}", endpoint);

@@ -166,7 +166,6 @@ pub struct BootEvent {
     pub severity: String,
 }
 
-/// Secure Boot Manager
 /// Secure boot manager
 ///
 /// Manages secure boot verification process, ensuring only trusted

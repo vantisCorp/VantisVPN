@@ -12,8 +12,9 @@ use super::*;
 
 #[cfg(test)]
 mod protocol_integration_tests {
-
+    
     use crate::network::protocol::{HandshakeResponse, Protocol, ProtocolConfig, ProtocolState};
+    
 
     #[test]
     fn test_full_handshake_workflow() {
@@ -173,7 +174,7 @@ mod protocol_integration_tests {
 
 #[cfg(test)]
 mod wireguard_integration_tests {
-
+    
     use crate::network::wireguard::{InterfaceConfig, PeerConfig, VirtualIpPool, WireGuardDevice};
     use std::net::Ipv4Addr;
 
@@ -320,7 +321,7 @@ mod network_address_integration_tests {
 
     #[test]
     fn test_endpoint_parsing() {
-        let endpoint = Endpoint::parse("192.168.1.1:443").expect("Failed to parse");
+        let endpoint: Endpoint = "192.168.1.1:443".parse().expect("Failed to parse");
         assert_eq!(endpoint.port, 443);
         assert!(matches!(endpoint.address, NetworkAddress::IPv4(_)));
 
@@ -331,14 +332,14 @@ mod network_address_integration_tests {
     #[test]
     fn test_endpoint_parsing_errors() {
         // Invalid format
-        assert!(Endpoint::parse("invalid").is_err());
-        assert!(Endpoint::parse("192.168.1.1").is_err());
+        assert!("invalid".parse::<Endpoint>().is_err());
+        assert!("192.168.1.1".parse::<Endpoint>().is_err());
 
         // Invalid port
-        assert!(Endpoint::parse("192.168.1.1:99999").is_err());
+        assert!("192.168.1.1:99999".parse::<Endpoint>().is_err());
 
         // Invalid address
-        assert!(Endpoint::parse("999.999.999.999:443").is_err());
+        assert!("999.999.999.999:443".parse::<Endpoint>().is_err());
     }
 }
 
@@ -554,22 +555,22 @@ mod error_handling_tests {
     #[test]
     fn test_invalid_network_address() {
         // Invalid IPv4
-        let result = NetworkAddress::parse("256.256.256.256");
+        let result: Result<NetworkAddress, _> = "256.256.256.256".parse();
         assert!(result.is_err());
 
         // Invalid IPv6
-        let result = NetworkAddress::parse("gggg::1");
+        let result: Result<NetworkAddress, _> = "gggg::1".parse();
         assert!(result.is_err());
     }
 
     #[test]
     fn test_invalid_endpoint() {
         // Missing port
-        let result = Endpoint::parse("192.168.1.1");
+        let result: Result<Endpoint, _> = "192.168.1.1".parse();
         assert!(result.is_err());
 
         // Too many colons
-        let result = Endpoint::parse(":::1:80");
+        let result: Result<Endpoint, _> = ":::1:80".parse();
         assert!(result.is_err());
     }
 
@@ -591,7 +592,7 @@ mod error_handling_tests {
 
 #[cfg(test)]
 mod performance_integration_tests {
-
+    
     use crate::network::protocol::{HandshakeResponse, Protocol, ProtocolConfig};
     use crate::network::wireguard::{InterfaceConfig, PeerConfig, VirtualIpPool, WireGuardDevice};
     use std::net::Ipv4Addr;

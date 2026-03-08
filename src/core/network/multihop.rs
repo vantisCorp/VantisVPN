@@ -401,7 +401,6 @@ impl OnionPacket {
 }
 
 /// MultiHop+ manager
-/// MultiHop+ manager
 ///
 /// Manages MultiHop+ onion routing circuits, including path selection,
 /// circuit establishment, and packet forwarding through multiple hops.
@@ -500,11 +499,15 @@ impl MultiHopManager {
                 path.push(node.node_id.clone());
             } else {
                 let node = if self.config.enable_path_randomization {
-                    candidates[self.rng.generate_u64()? as usize % candidates.len()].clone()
+                    (*candidates[self.rng.generate_u64()? as usize % candidates.len()]).clone()
                 } else if self.config.enable_latency_optimization {
-                    (*candidates.iter().min_by_key(|n| n.latency).unwrap()).clone()
+                    (**candidates
+                        .iter()
+                        .min_by_key(|n| n.latency)
+                        .unwrap())
+                    .clone()
                 } else {
-                    (*candidates
+                    (**candidates
                         .iter()
                         .max_by(|a, b| a.score().partial_cmp(&b.score()).unwrap())
                         .unwrap())
