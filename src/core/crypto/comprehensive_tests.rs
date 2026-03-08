@@ -622,9 +622,7 @@ mod random_tests {
         let _val_u64 = rng.generate_u64().expect("u64 generation failed");
         let _val_u32 = rng.generate_u32().expect("u32 generation failed");
         let _val_bool = rng.generate_bool().expect("bool generation failed");
-
         // Just ensure they work
-        assert!(true);
     }
 
     #[test]
