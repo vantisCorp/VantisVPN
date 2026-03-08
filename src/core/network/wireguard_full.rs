@@ -1039,7 +1039,11 @@ impl WireGuardDevice {
             sender_index: peer_state.index,
             ephemeral_public: *ephemeral_public,
             static_public_enc: [0u8; 32], // Would be encrypted
-            timestamp_enc: timestamp.to_le_bytes()[..12].try_into().unwrap(),
+            timestamp_enc: {
+                let mut ts_bytes = [0u8; 12];
+                ts_bytes[..8].copy_from_slice(&timestamp.to_le_bytes());
+                ts_bytes
+            },
             mac1,
             mac2: [0u8; 16],
         })
