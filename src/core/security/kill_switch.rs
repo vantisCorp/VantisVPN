@@ -115,6 +115,7 @@ pub struct KillSwitchManager {
 }
 
 impl KillSwitchManager {
+    /// Creates a new instance with default configuration.
     pub fn new(config: KillSwitchConfig) -> Self {
         let stats = KillSwitchStats {
             state: KillSwitchState::Disabled,

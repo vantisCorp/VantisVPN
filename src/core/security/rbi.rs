@@ -150,6 +150,7 @@ pub struct BrowserSession {
 }
 
 impl BrowserSession {
+    /// Creates a new instance with default configuration.
     pub fn new(
         session_id: String,
         user_id: String,
@@ -168,10 +169,12 @@ impl BrowserSession {
         }
     }
 
+    /// Updates the activity state.
     pub fn update_activity(&mut self) {
         self.last_activity = std::time::Instant::now();
     }
 
+    /// Returns the expired value.
     pub fn is_expired(&self, max_duration: std::time::Duration) -> bool {
         self.created_at.elapsed() > max_duration
     }
@@ -294,6 +297,7 @@ pub struct RbiManager {
 }
 
 impl RbiManager {
+    /// Creates a new instance with default configuration.
     pub fn new(config: RbiConfig) -> Self {
         let stats = RbiStats {
             active_sessions: 0,

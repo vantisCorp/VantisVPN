@@ -21,11 +21,17 @@ use std::time::{Duration, Instant};
 use tokio::sync::{Mutex, RwLock};
 
 // MultiHop+ Constants
+/// Configuration constant for max hops.
 pub const MAX_HOPS: usize = 7;
+/// Configuration constant for default hops.
 pub const DEFAULT_HOPS: usize = 3;
+/// Configuration constant for min hops.
 pub const MIN_HOPS: usize = 2;
+/// Connection timeout duration.
 pub const CIRCUIT_TIMEOUT: Duration = Duration::from_secs(60);
+/// Configuration constant for path refresh interval.
 pub const PATH_REFRESH_INTERVAL: Duration = Duration::from_secs(300);
+/// Configuration constant for max circuit attempts.
 pub const MAX_CIRCUIT_ATTEMPTS: u32 = 3;
 
 /// MultiHop+ configuration
@@ -104,6 +110,7 @@ pub struct VpnNode {
 }
 
 impl VpnNode {
+    /// Creates a new instance with default configuration.
     pub fn new(
         node_id: String,
         public_key: [u8; 32],
@@ -127,10 +134,12 @@ impl VpnNode {
         }
     }
 
+    /// Returns the available value.
     pub fn is_available(&self) -> bool {
         self.load < 90 && self.last_seen.elapsed() < Duration::from_secs(300)
     }
 
+    /// Performs the score operation.
     pub fn score(&self) -> f64 {
         let latency_score = 1.0 / (self.latency.as_millis() as f64 + 1.0);
         let load_score = (100 - self.load) as f64 / 100.0;
@@ -157,6 +166,7 @@ pub struct CircuitHop {
 }
 
 impl CircuitHop {
+    /// Creates a new instance with default configuration.
     pub fn new(node: VpnNode, session_key: [u8; 32], index: usize) -> Self {
         Self {
             node,
@@ -173,9 +183,13 @@ impl CircuitHop {
 /// the chain of VPN nodes for onion routing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CircuitState {
+    /// Variant option.
     Building,
+    /// Variant option.
     Established,
+    /// Variant option.
     Failed,
+    /// Variant option.
     Closed,
 }
 
@@ -208,6 +222,7 @@ pub struct Circuit {
 }
 
 impl Circuit {
+    /// Creates a new instance with default configuration.
     pub fn new(circuit_id: String, hops: Vec<CircuitHop>) -> Self {
         Self {
             circuit_id,
@@ -223,16 +238,19 @@ impl Circuit {
         }
     }
 
+    /// Returns the established value.
     pub async fn is_established(&self) -> bool {
         let state = self.state.lock().await;
         *state == CircuitState::Established
     }
 
+    /// Returns the expired value.
     pub async fn is_expired(&self, timeout: Duration) -> bool {
         let last_used = self.last_used.lock().await;
         last_used.elapsed() > timeout
     }
 
+    /// Updates the stats sent state.
     pub async fn update_stats_sent(&self, bytes: u64) {
         let mut bytes_sent = self.bytes_sent.lock().await;
         let mut packets_sent = self.packets_sent.lock().await;
@@ -243,6 +261,7 @@ impl Circuit {
         *last_used = Instant::now();
     }
 
+    /// Updates the stats received state.
     pub async fn update_stats_received(&self, bytes: u64) {
         let mut bytes_received = self.bytes_received.lock().await;
         let mut packets_received = self.packets_received.lock().await;
@@ -253,6 +272,7 @@ impl Circuit {
         *last_used = Instant::now();
     }
 
+    /// Returns the statistics value.
     pub async fn get_statistics(&self) -> CircuitStats {
         let bytes_sent = *self.bytes_sent.lock().await;
         let bytes_received = *self.bytes_received.lock().await;
@@ -310,6 +330,7 @@ pub struct OnionPacket {
 }
 
 impl OnionPacket {
+    /// Creates a new instance with default configuration.
     pub fn new(circuit_id: String, hop_index: usize, payload: Vec<u8>) -> Self {
         Self {
             circuit_id,
@@ -320,6 +341,7 @@ impl OnionPacket {
         }
     }
 
+    /// Serializes the data to bytes.
     pub fn serialize(&self) -> Vec<u8> {
         let mut buf = Vec::new();
 
@@ -345,6 +367,7 @@ impl OnionPacket {
         buf
     }
 
+    /// Deserializes the data from bytes.
     pub fn deserialize(data: &[u8]) -> Result<Self> {
         // Circuit ID
         let circuit_id_end = data
@@ -416,6 +439,7 @@ pub struct MultiHopManager {
 }
 
 impl MultiHopManager {
+    /// Creates a new instance with default configuration.
     pub fn new(config: MultiHopConfig) -> Result<Self> {
         let key = vec![0u8; 32];
         let cipher = Arc::new(Cipher::new(&key, CipherSuite::ChaCha20Poly1305)?);

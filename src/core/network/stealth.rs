@@ -18,12 +18,19 @@ use std::sync::Arc;
 use std::time::Duration;
 
 // Stealth Protocol Constants
+/// Configuration constant for stealth magic.
 pub const STEALTH_MAGIC: &[u8] = b"VANTIS_STEALTH";
+/// Protocol version identifier.
 pub const STEALTH_VERSION: u8 = 1;
+/// Maximum packet/frame size in bytes.
 pub const MAX_PACKET_SIZE: usize = 1500;
+/// Size configuration constant.
 pub const MIN_PACKET_SIZE: usize = 64;
+/// Size configuration constant.
 pub const DEFAULT_PADDING_SIZE: usize = 128;
+/// Header table size configuration.
 pub const TLS_RECORD_HEADER_SIZE: usize = 5;
+/// Header table size configuration.
 pub const TLS_HANDSHAKE_HEADER_SIZE: usize = 4;
 
 // TLS 1.3 Record Types
@@ -142,6 +149,7 @@ pub struct TlsRecordHeader {
 }
 
 impl TlsRecordHeader {
+    /// Creates a new instance with default configuration.
     pub fn new(content_type: u8, length: u16) -> Self {
         Self {
             content_type,
@@ -150,6 +158,7 @@ impl TlsRecordHeader {
         }
     }
 
+    /// Serializes the data to bytes.
     pub fn serialize(&self) -> Vec<u8> {
         let mut buf = Vec::with_capacity(TLS_RECORD_HEADER_SIZE);
         buf.push(self.content_type);
@@ -158,6 +167,7 @@ impl TlsRecordHeader {
         buf
     }
 
+    /// Deserializes the data from bytes.
     pub fn deserialize(data: &[u8]) -> Result<Self> {
         if data.len() < TLS_RECORD_HEADER_SIZE {
             return Err(VantisError::InvalidPacket("TLS record too short".into()));
@@ -188,6 +198,7 @@ pub struct Http2FrameHeader {
 }
 
 impl Http2FrameHeader {
+    /// Creates a new instance with default configuration.
     pub fn new(frame_type: u8, stream_id: u32, length: u32) -> Self {
         Self {
             length: length & 0x00FFFFFF,
@@ -197,6 +208,7 @@ impl Http2FrameHeader {
         }
     }
 
+    /// Serializes the data to bytes.
     pub fn serialize(&self) -> Vec<u8> {
         let mut buf = Vec::with_capacity(9);
         buf.extend_from_slice(&self.length.to_be_bytes()[1..4]);
@@ -206,6 +218,7 @@ impl Http2FrameHeader {
         buf
     }
 
+    /// Deserializes the data from bytes.
     pub fn deserialize(data: &[u8]) -> Result<Self> {
         if data.len() < 9 {
             return Err(VantisError::InvalidPacket("HTTP/2 frame too short".into()));
@@ -248,6 +261,7 @@ pub struct StealthPacket {
 }
 
 impl StealthPacket {
+    /// Creates a new instance with default configuration.
     pub fn new(payload: Vec<u8>) -> Self {
         Self {
             magic: STEALTH_MAGIC.to_vec(),
@@ -261,6 +275,7 @@ impl StealthPacket {
         }
     }
 
+    /// Serializes the data to bytes.
     pub fn serialize(&self) -> Vec<u8> {
         let mut buf = Vec::new();
 
@@ -295,6 +310,7 @@ impl StealthPacket {
         buf
     }
 
+    /// Deserializes the data from bytes.
     pub fn deserialize(data: &[u8]) -> Result<Self> {
         if data.len() < STEALTH_MAGIC.len() + 2 {
             return Err(VantisError::InvalidPacket(
@@ -405,6 +421,7 @@ pub struct StealthHandler {
 }
 
 impl StealthHandler {
+    /// Creates a new instance with default configuration.
     pub fn new(config: StealthConfig) -> Result<Self> {
         let key = vec![0u8; 32];
         let cipher = Arc::new(Cipher::new(&key, CipherSuite::ChaCha20Poly1305)?);

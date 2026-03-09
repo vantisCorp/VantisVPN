@@ -90,6 +90,7 @@ pub struct SplitTunnelRule {
 }
 
 impl SplitTunnelRule {
+    /// Creates a new instance with default configuration.
     pub fn new(rule_id: String, rule_type: RuleType, value: String, priority: u32) -> Self {
         Self {
             rule_id,
@@ -217,6 +218,7 @@ pub struct SplitTunnelManager {
 }
 
 impl SplitTunnelManager {
+    /// Creates a new instance with default configuration.
     pub fn new(config: SplitTunnelConfig) -> Self {
         let stats = SplitTunnelStats {
             total_rules: 0,

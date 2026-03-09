@@ -85,6 +85,7 @@ pub struct NetworkPath {
 }
 
 impl NetworkPath {
+    /// Creates a new instance with default configuration.
     pub fn new(path_id: String, destination: String, mtu: usize) -> Self {
         Self {
             path_id,
@@ -95,6 +96,7 @@ impl NetworkPath {
         }
     }
 
+    /// Returns the expired value.
     pub fn is_expired(&self, ttl_secs: u64) -> bool {
         self.last_updated.elapsed() > std::time::Duration::from_secs(ttl_secs)
     }
@@ -119,6 +121,7 @@ pub struct FrameFragment {
 }
 
 impl FrameFragment {
+    /// Creates a new instance with default configuration.
     pub fn new(fragment_id: u64, fragment_index: u32, total_fragments: u32, data: Vec<u8>) -> Self {
         Self {
             fragment_id,
@@ -178,6 +181,7 @@ pub struct JumboFrameManager {
 }
 
 impl JumboFrameManager {
+    /// Creates a new instance with default configuration.
     pub fn new(config: JumboFrameConfig) -> Self {
         let stats = JumboFrameStats {
             total_frames_sent: 0,

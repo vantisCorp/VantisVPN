@@ -16,32 +16,53 @@ use log::{debug, info};
 use std::sync::Arc;
 
 // ML-KEM (Kyber) Parameters
+/// Size configuration constant.
 pub const ML_KEM_512_SECRET_KEY_SIZE: usize = 1632;
+/// Size configuration constant.
 pub const ML_KEM_512_PUBLIC_KEY_SIZE: usize = 800;
+/// Size configuration constant.
 pub const ML_KEM_512_CIPHERTEXT_SIZE: usize = 768;
+/// Size configuration constant.
 pub const ML_KEM_512_SHARED_SECRET_SIZE: usize = 32;
 
+/// Size configuration constant.
 pub const ML_KEM_768_SECRET_KEY_SIZE: usize = 2400;
+/// Size configuration constant.
 pub const ML_KEM_768_PUBLIC_KEY_SIZE: usize = 1184;
+/// Size configuration constant.
 pub const ML_KEM_768_CIPHERTEXT_SIZE: usize = 1088;
+/// Size configuration constant.
 pub const ML_KEM_768_SHARED_SECRET_SIZE: usize = 32;
 
+/// Size configuration constant.
 pub const ML_KEM_1024_SECRET_KEY_SIZE: usize = 3168;
+/// Size configuration constant.
 pub const ML_KEM_1024_PUBLIC_KEY_SIZE: usize = 1568;
+/// Size configuration constant.
 pub const ML_KEM_1024_CIPHERTEXT_SIZE: usize = 1568;
+/// Size configuration constant.
 pub const ML_KEM_1024_SHARED_SECRET_SIZE: usize = 32;
 
 // ML-DSA (Dilithium) Parameters
+/// Size configuration constant.
 pub const ML_DSA_44_SECRET_KEY_SIZE: usize = 2560;
+/// Size configuration constant.
 pub const ML_DSA_44_PUBLIC_KEY_SIZE: usize = 1312;
+/// Size configuration constant.
 pub const ML_DSA_44_SIGNATURE_SIZE: usize = 2420;
 
+/// Size configuration constant.
 pub const ML_DSA_65_SECRET_KEY_SIZE: usize = 4032;
+/// Size configuration constant.
 pub const ML_DSA_65_PUBLIC_KEY_SIZE: usize = 1952;
+/// Size configuration constant.
 pub const ML_DSA_65_SIGNATURE_SIZE: usize = 3309;
 
+/// Size configuration constant.
 pub const ML_DSA_87_SECRET_KEY_SIZE: usize = 4896;
+/// Size configuration constant.
 pub const ML_DSA_87_PUBLIC_KEY_SIZE: usize = 2592;
+/// Size configuration constant.
 pub const ML_DSA_87_SIGNATURE_SIZE: usize = 4627;
 
 /// ML-KEM (Module-Lattice-Based Key-Encapsulation Mechanism) Security Level
@@ -59,6 +80,7 @@ pub enum MlKemSecurityLevel {
 }
 
 impl MlKemSecurityLevel {
+    /// Performs the secret key size operation.
     pub fn secret_key_size(&self) -> usize {
         match self {
             Self::MlKem512 => ML_KEM_512_SECRET_KEY_SIZE,
@@ -67,6 +89,7 @@ impl MlKemSecurityLevel {
         }
     }
 
+    /// Performs the public key size operation.
     pub fn public_key_size(&self) -> usize {
         match self {
             Self::MlKem512 => ML_KEM_512_PUBLIC_KEY_SIZE,
@@ -75,6 +98,7 @@ impl MlKemSecurityLevel {
         }
     }
 
+    /// Performs the ciphertext size operation.
     pub fn ciphertext_size(&self) -> usize {
         match self {
             Self::MlKem512 => ML_KEM_512_CIPHERTEXT_SIZE,
@@ -99,6 +123,7 @@ pub enum MlDsaSecurityLevel {
 }
 
 impl MlDsaSecurityLevel {
+    /// Performs the secret key size operation.
     pub fn secret_key_size(&self) -> usize {
         match self {
             Self::MlDsa44 => ML_DSA_44_SECRET_KEY_SIZE,
@@ -107,6 +132,7 @@ impl MlDsaSecurityLevel {
         }
     }
 
+    /// Performs the public key size operation.
     pub fn public_key_size(&self) -> usize {
         match self {
             Self::MlDsa44 => ML_DSA_44_PUBLIC_KEY_SIZE,
@@ -115,6 +141,7 @@ impl MlDsaSecurityLevel {
         }
     }
 
+    /// Signs the provided data.
     pub fn signature_size(&self) -> usize {
         match self {
             Self::MlDsa44 => ML_DSA_44_SIGNATURE_SIZE,

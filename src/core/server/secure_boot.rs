@@ -88,6 +88,7 @@ pub struct BootComponent {
 }
 
 impl BootComponent {
+    /// Creates a new instance with default configuration.
     pub fn new(
         component_id: String,
         component_type: ComponentType,
@@ -107,6 +108,7 @@ impl BootComponent {
         }
     }
 
+    /// Returns the verified value.
     pub fn is_verified(&self) -> bool {
         self.status == IntegrityStatus::Verified
     }
@@ -181,6 +183,7 @@ pub struct SecureBootManager {
 }
 
 impl SecureBootManager {
+    /// Creates a new instance with default configuration.
     pub fn new(config: SecureBootConfig) -> Result<Self> {
         let hash = Arc::new(Hash::new()?);
         let rng = Arc::new(SecureRandom::new()?);

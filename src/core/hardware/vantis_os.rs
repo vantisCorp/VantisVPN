@@ -252,13 +252,21 @@ pub struct NetworkConfig {
 /// for enhanced anonymity.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TorConfig {
+    /// Field value.
     pub enabled: bool,
+    /// Field value.
     pub bridge_mode: bool,
+    /// Field value.
     pub bridges: Vec<String>,
+    /// Field value.
     pub obfs4_enabled: bool,
+    /// Field value.
     pub meek_enabled: bool,
+    /// Field value.
     pub snowflake_enabled: bool,
+    /// Field value.
     pub circuit_isolation: bool,
+    /// Field value.
     pub exit_node_country: Option<String>,
 }
 
@@ -269,13 +277,21 @@ pub struct TorConfig {
 /// the VANTISVPN service for protection.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VpnOsConfig {
+    /// Field value.
     pub enabled: bool,
+    /// Field value.
     pub provider: String,
+    /// Field value.
     pub server_address: String,
+    /// Field value.
     pub port: u16,
+    /// Field value.
     pub protocol: String,
+    /// Field value.
     pub cipher_suite: String,
+    /// Field value.
     pub auto_connect: bool,
+    /// Field value.
     pub kill_switch: bool,
 }
 
@@ -678,10 +694,15 @@ impl Default for VantisOsBuilder {
 /// WAN connection types
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WanConnectionType {
+    /// Variant option.
     Dhcp,
+    /// Variant option.
     Static,
+    /// Variant option.
     Pppoe,
+    /// Variant option.
     Pptp,
+    /// Variant option.
     L2tp,
 }
 

@@ -25,6 +25,7 @@ pub enum WifiBand {
 }
 
 impl WifiBand {
+    /// Performs the frequency mhz operation.
     pub fn frequency_mhz(&self) -> u32 {
         match self {
             WifiBand::Band24GHz => 2400,
@@ -34,6 +35,7 @@ impl WifiBand {
         }
     }
 
+    /// Performs the name operation.
     pub fn name(&self) -> &str {
         match self {
             WifiBand::Band24GHz => "2.4 GHz",
@@ -90,6 +92,7 @@ pub struct WifiLink {
 }
 
 impl WifiLink {
+    /// Creates a new instance with default configuration.
     pub fn new(link_id: String, band: WifiBand, channel: u32, bandwidth_mhz: u32) -> Self {
         Self {
             link_id,
@@ -105,10 +108,12 @@ impl WifiLink {
         }
     }
 
+    /// Returns the active value.
     pub fn is_active(&self) -> bool {
         self.state == LinkState::Active
     }
 
+    /// Performs the quality score operation.
     pub fn quality_score(&self) -> f64 {
         if !self.is_active() {
             return 0.0;
@@ -199,6 +204,7 @@ pub struct MloManager {
 }
 
 impl MloManager {
+    /// Creates a new instance with default configuration.
     pub fn new(config: MloConfig) -> Self {
         let stats = MloStats {
             total_links: 0,

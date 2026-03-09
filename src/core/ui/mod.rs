@@ -1,9 +1,13 @@
 // UI Module - UX/UI & Additional Features
 // Phase 6: UX/UI & Additional Features
 
+/// Biometric Auth module.
 pub mod biometric_auth;
+/// Devtunnel module.
 pub mod devtunnel;
+/// Family Shield module.
 pub mod family_shield;
+/// Theme Manager module.
 pub mod theme_manager;
 
 // Re-exports

@@ -270,6 +270,7 @@ pub struct NetShieldManager {
 }
 
 impl NetShieldManager {
+    /// Creates a new instance with default configuration.
     pub fn new(config: NetShieldConfig) -> Self {
         let stats = NetShieldStats {
             total_queries: 0,

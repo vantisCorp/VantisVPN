@@ -98,16 +98,23 @@ pub struct ZkAuthResult {
 /// These credentials are never transmitted to the server.
 #[derive(Debug, Clone)]
 pub struct UserCredentials {
+    /// Field value.
     pub user_id: String,
+    /// Field value.
     pub username: String,
+    /// Field value.
     pub password_hash: Vec<u8>,
+    /// Field value.
     pub public_key: Vec<u8>,
     public_key_commitment: Vec<u8>,
+    /// Field value.
     pub secret_key: Vec<u8>,
+    /// Field value.
     pub created_at: std::time::Instant,
 }
 
 impl UserCredentials {
+    /// Creates a new instance with default configuration.
     pub fn new(username: String, password: String) -> Result<Self> {
         let hash = Hash::new()?;
         let password_hash = hash.compute(password.as_bytes())?;
@@ -137,6 +144,7 @@ impl UserCredentials {
         })
     }
 
+    /// Validates the password.
     pub fn verify_password(&self, password: &str) -> Result<bool> {
         let hash = Hash::new()?;
         let computed_hash = hash.compute(password.as_bytes())?;
@@ -190,6 +198,7 @@ pub struct ZkLoginManager {
 }
 
 impl ZkLoginManager {
+    /// Creates a new instance with default configuration.
     pub fn new(config: ZkLoginConfig) -> Result<Self> {
         let rng = SecureRandom::new()?;
 

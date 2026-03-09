@@ -33,6 +33,7 @@ pub enum TeeType {
 }
 
 impl TeeType {
+    /// Performs the name operation.
     pub fn name(&self) -> &str {
         match self {
             TeeType::IntelSGX => "Intel SGX",
@@ -42,6 +43,7 @@ impl TeeType {
         }
     }
 
+    /// Returns the hardware backed value.
     pub fn is_hardware_backed(&self) -> bool {
         !matches!(self, TeeType::SoftwareTEE)
     }
@@ -138,6 +140,7 @@ pub struct SecureEnclave {
 }
 
 impl SecureEnclave {
+    /// Creates a new instance with default configuration.
     pub fn new(enclave_id: String, tee_type: TeeType) -> Self {
         Self {
             enclave_id,
@@ -147,18 +150,22 @@ impl SecureEnclave {
         }
     }
 
+    /// Performs the id operation.
     pub fn id(&self) -> &str {
         &self.enclave_id
     }
 
+    /// Performs the tee type operation.
     pub fn tee_type(&self) -> TeeType {
         self.tee_type
     }
 
+    /// Returns the active value.
     pub fn is_active(&self) -> bool {
         self.is_active
     }
 
+    /// Performs the uptime operation.
     pub fn uptime(&self) -> std::time::Duration {
         self.created_at.elapsed()
     }
@@ -199,6 +206,7 @@ pub struct TeeManager {
 }
 
 impl TeeManager {
+    /// Creates a new instance with default configuration.
     pub fn new(config: TeeConfig) -> Result<Self> {
         let key = vec![0u8; 32]; // In production, this would be from secure hardware
         let cipher = Arc::new(Cipher::new(&key, CipherSuite::ChaCha20Poly1305)?);

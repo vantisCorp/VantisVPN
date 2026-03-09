@@ -67,6 +67,7 @@ pub struct ServerLocation {
 }
 
 impl ServerLocation {
+    /// Creates a new instance with default configuration.
     pub fn new(country: String, city: String, region: String, lat: f64, lon: f64) -> Self {
         Self {
             country,
@@ -191,6 +192,7 @@ pub struct VpnServer {
 }
 
 impl VpnServer {
+    /// Creates a new instance with default configuration.
     pub fn new(
         server_id: String,
         hostname: String,
@@ -211,16 +213,19 @@ impl VpnServer {
         }
     }
 
+    /// Returns the online value.
     pub fn is_online(&self) -> bool {
         self.status == ServerStatus::Online || self.status == ServerStatus::Degraded
     }
 
+    /// Returns the available value.
     pub fn is_available(&self) -> bool {
         self.is_online()
             && self.current_connections < self.capabilities.max_connections
             && self.load_percentage < 90.0
     }
 
+    /// Performs the capacity score operation.
     pub fn capacity_score(&self) -> f64 {
         if !self.is_available() {
             return 0.0;
@@ -373,6 +378,7 @@ pub struct ColocatedInfrastructureManager {
 }
 
 impl ColocatedInfrastructureManager {
+    /// Creates a new instance with default configuration.
     pub fn new(config: ColocatedConfig) -> Self {
         let stats = InfrastructureStats {
             total_servers: 0,

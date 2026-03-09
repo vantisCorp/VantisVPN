@@ -98,6 +98,7 @@ pub struct InterfaceConfig {
 }
 
 impl InterfaceConfig {
+    /// Creates a new instance with default configuration.
     pub fn new(private_key: [u8; 32], listen_port: u16, virtual_ip: Ipv6Addr) -> Result<Self> {
         let public_key = Self::derive_public_key(&private_key)?;
 
@@ -148,6 +149,7 @@ pub struct HandshakeInitiation {
 }
 
 impl HandshakeInitiation {
+    /// Serializes the data to bytes.
     pub fn serialize(&self) -> Vec<u8> {
         let mut buf = Vec::with_capacity(HANDSHAKE_INITIATION_SIZE);
         buf.push(self.message_type);
@@ -160,6 +162,7 @@ impl HandshakeInitiation {
         buf
     }
 
+    /// Deserializes the data from bytes.
     pub fn deserialize(data: &[u8]) -> Result<Self> {
         if data.len() != HANDSHAKE_INITIATION_SIZE {
             return Err(VantisError::InvalidPacket(
@@ -220,6 +223,7 @@ pub struct HandshakeResponse {
 }
 
 impl HandshakeResponse {
+    /// Serializes the data to bytes.
     pub fn serialize(&self) -> Vec<u8> {
         let mut buf = Vec::with_capacity(HANDSHAKE_RESPONSE_SIZE);
         buf.push(self.message_type);
@@ -232,6 +236,7 @@ impl HandshakeResponse {
         buf
     }
 
+    /// Deserializes the data from bytes.
     pub fn deserialize(data: &[u8]) -> Result<Self> {
         if data.len() != HANDSHAKE_RESPONSE_SIZE {
             return Err(VantisError::InvalidPacket(
@@ -286,6 +291,7 @@ pub struct CookieReply {
 }
 
 impl CookieReply {
+    /// Serializes the data to bytes.
     pub fn serialize(&self) -> Vec<u8> {
         let mut buf = Vec::with_capacity(COOKIE_REPLY_SIZE);
         buf.push(self.message_type);
@@ -295,6 +301,7 @@ impl CookieReply {
         buf
     }
 
+    /// Deserializes the data from bytes.
     pub fn deserialize(data: &[u8]) -> Result<Self> {
         if data.len() != COOKIE_REPLY_SIZE {
             return Err(VantisError::InvalidPacket(
@@ -335,6 +342,7 @@ pub struct TransportData {
 }
 
 impl TransportData {
+    /// Serializes the data to bytes.
     pub fn serialize(&self) -> Vec<u8> {
         let mut buf = Vec::with_capacity(MESSAGE_DATA_SIZE + self.data.len());
         buf.extend_from_slice(&self.receiver_index.to_le_bytes());
@@ -343,6 +351,7 @@ impl TransportData {
         buf
     }
 
+    /// Deserializes the data from bytes.
     pub fn deserialize(data: &[u8]) -> Result<Self> {
         if data.len() < MESSAGE_DATA_SIZE {
             return Err(VantisError::InvalidPacket(
@@ -377,6 +386,7 @@ pub struct ReplayWindow {
 }
 
 impl ReplayWindow {
+    /// Creates a new instance with default configuration.
     pub fn new() -> Self {
         Self {
             window: 0,
@@ -493,6 +503,7 @@ pub struct PeerStats {
 }
 
 impl PeerState {
+    /// Creates a new instance with default configuration.
     pub fn new(config: PeerConfig, index: u32) -> Self {
         Self {
             config,
@@ -509,10 +520,12 @@ impl PeerState {
         }
     }
 
+    /// Returns the established value.
     pub fn is_established(&self) -> bool {
         self.handshake_state == HandshakeState::Established && self.session_keys.is_some()
     }
 
+    /// Performs the needs rekey operation.
     pub fn needs_rekey(&self) -> bool {
         if let Some(keys) = &self.session_keys {
             keys.created_at.elapsed() > REKEY_TIMEOUT
@@ -521,12 +534,14 @@ impl PeerState {
         }
     }
 
+    /// Updates the stats sent state.
     pub fn update_stats_sent(&mut self, bytes: u64) {
         self.stats.bytes_sent += bytes;
         self.stats.packets_sent += 1;
         self.last_sent = Some(Instant::now());
     }
 
+    /// Updates the stats received state.
     pub fn update_stats_received(&mut self, bytes: u64) {
         self.stats.bytes_received += bytes;
         self.stats.packets_received += 1;

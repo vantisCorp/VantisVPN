@@ -32,6 +32,7 @@ pub enum FecAlgorithm {
 }
 
 impl FecAlgorithm {
+    /// Performs the name operation.
     pub fn name(&self) -> &str {
         match self {
             FecAlgorithm::ReedSolomon => "Reed-Solomon",
@@ -41,6 +42,7 @@ impl FecAlgorithm {
         }
     }
 
+    /// Performs the overhead ratio operation.
     pub fn overhead_ratio(&self) -> f64 {
         match self {
             FecAlgorithm::ReedSolomon => 0.2, // 20% overhead
@@ -52,6 +54,7 @@ impl FecAlgorithm {
 }
 
 impl FecConfig {
+    /// Performs the overhead ratio operation.
     pub fn overhead_ratio(&self) -> f64 {
         self.algorithm.overhead_ratio()
     }
@@ -130,6 +133,7 @@ pub struct FecBlock {
 }
 
 impl FecBlock {
+    /// Creates a new instance with default configuration.
     pub fn new(block_id: u64, data: Vec<u8>, parity: Vec<u8>) -> Self {
         Self {
             block_id,
@@ -139,6 +143,7 @@ impl FecBlock {
         }
     }
 
+    /// Performs the age operation.
     pub fn age(&self) -> std::time::Duration {
         self.timestamp.elapsed()
     }
@@ -197,6 +202,7 @@ pub struct FecEncoder {
 }
 
 impl FecEncoder {
+    /// Creates a new instance with default configuration.
     pub fn new(config: FecConfig) -> Self {
         let stats = FecStats {
             algorithm: config.algorithm,
@@ -354,6 +360,7 @@ pub struct FecDecoder {
 }
 
 impl FecDecoder {
+    /// Creates a new instance with default configuration.
     pub fn new(config: FecConfig) -> Self {
         let stats = FecStats {
             algorithm: config.algorithm,
@@ -504,6 +511,7 @@ pub struct FecManager {
 }
 
 impl FecManager {
+    /// Creates a new instance with default configuration.
     pub fn new(config: FecConfig) -> Self {
         let encoder = Arc::new(FecEncoder::new(config.clone()));
         let decoder = Arc::new(FecDecoder::new(config.clone()));

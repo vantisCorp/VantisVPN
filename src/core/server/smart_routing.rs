@@ -27,6 +27,7 @@ pub enum RoutingMetric {
 }
 
 impl RoutingMetric {
+    /// Performs the name operation.
     pub fn name(&self) -> &str {
         match self {
             RoutingMetric::Latency => "Latency",
@@ -65,6 +66,7 @@ pub struct NetworkPath {
 }
 
 impl NetworkPath {
+    /// Creates a new instance with default configuration.
     pub fn new(path_id: String, source: String, destination: String) -> Self {
         Self {
             path_id,
@@ -79,6 +81,7 @@ impl NetworkPath {
         }
     }
 
+    /// Calculates the score.
     pub fn calculate_score(&self, metric: RoutingMetric) -> f64 {
         match metric {
             RoutingMetric::Latency => {
@@ -185,7 +188,9 @@ pub struct RoutingStats {
     pub average_throughput_mbps: f64,
     /// Average reliability score across all paths
     pub average_reliability: f64,
+    /// Field value.
     pub path_switches: u64,
+    /// Field value.
     pub ml_model_updates: u64,
 }
 
@@ -195,9 +200,13 @@ pub struct RoutingStats {
 /// that predicts optimal network paths based on historical data.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MlWeights {
+    /// Field value.
     pub latency_weight: f64,
+    /// Field value.
     pub throughput_weight: f64,
+    /// Field value.
     pub reliability_weight: f64,
+    /// Field value.
     pub cost_weight: f64,
 }
 
@@ -226,6 +235,7 @@ pub struct SmartRoutingManager {
 }
 
 impl SmartRoutingManager {
+    /// Creates a new instance with default configuration.
     pub fn new(config: SmartRoutingConfig) -> Self {
         let stats = RoutingStats {
             total_decisions: 0,

@@ -84,8 +84,11 @@ impl Default for VaultConfig {
 /// including locked, unlocked, and migration states.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VaultState {
+    /// Variant option.
     Locked,
+    /// Variant option.
     Unlocked,
+    /// Variant option.
     LockedOut,
 }
 

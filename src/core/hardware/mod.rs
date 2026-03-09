@@ -1,8 +1,11 @@
 // VANTISVPN Hardware Ecosystem Module
 // Provides hardware integration and firmware components
 
+/// Router Os module.
 pub mod router_os;
+/// Vantis Os module.
 pub mod vantis_os;
+/// Yubikey module.
 pub mod yubikey;
 
 pub use router_os::{
