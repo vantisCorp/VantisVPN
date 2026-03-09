@@ -14,7 +14,7 @@
 # 🔴⬛ VANTISVPN ⬛🔴
 ## Sistema VPN Seguro de Nueva Generación con Criptografía Resistente a Cuántica y Arquitectura Zero Trust
 
-[![Version](https://img.shields.io/badge/version-1.1.0-red?style=for-the-badge)](https://github.com/vantisCorp/VantisVPN/releases)
+[![Version](https://img.shields.io/badge/version-1.2.0-red?style=for-the-badge)](https://github.com/vantisCorp/VantisVPN/releases)
 [![License](https://img.shields.io/badge/license-AGPL_v3_Commercial-black?style=for-the-badge)](LICENSE)
 [![CI/CD](https://img.shields.io/github/actions/workflow/status/vantisCorp/VantisVPN/ci.yml?branch=main&style=for-the-badge)](https://github.com/vantisCorp/VantisVPN/actions)
 [![Rust](https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=red)](https://www.rust-lang.org/)

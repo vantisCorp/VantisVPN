@@ -7,56 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-03-09
+
 ### Added
-- Dual licensing with commercial license option (LICENSES/COMMERCIAL_LICENSE.md)
-- License choice guide (LICENSES/LICENSE_CHOICE.md)
-- Monorepo architecture with Turborepo structure
-- World's most advanced README with extensive features
-- GPG signing configuration support
-- Gitleaks secrets scanning
-- Pre-commit hooks for code quality
-- DevContainers for consistent development environment
-- EditorConfig for consistent editor settings
-- Prettier configuration for Markdown formatting
-- ESLint configuration with TypeScript support
-- CITATION.cff for academic citations
-- Comprehensive Makefile with colored output
-- Dual licensing (AGPL v3)
-- Post-quantum cryptography feature flags (placeholders)
-- Hardware-level optimization feature flags
-- Support for ML-KEM and ML-DSA (NIST FIPS 203/204) - placeholders
+- Multilingual README translations for 8 languages: Polish, English, German, Chinese, Russian, Korean, Spanish, French
+- Clickable language badges in main README linking to translation files
+- Comprehensive documentation for all 252 public API items across 29 source files
+- `PROJECT_COMPLETION_PLAN.md` with full project analysis and phased completion roadmap
+- `.gitkeep` files in 11 empty placeholder directories to preserve monorepo structure
+- `.gitleaks.toml` now tracked in repository (was previously gitignored)
 
 ### Changed
-- **BREAKING**: Complete repository restructure from monolith to monorepo
-- **BREAKING**: Rust version updated from 1.70 to 1.82
-- **BREAKING**: Replaced unmaintained `bincode` with `postcard`
-- Tokio updated to 1.50.0 (latest)
-- Rand updated to 0.10.0 (latest stable)
-- Quinn updated to 0.11.9 (latest)
-- Serde updated to 1.0.228 (latest)
-- Thiserror updated to 2.0.18 (latest)
-- Getrandom updated to 0.4
-- Zeroize updated to 1.7 with zeroize_derive
-- Base64 updated to 0.22
-- License changed from "Proprietary" to "AGPL-3.0-or-later"
+- Docker base image updated from `rust:1.93-slim` to `rust:1.94-slim`
+- Version consistency enforced across all config files (CITATION.cff, package.json → 1.1.0)
+- CITATION.cff date corrected to 2026-03-04
+- README banner paths updated to `assets/banners/` directory
+- CI/CD Pipeline: CodeQL updated to v4, Discord notification made resilient
+- Dependencies updated via Dependabot (Rust crates, GitHub Actions, Docker)
+
+### Fixed
+- Removed orphan `&quot` file (454 lines of misnamed Rust source)
+- Removed duplicate `src/core/Cargo.lock` (workspace uses root Cargo.lock)
+- Removed duplicate banner SVGs from `assets/` (kept `assets/banners/`)
+- Removed orphan `src/css/custom.css`
+- Removed one-time fix script `fix_vpn_config_mtu.py`
+- Removed 8 temporary/debug files from repository root
+- Cleaned up 6 stale merged branches (local and remote)
+- Fixed broken README links (banners, translations, asciinema placeholder)
+- Commented out placeholder DOI in CITATION.cff
 
 ### Security
-- Added Gitleaks configuration for secrets detection
-- Configured pre-commit hooks for security scanning
-- Added post-quantum cryptography preparation
-- Zero Trust architecture documentation
-- Branch protection rules guidance
-- Private vulnerability reporting setup
+- All CI/CD workflows passing on main (CI/CD Pipeline, Security Scanning, Simple Test)
+- Branch protection enforced on main (required: lint, build, test)
+- Dependabot active for Rust crates, GitHub Actions, and Docker
+- Security scanning: CodeQL v4, Gitleaks, Trivy, cargo-audit
 
-### Deprecated
-- `bincode` crate (unmaintained) - replaced with `postcard`
+### Documentation
+- Zero `missing_docs` warnings (was 252)
+- All public structs, enums, constants, methods, and modules documented
+- Project completion plan with implementation status for all modules
+- 8 translated README files with full project overview
 
-### Removed
-- Old monolithic directory structure
-- Outdated dependency versions
-- Legacy build configurations
-
-## [1.1.0] - 2025-01-XX
+## [1.1.0] - 2026-03-04
 
 ### Added
 - Initial monorepo structure with apps/, packages/, infra/
