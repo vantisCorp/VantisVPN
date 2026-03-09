@@ -1,0 +1,252 @@
+# VantisVPN - Gitleaks Configuration
+# https://github.com/gitleaks/gitleaks
+
+title = "VantisVPN Gitleaks Configuration"
+
+[allowlist]
+description = "Global Allowlist"
+regexes = [
+    '''^.*\.git$''',
+    '''^.*\.md$''',
+    '''^.*\.txt$''',
+]
+
+[[rules]]
+description = "AWS Access Key"
+id = "aws-access-key"
+regex = '''(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}'''
+tags = ["key", "AWS"]
+
+[[rules]]
+description = "AWS Secret Key"
+id = "aws-secret-key"
+regex = '''(?i)aws.*\bsecret\s*=\s*['&quot;]?[0-9a-zA-Z\/+]{40}['&quot;]?'''
+tags = ["key", "AWS"]
+
+[[rules]]
+description = "AWS MWS Key"
+id = "aws-mws-key"
+regex = '''amzn\.mws\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'''
+tags = ["key", "AWS", "MWS"]
+
+[[rules]]
+description = "GitHub Token"
+id = "github-token"
+regex = '''ghp_[a-zA-Z0-9]{36}'''
+tags = ["key", "GitHub"]
+
+[[rules]]
+description = "GitHub OAuth Token"
+id = "github-oauth-token"
+regex = '''(gho|ghu|ghs|ghr)_[a-zA-Z0-9]{36}'''
+tags = ["key", "GitHub", "OAuth"]
+
+[[rules]]
+description = "GitHub App Token"
+id = "github-app-token"
+regex = '''(gha|ghb)_[a-zA-Z0-9]{36}'''
+tags = ["key", "GitHub", "App"]
+
+[[rules]]
+description = "GitHub Refresh Token"
+id = "github-refresh-token"
+regex = '''ghr_[a-zA-Z0-9]{36}'''
+tags = ["key", "GitHub", "Refresh"]
+
+[[rules]]
+description = "GitLab Token"
+id = "gitlab-token"
+regex = '''glpat-[a-zA-Z0-9_-]{20}'''
+tags = ["key", "GitLab", "PAT"]
+
+[[rules]]
+description = "Private Key"
+id = "private-key"
+regex = '''-----BEGIN ((RSA |EC |DSA |OPENSSH |PGP )?)PRIVATE KEY( BLOCK)?-----'''
+tags = ["key", "PEM"]
+
+[[rules]]
+description = "SSH Private Key"
+id = "ssh-private-key"
+regex = '''(?i)-----BEGIN[ A-Z0-9_-]{0,100}PRIVATE KEY( BLOCK)?-----'''
+tags = ["key", "SSH", "PEM"]
+
+[[rules]]
+description = "PKCS8 Private Key"
+id = "pkcs8-private-key"
+regex = '''-----BEGIN PRIVATE KEY-----'''
+tags = ["key", "PKCS8"]
+
+[[rules]]
+description = "Slack Token"
+id = "slack-token"
+regex = '''xox[baprs]-[a-zA-Z0-9-]+'''
+tags = ["key", "Slack"]
+
+[[rules]]
+description = "Slack Webhook"
+id = "slack-webhook"
+regex = '''https://hooks\.slack\.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}'''
+tags = ["webhook", "Slack"]
+
+[[rules]]
+description = "Stripe API Key"
+id = "stripe-api-key"
+regex = '''(?i)stripe\s*(?:['&quot;]?[0-9a-z]{32,}['&quot;]?)'''
+tags = ["key", "Stripe"]
+
+[[rules]]
+description = "Discord Token"
+id = "discord-token"
+regex = '''(mfa\.)?[a-zA-Z0-9_-]{23,28}\.[a-zA-Z0-9_-]{6,7}\.[a-zA-Z0-9_-]{27}'''
+tags = ["key", "Discord"]
+
+[[rules]]
+description = "Discord Webhook"
+id = "discord-webhook"
+regex = '''https://discord(?:app)?\.com/api/webhooks/[0-9]{17,21}/[a-zA-Z0-9_-]{68}'''
+tags = ["webhook", "Discord"]
+
+[[rules]]
+description = "Google Cloud Platform API Key"
+id = "gcp-api-key"
+regex = '''AIza[A-Za-z0-9\-_]{35}'''
+tags = ["key", "GCP"]
+
+[[rules]]
+description = "Google Cloud Platform OAuth"
+id = "gcp-oauth"
+regex = '''[0-9]+-[a-zA-Z0-9_]{32}\.apps\.googleusercontent\.com'''
+tags = ["key", "GCP", "OAuth"]
+
+[[rules]]
+description = "Google Cloud Platform Service Account"
+id = "gcp-service-account"
+regex = '''"type": "service_account"'''
+tags = ["key", "GCP", "ServiceAccount"]
+
+[[rules]]
+description = "Heroku API Key"
+id = "heroku-api-key"
+regex = '''[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'''
+tags = ["key", "Heroku"]
+
+[[rules]]
+description = "Mailchimp API Key"
+id = "mailchimp-api-key"
+regex = '''[0-9a-f]{32}-us[0-9]{1,2}'''
+tags = ["key", "Mailchimp"]
+
+[[rules]]
+description = "PayPal Braintree Access Token"
+id = "paypal-braintree-token"
+regex = '''access_token\$production\$[0-9a-z]{16}\$[0-9a-f]{32}'''
+tags = ["key", "PayPal", "Braintree"]
+
+[[rules]]
+description = "Picatic API Key"
+id = "picatic-api-key"
+regex = '''sk_live_[0-9a-z]{32}'''
+tags = ["key", "Picatic"]
+
+[[rules]]
+description = "SendGrid API Key"
+id = "sendgrid-api-key"
+regex = '''SG\.[a-zA-Z0-9_-]{22}\.[a-zA-Z0-9_-]{43}'''
+tags = ["key", "SendGrid"]
+
+[[rules]]
+description = "Twilio API Key"
+id = "twilio-api-key"
+regex = '''SK[0-9a-fA-F]{32}'''
+tags = ["key", "Twilio"]
+
+[[rules]]
+description = "Square Access Token"
+id = "square-access-token"
+regex = '''sq0atp-[0-9A-Za-z\-_]{22}'''
+tags = ["key", "Square"]
+
+[[rules]]
+description = "Square OAuth Secret"
+id = "square-oauth-secret"
+regex = '''sq0csp-[0-9A-Za-z\-_]{43}'''
+tags = ["key", "Square", "OAuth"]
+
+[[rules]]
+description = "New Relic Browser API Key"
+id = "newrelic-browser-api-key"
+regex = '''[a-zA-Z0-9]{40}'''
+tags = ["key", "NewRelic", "Browser"]
+
+[[rules]]
+description = "New Relic User API Key"
+id = "newrelic-user-api-key"
+regex = '''NRAK-[a-zA-Z0-9]{27}'''
+tags = ["key", "NewRelic", "User"]
+
+[[rules]]
+description = "New Relic Insights Query Key"
+id = "newrelic-insights-query-key"
+regex = '''NRIQ-[a-zA-Z0-9]{27}'''
+tags = ["key", "NewRelic", "Insights"]
+
+[[rules]]
+description = "Atlassian API Token"
+id = "atlassian-api-token"
+regex = '''(?i)atlassian['&quot;][\s]{0,50}['&quot;]?[a-zA-Z0-9]{24}'''
+tags = ["key", "Atlassian"]
+
+[[rules]]
+description = "Bitbucket Client ID"
+id = "bitbucket-client-id"
+regex = '''(?i)client[_-]?id['&quot;][\s]{0,50}['&quot;]?[a-zA-Z0-9_-]{32}'''
+tags = ["key", "Bitbucket", "ClientID"]
+
+[[rules]]
+description = "Bitbucket Client Secret"
+id = "bitbucket-client-secret"
+regex = '''(?i)client[_-]?secret['&quot;][\s]{0,50}['&quot;]?[a-zA-Z0-9_\-]{64}'''
+tags = ["key", "Bitbucket", "ClientSecret"]
+
+[[rules]]
+description = "npm Access Token"
+id = "npm-access-token"
+regex = '''npm_[a-zA-Z0-9]{36}'''
+tags = ["key", "npm", "AccessToken"]
+
+[[rules]]
+description = "PyPI Upload Token"
+id = "pypi-upload-token"
+regex = '''pypi-[a-zA-Z0-9_-]{20}:[a-zA-Z0-9_-]{20}'''
+tags = ["key", "PyPI", "Upload"]
+
+[[rules]]
+description = "Azure Storage Account Key"
+id = "azure-storage-account-key"
+regex = '''AccountKey=[a-zA-Z0-9+/]{88}=='''
+tags = ["key", "Azure", "Storage"]
+
+[[rules]]
+description = "Azure Subscription ID"
+id = "azure-subscription-id"
+regex = '''[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'''
+tags = ["key", "Azure", "Subscription"]
+
+[[rules]]
+description = "General Secret"
+id = "general-secret"
+regex = '''(?i)(secret|password|passwd|pwd|api_key|apikey|access_token|auth_token|private_key|privatekey|secret_key|secretkey|client_secret|clientsecret|client_id|clientid|authkey)\s*[:=]\s*['&quot;]?[a-zA-Z0-9_\-\.]{16,}['&quot;]?'''
+tags = ["key", "Generic"]
+
+[[rules]]
+description = "Email Address"
+id = "email"
+regex = '''[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'''
+tags = ["email"]
+
+[[rules]]
+description = "IP Address"
+id = "ip-address"
+regex = '''\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b'''
+tags = ["ip"]
