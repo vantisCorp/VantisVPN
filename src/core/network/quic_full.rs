@@ -23,18 +23,29 @@ use tokio::net::UdpSocket;
 use tokio::sync::{Mutex, RwLock};
 
 // QUIC Constants
+/// Protocol version identifier.
 pub const QUIC_VERSION: u32 = 0x00000001;
+/// Maximum packet/frame size in bytes.
 pub const MAX_PACKET_SIZE: usize = 1350;
+/// Configuration constant for initial stream data limited.
 pub const INITIAL_STREAM_DATA_LIMITED: u64 = 64 * 1024;
+/// Maximum number of concurrent streams.
 pub const MAX_STREAMS_BIDI: u64 = 100;
+/// Maximum number of concurrent streams.
 pub const MAX_STREAMS_UNI: u64 = 100;
+/// Connection timeout duration.
 pub const IDLE_TIMEOUT: Duration = Duration::from_secs(30);
+/// Maximum acknowledgment delay.
 pub const MAX_ACK_DELAY: Duration = Duration::from_millis(25);
+/// Initial round-trip time estimate.
 pub const INITIAL_RTT: Duration = Duration::from_millis(100);
 
 // HTTP/3 Constants
+/// ALPN protocol identifier.
 pub const HTTP3_ALPN: &[u8] = b"h3";
+/// Maximum packet/frame size in bytes.
 pub const DEFAULT_MAX_FRAME_SIZE: u64 = 16384;
+/// Header table size configuration.
 pub const DEFAULT_HEADER_TABLE_SIZE: u64 = 4096;
 
 /// QUIC packet type according to RFC 9000
@@ -56,6 +67,7 @@ pub enum QuicPacketType {
 }
 
 impl QuicPacketType {
+    /// Creates an instance from byte.
     pub fn from_byte(byte: u8) -> Option<Self> {
         match byte & 0xF0 {
             0xC0 => Some(Self::Initial),
@@ -66,6 +78,7 @@ impl QuicPacketType {
         }
     }
 
+    /// Converts to byte representation.
     pub fn to_byte(&self) -> u8 {
         match self {
             Self::Initial => 0xC0,
@@ -90,6 +103,7 @@ pub enum StreamType {
 }
 
 impl StreamType {
+    /// Creates an instance from id.
     pub fn from_id(stream_id: u64) -> Self {
         if stream_id % 2 == 0 {
             Self::Bidirectional
@@ -205,6 +219,7 @@ pub struct QuicPacketHeader {
 }
 
 impl QuicPacketHeader {
+    /// Serializes the data to bytes.
     pub fn serialize(&self) -> Vec<u8> {
         let mut buf = Vec::new();
 
@@ -250,6 +265,7 @@ impl QuicPacketHeader {
         buf
     }
 
+    /// Deserializes the data from bytes.
     pub fn deserialize(data: &[u8]) -> Result<Self> {
         if data.is_empty() {
             return Err(VantisError::InvalidPacket("Empty packet".into()));
@@ -524,6 +540,7 @@ pub enum QuicFrame {
 }
 
 impl QuicFrame {
+    /// Serializes the data to bytes.
     pub fn serialize(&self) -> Vec<u8> {
         let mut buf = Vec::new();
 
@@ -705,6 +722,7 @@ pub struct QuicStream {
 }
 
 impl QuicStream {
+    /// Creates a new instance with default configuration.
     pub fn new(stream_id: u64, max_stream_data: u64) -> Self {
         let stream_type = StreamType::from_id(stream_id);
 
@@ -721,14 +739,17 @@ impl QuicStream {
         }
     }
 
+    /// Returns the open value.
     pub fn is_open(&self) -> bool {
         self.state == StreamState::Open
     }
 
+    /// Performs the can send operation.
     pub fn can_send(&self) -> bool {
         self.state == StreamState::Open && self.send_offset < self.max_stream_data
     }
 
+    /// Performs the can receive operation.
     pub fn can_receive(&self) -> bool {
         self.state == StreamState::Open || self.state == StreamState::Closed
     }
@@ -776,6 +797,7 @@ pub enum BbrState {
 }
 
 impl Bbrv3State {
+    /// Creates a new instance with default configuration.
     pub fn new(initial_rtt: Duration) -> Self {
         Self {
             bandwidth: 0,
@@ -789,6 +811,7 @@ impl Bbrv3State {
         }
     }
 
+    /// Updates the update state.
     pub fn update(&mut self, bytes_acked: u64, rtt_sample: Duration) {
         self.rtt = rtt_sample;
 
@@ -907,6 +930,7 @@ pub struct ConnectionStats {
 }
 
 impl QuicConnection {
+    /// Creates a new instance with default configuration.
     pub fn new(
         connection_id: Vec<u8>,
         peer_connection_id: Vec<u8>,
@@ -934,6 +958,7 @@ impl QuicConnection {
         })
     }
 
+    /// Performs the open stream operation.
     pub async fn open_stream(&self, stream_type: StreamType) -> Result<u64> {
         let streams = self.streams.read().await;
         let stream_id = streams.len() as u64 * 2
@@ -957,6 +982,7 @@ impl QuicConnection {
         Ok(stream_id)
     }
 
+    /// Sends data to the remote endpoint.
     pub async fn send_stream_data(&self, stream_id: u64, data: &[u8]) -> Result<()> {
         let streams = self.streams.read().await;
         let stream = streams
@@ -978,6 +1004,7 @@ impl QuicConnection {
         Ok(())
     }
 
+    /// Receives data from the remote endpoint.
     pub async fn receive_stream_data(&self, stream_id: u64) -> Result<Vec<u8>> {
         let streams = self.streams.read().await;
         let stream = streams
@@ -999,6 +1026,7 @@ impl QuicConnection {
         Ok(data)
     }
 
+    /// Stops the operation and cleans up resources.
     pub async fn close_stream(&self, stream_id: u64) -> Result<()> {
         let mut streams = self.streams.write().await;
         if let Some(stream) = streams.get_mut(&stream_id) {
@@ -1013,10 +1041,12 @@ impl QuicConnection {
         Ok(())
     }
 
+    /// Returns the established value.
     pub async fn is_established(&self) -> bool {
         self.state == ConnectionState::Established
     }
 
+    /// Returns the statistics value.
     pub async fn get_statistics(&self) -> ConnectionStats {
         let stats = self.statistics.lock().await;
         stats.clone()
@@ -1046,6 +1076,7 @@ pub struct QuicEndpoint {
 }
 
 impl QuicEndpoint {
+    /// Creates a new instance with default configuration.
     pub async fn new(listen_addr: SocketAddr, config: QuicConfig) -> Result<Self> {
         let socket = UdpSocket::bind(listen_addr).await?;
         let key = vec![0u8; 32];
@@ -1064,6 +1095,7 @@ impl QuicEndpoint {
         })
     }
 
+    /// Starts the operation.
     pub async fn start(&self) -> Result<()> {
         let mut running = self.running.lock().await;
         *running = true;
@@ -1076,6 +1108,7 @@ impl QuicEndpoint {
         Ok(())
     }
 
+    /// Stops the operation and cleans up resources.
     pub async fn stop(&self) -> Result<()> {
         let mut running = self.running.lock().await;
         *running = false;
@@ -1177,6 +1210,7 @@ impl QuicEndpoint {
         Ok(())
     }
 
+    /// Sends data to the remote endpoint.
     pub async fn send_packet(&self, connection: &QuicConnection, packet: &[u8]) -> Result<()> {
         // Update statistics
         let mut stats = connection.statistics.lock().await;

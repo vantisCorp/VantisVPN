@@ -924,9 +924,13 @@ impl Default for RouterFirmwareBuilder {
 /// QoS priority levels
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum QosPriority {
+    /// Variant option.
     Low,
+    /// Variant option.
     Medium,
+    /// Variant option.
     High,
+    /// Variant option.
     Critical,
 }
 

@@ -10,12 +10,16 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Multihop module.
 pub mod multihop;
 pub mod protocol;
 pub mod quic;
+/// Quic Full module.
 pub mod quic_full;
+/// Stealth module.
 pub mod stealth;
 pub mod wireguard;
+/// Wireguard Full module.
 pub mod wireguard_full;
 
 /// Supported IP protocol versions

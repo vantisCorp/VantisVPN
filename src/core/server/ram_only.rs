@@ -85,6 +85,7 @@ pub struct SessionData {
 }
 
 impl SessionData {
+    /// Creates a new instance with default configuration.
     pub fn new(session_id: String, user_id: String) -> Self {
         let now = Instant::now();
         Self {
@@ -98,18 +99,22 @@ impl SessionData {
         }
     }
 
+    /// Returns the expired value.
     pub fn is_expired(&self, timeout_secs: u64) -> bool {
         self.last_activity.elapsed() > Duration::from_secs(timeout_secs)
     }
 
+    /// Updates the activity state.
     pub fn update_activity(&mut self) {
         self.last_activity = Instant::now();
     }
 
+    /// Adds a bytes sent entry.
     pub fn add_bytes_sent(&mut self, bytes: u64) {
         self.bytes_sent += bytes;
     }
 
+    /// Adds a bytes received entry.
     pub fn add_bytes_received(&mut self, bytes: u64) {
         self.bytes_received += bytes;
     }
@@ -156,6 +161,7 @@ pub struct RamOnlyServer {
 }
 
 impl RamOnlyServer {
+    /// Creates a new instance with default configuration.
     pub fn new(config: RamOnlyConfig) -> Self {
         let memory_stats = MemoryStats {
             total_memory_mb: config.max_memory_mb,

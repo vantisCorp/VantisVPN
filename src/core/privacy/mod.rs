@@ -1,10 +1,15 @@
 // Privacy Module - Privacy & Identity Management
 // Phase 5: Privacy & Identity Management
 
+/// Anonymous Payments module.
 pub mod anonymous_payments;
+/// Avantis Id module.
 pub mod avantis_id;
+/// Gdpr Compliance module.
 pub mod gdpr_compliance;
+/// Ip Rotator module.
 pub mod ip_rotator;
+/// Zk Login module.
 pub mod zk_login;
 
 #[cfg(test)]

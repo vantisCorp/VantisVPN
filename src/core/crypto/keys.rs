@@ -152,6 +152,7 @@ impl Drop for EphemeralKeyPair {
 pub struct PrivateKey([u8; PRIVATE_KEY_SIZE]);
 
 impl PrivateKey {
+    /// Creates a new instance with default configuration.
     pub fn new(bytes: [u8; PRIVATE_KEY_SIZE]) -> Self {
         Self(bytes)
     }
@@ -169,6 +170,7 @@ impl AsRef<[u8]> for PrivateKey {
 }
 
 impl PrivateKey {
+    /// Performs the zeroize operation.
     pub fn zeroize(&mut self) {
         self.0.fill(0);
     }
@@ -187,6 +189,7 @@ impl Drop for PrivateKey {
 pub struct PublicKey([u8; PUBLIC_KEY_SIZE]);
 
 impl PublicKey {
+    /// Creates a new instance with default configuration.
     pub fn new(bytes: [u8; PUBLIC_KEY_SIZE]) -> Self {
         Self(bytes)
     }

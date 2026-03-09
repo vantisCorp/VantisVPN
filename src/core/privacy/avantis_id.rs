@@ -72,6 +72,7 @@ pub struct DigitalIdentity {
 }
 
 impl DigitalIdentity {
+    /// Creates a new instance with default configuration.
     pub fn new(
         identity_id: String,
         identity_type: IdentityType,
@@ -96,6 +97,7 @@ impl DigitalIdentity {
         }
     }
 
+    /// Returns the expired value.
     pub fn is_expired(&self) -> bool {
         if let Some(expires_at) = self.expires_at {
             return Utc::now() > expires_at;
@@ -103,6 +105,7 @@ impl DigitalIdentity {
         false
     }
 
+    /// Generates proof.
     pub fn generate_proof(&self) -> IdentityProof {
         let hash = Hash::new().unwrap();
         let commitment = hash.compute(&self.public_key).unwrap();
@@ -192,6 +195,7 @@ pub struct AvantisIdManager {
 }
 
 impl AvantisIdManager {
+    /// Creates a new instance with default configuration.
     pub fn new(config: AvantisIdConfig) -> Result<Self> {
         let rng = SecureRandom::new()?;
 
