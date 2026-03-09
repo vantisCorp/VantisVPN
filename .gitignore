@@ -197,7 +197,6 @@ pnpm-lock.yaml
 bun.lockb
 
 # ============== SECURITY ==============
-.gitleaks.toml
 .secrets.baseline
 .secrets.report
 
@@ -218,10 +217,15 @@ helm
 # ============== CI/CD ==============
 .github/workflows/*.local.yml
 .gitlab-ci.local.yml
-# Ninja agent temporary files
+
+# ============== AGENT/TEMP FILES ==============
+todo.md
 test_output.txt
+test_results.txt
+build_output.txt
+check.txt
+repo_structure.txt
 _superninja_startup.conf
 *.agent_session
-test_results.txt
 summarized_conversations/
 outputs/

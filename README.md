@@ -10,8 +10,8 @@
 <!-- ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════ -->
 
 <!-- WORLD'S MOST ADVANCED BANNER -->
-<img src="https://raw.githubusercontent.com/vantisCorp/VantisVPN/main/assets/banner-dark.svg#gh-dark-mode-only" alt="VantisVPN Dark Banner" width="100%"/>
-<img src="https://raw.githubusercontent.com/vantisCorp/VantisVPN/main/assets/banner-light.svg#gh-light-mode-only" alt="VantisVPN Light Banner" width="100%"/>
+<img src="https://raw.githubusercontent.com/vantisCorp/VantisVPN/main/assets/banners/vantisvpn-banner-dark.svg#gh-dark-mode-only" alt="VantisVPN Dark Banner" width="100%"/>
+<img src="https://raw.githubusercontent.com/vantisCorp/VantisVPN/main/assets/banners/vantisvpn-banner-light.svg#gh-light-mode-only" alt="VantisVPN Light Banner" width="100%"/>
 
 <!-- ANIMATED TYPING TEXT -->
 <a href="https://github.com/vantisCorp/VantisVPN/stargazers">
@@ -142,14 +142,15 @@
 
 # 🌐 Select Your Language / Wybierz Język / Wählen Sie Ihre Sprache / 选择您的语言 / Выберите язык / 언어 선택 / Elige tu idioma / Choisissez votre langue
 
-[![Polish](https://img.shields.io/badge/🇵🇱-Polski-red?style=for-the-badge)](README.pl.md)
-[![English](https://img.shields.io/badge/🇬🇧-English-black?style=for-the-badge)](README.en.md)
-[![German](https://img.shields.io/badge/🇩🇪-Deutsch-red?style=for-the-badge)](README.de.md)
-[![Chinese](https://img.shields.io/badge/🇨🇳-中文-black?style=for-the-badge)](README.zh.md)
-[![Russian](https://img.shields.io/badge/🇷🇺-Русский-red?style=for-the-badge)](README.ru.md)
-[![Korean](https://img.shields.io/badge/🇰🇷-한국어-black?style=for-the-badge)](README.ko.md)
-[![Spanish](https://img.shields.io/badge/🇪🇸-Español-red?style=for-the-badge)](README.es.md)
-[![French](https://img.shields.io/badge/🇫🇷-Français-black?style=for-the-badge)](README.fr.md)
+<!-- TODO: Translation files will be added in a future release -->
+![Polish](https://img.shields.io/badge/🇵🇱-Polski-red?style=for-the-badge)
+![English](https://img.shields.io/badge/🇬🇧-English-black?style=for-the-badge)
+![German](https://img.shields.io/badge/🇩🇪-Deutsch-red?style=for-the-badge)
+![Chinese](https://img.shields.io/badge/🇨🇳-中文-black?style=for-the-badge)
+![Russian](https://img.shields.io/badge/🇷🇺-Русский-red?style=for-the-badge)
+![Korean](https://img.shields.io/badge/🇰🇷-한국어-black?style=for-the-badge)
+![Spanish](https://img.shields.io/badge/🇪🇸-Español-red?style=for-the-badge)
+![French](https://img.shields.io/badge/🇫🇷-Français-black?style=for-the-badge)
 
 ---
 
@@ -254,7 +255,8 @@ vantisvpn test
 <details>
 <summary><h4>🎬 Watch Demo in Terminal</h4></summary>
 
-[![asciicast](https://asciinema.org/a/000000.svg)](https://asciinema.org/a/000000)
+<!-- TODO: Add asciinema recording -->
+<!-- [![asciicast](https://asciinema.org/a/000000.svg)](https://asciinema.org/a/000000) -->
 
 **What you'll see:**
 - Installation process

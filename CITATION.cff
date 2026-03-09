@@ -1,9 +1,9 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "VantisVPN"
-version: 2.0.0
-doi: 10.5281/zenodo.0000000
-date-released: 2024-03-01
+version: 1.1.0
+# doi: 10.5281/zenodo.0000000  # TODO: Add real DOI when published
+date-released: 2026-03-04
 url: "https://github.com/vantisCorp/VantisVPN"
 abstract: "Next-Generation Quantum-Resistant Secure VPN System with Zero Trust Architecture. VantisVPN provides military-grade security with post-quantum cryptography, QUIC protocol support, and comprehensive privacy features."
 authors:
