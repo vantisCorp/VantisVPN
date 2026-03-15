@@ -1,0 +1,1 @@
+{"crate_name":"vantis-core","dependencies":[{"name":"embedded-io","project":"0.4.0","compat":"0.6.1","latest":"0.6.1","kind":"Normal","platform":null}]}
