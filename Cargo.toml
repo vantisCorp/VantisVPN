@@ -22,7 +22,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 vantis-core = { path = "src/core" }
 
 # Async runtime
-tokio = { version = "1.50", features = ["full"] }
+tokio = { version = "1.52", features = ["full"] }
 async-trait = "0.1"
 
 # Serialization
@@ -40,7 +40,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 log = "0.4"
 
 # Utilities
-uuid = { version = "1.6", features = ["v4", "serde"] }
+uuid = { version = "1.23", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 hex = "0.4"
 base64 = "0.22"
@@ -66,7 +66,7 @@ http = "1.0"
 
 # Testing
 criterion = "0.8"
-proptest = "1.4"
+proptest = "1.11"
 
 [profile.release]
 opt-level = 3
